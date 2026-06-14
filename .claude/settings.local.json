@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(php -v)",
+      "Bash(composer --version)",
+      "Read(//private/tmp/**)",
+      "Bash(composer show *)",
+      "Bash(curl -s https://repo.packagist.org/p2/filament/filament.json)",
+      "Bash(php -r '$d=json_decode\\(file_get_contents\\(\"php://stdin\"\\),true\\); foreach\\($d[\"packages\"][\"filament/filament\"] as $v\\){ if\\(strpos\\($v[\"version\"],\"v5.6.7\"\\)===0\\){ echo \"filament \".$v[\"version\"].\" requires laravel/framework: \".\\($v[\"require\"][\"laravel/framework\"]??\"n/a\"\\).\"\\\\n\"; } }')"
+    ]
+  }
+}
