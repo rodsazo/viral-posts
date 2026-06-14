@@ -24,6 +24,14 @@ class WinningIdeaForm
                 TextInput::make('viral_mechanism')
                     ->label('Mecanismo de viralidad')
                     ->maxLength(255),
+                Select::make('heras_template_id')
+                    ->label('Plantilla Heras')
+                    ->relationship('herasTemplate', 'name') // global, sin escopar a la marca
+                    ->getOptionLabelFromRecordUsing(fn ($record) => $record->display_name)
+                    ->searchable()
+                    ->preload()
+                    ->placeholder('Sin plantilla')
+                    ->columnSpanFull(),
                 Textarea::make('concept')
                     ->label('Concepto')
                     ->required()

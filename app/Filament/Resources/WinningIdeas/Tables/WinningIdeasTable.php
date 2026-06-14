@@ -25,6 +25,11 @@ class WinningIdeasTable
                     ->badge()
                     ->placeholder('—')
                     ->toggleable(),
+                TextColumn::make('herasTemplate.number')
+                    ->label('Plantilla')
+                    ->formatStateUsing(fn ($state) => $state ? "#{$state}" : null)
+                    ->placeholder('—')
+                    ->toggleable(),
                 TextColumn::make('questions_count')
                     ->label('Preguntas')
                     ->counts('questions')

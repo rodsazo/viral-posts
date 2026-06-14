@@ -17,6 +17,7 @@ class WinningIdea extends Model
 
     protected $fillable = [
         'account_id',
+        'heras_template_id',
         'title',
         'concept',
         'viral_mechanism',
@@ -25,6 +26,11 @@ class WinningIdea extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function herasTemplate(): BelongsTo
+    {
+        return $this->belongsTo(HerasTemplate::class);
     }
 
     public function questions(): BelongsToMany

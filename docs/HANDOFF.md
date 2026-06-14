@@ -175,7 +175,7 @@ HerasTemplate [global, P1; seed con las 30 plantillas]
 
 1. **Formato:** enum PHP (resuelto para v1). Tabla `formats` editable → P1.
 2. **Categorías:** por marca (resuelto).
-3. **HerasTemplate:** pospuesto a P1.
+3. **HerasTemplate:** ✅ implementado (P1) como catálogo global editable, con 30 plantillas placeholder y relación opcional desde Idea. Contenido real pendiente de rellenar desde el panel.
 4. **CTA:** texto libre dentro del guión (v1). Lista controlada → P2.
 5. **¿Pieza sin idea?** Sí, FK `winning_idea_id` **nullable** (resuelto). La cascada queda vacía en ese caso.
 6. **Multi-usuario/roles:** no en v1; `account_user` listo para no migrar después.

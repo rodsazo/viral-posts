@@ -10,6 +10,7 @@ use App\Models\Account;
 use App\Models\Belief;
 use App\Models\Category;
 use App\Models\ContentPiece;
+use App\Models\HerasTemplate;
 use App\Models\IdealFollower;
 use App\Models\Question;
 use App\Models\User;
@@ -24,6 +25,9 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        // Catálogo global de plantillas Heras (compartido por todas las marcas).
+        $this->call(HerasTemplateSeeder::class);
+
         $user = User::firstOrCreate(
             ['email' => 'rodsazo@gmail.com'],
             ['name' => 'El Rod', 'password' => Hash::make('password')],
@@ -99,6 +103,7 @@ class DatabaseSeeder extends Seeder
         // --- Idea ganadora + relación N:M con preguntas (alimenta el multi-salto) ---
         $idea = WinningIdea::create([
             'account_id' => $account->id,
+            'heras_template_id' => HerasTemplate::where('number', 1)->value('id'),
             'title' => 'Tu primera partida en 10 minutos',
             'concept' => 'Desmontar el mito de la dificultad mostrando una partida real arrancando de cero con amigos.',
             'viral_mechanism' => 'Sorpresa / mito vs realidad',

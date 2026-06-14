@@ -21,6 +21,9 @@ class WinningIdeaInfolist
                         TextEntry::make('viral_mechanism')
                             ->label('Mecanismo de viralidad')
                             ->placeholder('—'),
+                        TextEntry::make('herasTemplate.display_name')
+                            ->label('Plantilla Heras')
+                            ->placeholder('Sin plantilla'),
                         TextEntry::make('concept')
                             ->label('Concepto')
                             ->columnSpanFull(),
