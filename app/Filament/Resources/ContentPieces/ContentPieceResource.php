@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\ContentPieces;
 
+use App\Enums\ContentStatus;
 use App\Filament\Resources\ContentPieces\Pages\CreateContentPiece;
 use App\Filament\Resources\ContentPieces\Pages\EditContentPiece;
 use App\Filament\Resources\ContentPieces\Pages\ListContentPieces;
@@ -15,6 +16,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class ContentPieceResource extends Resource
 {
@@ -35,6 +38,39 @@ class ContentPieceResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['title', 'hook', 'cta'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Estado' => $record->status?->getLabel(),
+            'Idea' => $record->winningIdea?->title ?? 'Pieza suelta',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with('winningIdea');
+    }
+
+    /** Piezas aún en producción (sin publicar): el pipeline activo de un vistazo. */
+    public static function getNavigationBadge(): ?string
+    {
+        $count = static::getEloquentQuery()
+            ->where('status', '!=', ContentStatus::Publicada->value)
+            ->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'warning';
+    }
+
+    public static function getNavigationBadgeTooltip(): ?string
+    {
+        return 'Piezas en producción (sin publicar)';
     }
 
     public static function form(Schema $schema): Schema

@@ -19,6 +19,7 @@ class QuestionsTable
         $scopeToTenant = fn (Builder $query) => $query->whereBelongsTo(Filament::getTenant());
 
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 TextColumn::make('body')
                     ->label('Pregunta')
@@ -47,6 +48,9 @@ class QuestionsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->emptyStateHeading('Aún no hay preguntas')
+            ->emptyStateDescription('Registra las dudas reales de tu audiencia: son la materia prima del contenido.')
+            ->emptyStateIcon('heroicon-o-question-mark-circle')
             ->filters([
                 // Criterio B4: filtrar preguntas por Seguidor Ideal y por Categoría.
                 SelectFilter::make('ideal_follower_id')

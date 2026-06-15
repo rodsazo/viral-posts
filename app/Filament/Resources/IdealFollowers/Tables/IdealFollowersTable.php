@@ -15,6 +15,7 @@ class IdealFollowersTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('name')
             ->columns([
                 TextColumn::make('name')
                     ->label('Perfil')
@@ -33,6 +34,9 @@ class IdealFollowersTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->emptyStateHeading('Aún no hay seguidores ideales')
+            ->emptyStateDescription('Define a quién le hablas: crea tu primer perfil de audiencia.')
+            ->emptyStateIcon('heroicon-o-users')
             ->filters([
                 TernaryFilter::make('questions')
                     ->label('Preguntas')

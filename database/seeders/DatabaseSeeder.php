@@ -4,8 +4,10 @@ namespace Database\Seeders;
 
 use App\Enums\BeliefType;
 use App\Enums\ContentFormat;
+use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
+use App\Enums\ViralMechanism;
 use App\Models\Account;
 use App\Models\Belief;
 use App\Models\Category;
@@ -106,7 +108,8 @@ class DatabaseSeeder extends Seeder
             'heras_template_id' => HerasTemplate::where('number', 1)->value('id'),
             'title' => 'Tu primera partida en 10 minutos',
             'concept' => 'Desmontar el mito de la dificultad mostrando una partida real arrancando de cero con amigos.',
-            'viral_mechanism' => 'Sorpresa / mito vs realidad',
+            'viral_mechanism' => ViralMechanism::Sorpresa,
+            'reference_url' => 'https://www.instagram.com/reel/ejemplo-viral/',
         ]);
         $idea->questions()->attach([$q1->id, $q3->id]);
 
@@ -114,7 +117,7 @@ class DatabaseSeeder extends Seeder
             'account_id' => $account->id,
             'title' => 'Solicita un GM y juega esta semana',
             'concept' => 'Para grupos sin máster: cómo conseguir un GM en MesasRoleras y jugar ya.',
-            'viral_mechanism' => 'Solución directa a una objeción',
+            'viral_mechanism' => ViralMechanism::Utilidad,
         ]);
         $idea2->questions()->attach([$q2->id]);
 
@@ -123,6 +126,7 @@ class DatabaseSeeder extends Seeder
             'account_id' => $account->id,
             'winning_idea_id' => $idea->id,
             'title' => 'Reel: enseñamos a 3 amigos en 10 min',
+            'objective' => ContentObjective::Viralidad,
             'format' => ContentFormat::DocumentalReto,
             'status' => ContentStatus::GuionListo,
             'hook' => '"El rol es dificilísimo"... les puse a jugar sin leer nada.',
@@ -135,11 +139,13 @@ class DatabaseSeeder extends Seeder
             'account_id' => $account->id,
             'winning_idea_id' => $idea2->id,
             'title' => 'Vídeo: cómo solicitar un GM',
+            'objective' => ContentObjective::Venta,
             'format' => ContentFormat::HablandoACamara,
             'status' => ContentStatus::Publicada,
             'hook' => '¿Nadie de tu grupo quiere ser máster? Tengo la solución.',
             'cta' => 'Solicita un GM en MesasRoleras.com',
             'url' => 'https://example.com/video-gm',
+            'published_at' => now()->subWeek(),
             'rating' => ContentRating::Buena,
         ]);
 
@@ -151,5 +157,22 @@ class DatabaseSeeder extends Seeder
             'format' => ContentFormat::Vlog,
             'status' => ContentStatus::Planificacion,
         ]);
+
+        // --- Huecos a propósito (para el dashboard y la detección en formularios) ---
+        // Pregunta huérfana: sin mitos/verdades y sin idea ganadora.
+        Question::create([
+            'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
+            'body' => '¿Cuánto cuesta empezar en el rol de mesa?',
+        ]);
+
+        // Idea sin piezas de contenido todavía.
+        $idea3 = WinningIdea::create([
+            'account_id' => $account->id,
+            'title' => 'Los 3 errores del máster novato',
+            'concept' => 'Lista de errores comunes para tranquilizar a quien quiere dirigir por primera vez.',
+            'viral_mechanism' => ViralMechanism::Utilidad,
+        ]);
+        $idea3->questions()->attach([$q1->id]);
     }
 }

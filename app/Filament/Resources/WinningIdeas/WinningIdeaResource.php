@@ -15,6 +15,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class WinningIdeaResource extends Resource
 {
@@ -37,6 +38,13 @@ class WinningIdeaResource extends Resource
         return ['title', 'concept', 'viral_mechanism'];
     }
 
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Mecanismo' => $record->viral_mechanism?->getLabel() ?? '—',
+        ];
+    }
+
     public static function form(Schema $schema): Schema
     {
         return WinningIdeaForm::configure($schema);
@@ -55,7 +63,7 @@ class WinningIdeaResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ContentPiecesRelationManager::class,
         ];
     }
 

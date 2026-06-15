@@ -35,6 +35,9 @@ class HerasTemplatesTable
                     ->badge()
                     ->toggleable(),
             ])
+            ->emptyStateHeading('Sin plantillas')
+            ->emptyStateDescription('Ejecuta el seeder para cargar las 30 plantillas Heras.')
+            ->emptyStateIcon('heroicon-o-rectangle-stack')
             ->filters([
                 //
             ])

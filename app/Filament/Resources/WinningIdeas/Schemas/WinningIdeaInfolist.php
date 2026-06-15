@@ -20,10 +20,18 @@ class WinningIdeaInfolist
                         TextEntry::make('title')->label('Título'),
                         TextEntry::make('viral_mechanism')
                             ->label('Mecanismo de viralidad')
+                            ->badge()
                             ->placeholder('—'),
                         TextEntry::make('herasTemplate.display_name')
                             ->label('Plantilla Heras')
                             ->placeholder('Sin plantilla'),
+                        TextEntry::make('reference_url')
+                            ->label('Referencia viral')
+                            ->placeholder('Sin referencia')
+                            ->url(fn (WinningIdea $record): ?string => $record->reference_url, shouldOpenInNewTab: true)
+                            ->icon('heroicon-m-link')
+                            ->color('info')
+                            ->columnSpanFull(),
                         TextEntry::make('concept')
                             ->label('Concepto')
                             ->columnSpanFull(),

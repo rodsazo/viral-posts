@@ -13,6 +13,8 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class QuestionResource extends Resource
 {
@@ -33,6 +35,19 @@ class QuestionResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['body', 'notes'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Seguidor' => $record->idealFollower?->name,
+            'Categoría' => $record->category?->name ?? 'Sin categoría',
+        ];
+    }
+
+    public static function getGlobalSearchEloquentQuery(): Builder
+    {
+        return parent::getGlobalSearchEloquentQuery()->with(['idealFollower', 'category']);
     }
 
     public static function form(Schema $schema): Schema

@@ -18,6 +18,9 @@
                             <p class="vp-kanban-card-title">{{ $piece->title }}</p>
 
                             <div class="vp-kanban-tags">
+                                @if ($piece->objective)
+                                    <span class="vp-kanban-tag vp-kanban-tag--objective">{{ $piece->objective->getLabel() }}</span>
+                                @endif
                                 @if ($piece->format)
                                     <span class="vp-kanban-tag">{{ $piece->format->getLabel() }}</span>
                                 @endif
@@ -125,6 +128,8 @@
         .dark .vp-kanban-tag { background: rgba(255, 255, 255, 0.1); color: #d4d4d8; }
         .vp-kanban-tag--rating { background: rgba(245, 158, 11, 0.15); color: #b45309; }
         .dark .vp-kanban-tag--rating { color: #fbbf24; }
+        .vp-kanban-tag--objective { background: rgba(59, 130, 246, 0.15); color: #1d4ed8; }
+        .dark .vp-kanban-tag--objective { color: #93c5fd; }
         .vp-kanban-meta {
             margin: 0.5rem 0 0;
             font-size: 0.72rem;

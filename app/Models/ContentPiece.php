@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ContentFormat;
+use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
 use Database\Factories\ContentPieceFactory;
@@ -20,6 +21,7 @@ class ContentPiece extends Model
         'account_id',
         'winning_idea_id',
         'title',
+        'objective',
         'format',
         'status',
         'hook',
@@ -27,15 +29,18 @@ class ContentPiece extends Model
         'moral',
         'cta',
         'url',
+        'published_at',
         'rating',
     ];
 
     protected function casts(): array
     {
         return [
+            'objective' => ContentObjective::class,
             'format' => ContentFormat::class,
             'status' => ContentStatus::class,
             'rating' => ContentRating::class,
+            'published_at' => 'datetime',
         ];
     }
 

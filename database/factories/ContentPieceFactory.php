@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Enums\ContentFormat;
+use App\Enums\ContentObjective;
 use App\Enums\ContentStatus;
 use App\Models\Account;
 use App\Models\ContentPiece;
@@ -21,6 +22,7 @@ class ContentPieceFactory extends Factory
             'account_id' => Account::factory(),
             'winning_idea_id' => null,
             'title' => fake()->sentence(4),
+            'objective' => fake()->randomElement(ContentObjective::cases()),
             'format' => fake()->randomElement(ContentFormat::cases()),
             'status' => ContentStatus::Planificacion,
             'hook' => fake()->optional()->sentence(),

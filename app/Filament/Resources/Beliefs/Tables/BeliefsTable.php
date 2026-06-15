@@ -17,6 +17,7 @@ class BeliefsTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('type')
             ->columns([
                 TextColumn::make('type')
                     ->label('Tipo')
@@ -38,6 +39,9 @@ class BeliefsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->emptyStateHeading('Sin mitos ni verdades')
+            ->emptyStateDescription('Captura las creencias que quieres desmentir o impulsar en tu nicho.')
+            ->emptyStateIcon('heroicon-o-scale')
             ->filters([
                 SelectFilter::make('type')
                     ->label('Tipo')

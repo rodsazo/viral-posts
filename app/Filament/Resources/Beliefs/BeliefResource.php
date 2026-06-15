@@ -13,6 +13,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class BeliefResource extends Resource
 {
@@ -33,6 +34,13 @@ class BeliefResource extends Resource
     public static function getGloballySearchableAttributes(): array
     {
         return ['statement', 'stance'];
+    }
+
+    public static function getGlobalSearchResultDetails(Model $record): array
+    {
+        return [
+            'Tipo' => $record->type?->getLabel(),
+        ];
     }
 
     public static function form(Schema $schema): Schema

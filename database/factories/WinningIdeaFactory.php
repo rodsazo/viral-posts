@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\ViralMechanism;
 use App\Models\Account;
 use App\Models\WinningIdea;
 use Illuminate\Database\Eloquent\Factories\Factory;
@@ -19,7 +20,7 @@ class WinningIdeaFactory extends Factory
             'account_id' => Account::factory(),
             'title' => fake()->catchPhrase(),
             'concept' => fake()->paragraph(),
-            'viral_mechanism' => fake()->optional()->word(),
+            'viral_mechanism' => fake()->optional()->randomElement(ViralMechanism::cases()),
         ];
     }
 }

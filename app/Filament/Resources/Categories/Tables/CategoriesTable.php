@@ -16,6 +16,7 @@ class CategoriesTable
     public static function configure(Table $table): Table
     {
         return $table
+            ->defaultSort('name')
             ->columns([
                 ColorColumn::make('color')
                     ->label('Color'),
@@ -32,6 +33,9 @@ class CategoriesTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->emptyStateHeading('Sin categorías todavía')
+            ->emptyStateDescription('Crea categorías para organizar las preguntas de tu audiencia.')
+            ->emptyStateIcon('heroicon-o-tag')
             ->filters([
                 TernaryFilter::make('questions')
                     ->label('Preguntas')

@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ViralMechanism;
 use Database\Factories\WinningIdeaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -21,7 +22,15 @@ class WinningIdea extends Model
         'title',
         'concept',
         'viral_mechanism',
+        'reference_url',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'viral_mechanism' => ViralMechanism::class,
+        ];
+    }
 
     public function account(): BelongsTo
     {

@@ -67,14 +67,18 @@ class PanelTenancyTest extends TestCase
         $user->accounts()->attach($account->id);
 
         $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
+        $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
 
         $urls = [
             "/admin/{$account->slug}",                                   // dashboard
             "/admin/{$account->slug}/questions",
             "/admin/{$account->slug}/questions/create",
+            "/admin/{$account->slug}/beliefs/create",
+            "/admin/{$account->slug}/ideal-followers/{$follower->id}/edit", // relation manager: preguntas
             "/admin/{$account->slug}/winning-ideas",
             "/admin/{$account->slug}/winning-ideas/create",
             "/admin/{$account->slug}/winning-ideas/{$idea->id}",         // infolist multi-salto
+            "/admin/{$account->slug}/winning-ideas/{$idea->id}/edit",    // relation manager: piezas
             "/admin/{$account->slug}/content-pieces/create",
             "/admin/{$account->slug}/content-kanban",                    // tablero kanban
         ];

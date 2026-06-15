@@ -19,8 +19,13 @@ class ContentPieceInfolist
                     ->schema([
                         TextEntry::make('title')->label('Título')->columnSpanFull(),
                         TextEntry::make('status')->label('Estado')->badge(),
+                        TextEntry::make('objective')->label('Objetivo')->badge()->placeholder('Sin objetivo'),
                         TextEntry::make('format')->label('Formato')->badge()->placeholder('—'),
                         TextEntry::make('rating')->label('Calificación')->badge()->placeholder('Sin calificar'),
+                        TextEntry::make('published_at')
+                            ->label('Fecha de publicación')
+                            ->date()
+                            ->placeholder('Sin publicar'),
                         TextEntry::make('url')
                             ->label('URL publicada')
                             ->url(fn (ContentPiece $record) => $record->url, shouldOpenInNewTab: true)
