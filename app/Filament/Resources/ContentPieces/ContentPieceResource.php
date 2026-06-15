@@ -18,6 +18,7 @@ use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
 class ContentPieceResource extends Resource
 {
@@ -25,7 +26,9 @@ class ContentPieceResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFilm;
 
-    protected static ?int $navigationSort = 6;
+    protected static string|UnitEnum|null $navigationGroup = 'Producción';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $modelLabel = 'pieza de contenido';
 

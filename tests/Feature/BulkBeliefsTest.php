@@ -35,8 +35,13 @@ class BulkBeliefsTest extends TestCase
 
         Livewire::test(BulkBeliefs::class)
             ->fillForm([
-                'myths' => "El rol es dificilísimo\n\nNecesitas un experto",
-                'truths' => "Se aprende jugando\nHay GMs profesionales\n  ",
+                'batches' => [
+                    [
+                        'myths' => "El rol es dificilísimo\n\nNecesitas un experto",
+                        'truths' => "Se aprende jugando\nHay GMs profesionales\n  ",
+                        'question_ids' => [],
+                    ],
+                ],
             ])
             ->call('save')
             ->assertHasNoErrors();
@@ -46,34 +51,42 @@ class BulkBeliefsTest extends TestCase
         $this->assertSame(4, Belief::where('account_id', $account->id)->count());
     }
 
-    public function test_it_optionally_links_all_beliefs_to_chosen_questions(): void
+    public function test_each_group_links_to_its_own_questions(): void
     {
         $account = Account::factory()->create();
         $this->actInTenant($account);
 
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
-        $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
+        $q1 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
+        $q2 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
 
         Livewire::test(BulkBeliefs::class)
             ->fillForm([
-                'myths' => 'Un mito',
-                'truths' => 'Una verdad',
-                'question_ids' => [$question->id],
+                'batches' => [
+                    ['myths' => 'Mito A', 'truths' => 'Verdad A', 'question_ids' => [$q1->id]],
+                    ['myths' => 'Mito B', 'truths' => '', 'question_ids' => [$q2->id]],
+                ],
             ])
             ->call('save')
             ->assertHasNoErrors();
 
-        $this->assertSame(2, Belief::count());
-        $this->assertSame(2, $question->beliefs()->count());
+        // Grupo 1: 2 creencias → q1; Grupo 2: 1 creencia → q2.
+        $this->assertSame(3, Belief::count());
+        $this->assertSame(2, $q1->beliefs()->count());
+        $this->assertSame(1, $q2->beliefs()->count());
     }
 
-    public function test_nothing_is_created_when_both_boxes_are_empty(): void
+    public function test_nothing_is_created_when_groups_are_empty(): void
     {
         $account = Account::factory()->create();
         $this->actInTenant($account);
 
         Livewire::test(BulkBeliefs::class)
-            ->fillForm(['myths' => "  \n ", 'truths' => ''])
+            ->fillForm([
+                'batches' => [
+                    ['myths' => "  \n ", 'truths' => '', 'question_ids' => []],
+                ],
+            ])
             ->call('save');
 
         $this->assertSame(0, Belief::count());

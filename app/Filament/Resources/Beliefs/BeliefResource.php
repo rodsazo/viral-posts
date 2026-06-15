@@ -14,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
 class BeliefResource extends Resource
 {
@@ -21,7 +22,9 @@ class BeliefResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedScale;
 
-    protected static ?int $navigationSort = 4;
+    protected static string|UnitEnum|null $navigationGroup = 'Conocimiento';
+
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $navigationLabel = 'Creencias';
 

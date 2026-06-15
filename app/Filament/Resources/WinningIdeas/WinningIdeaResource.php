@@ -16,6 +16,7 @@ use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Model;
+use UnitEnum;
 
 class WinningIdeaResource extends Resource
 {
@@ -23,7 +24,9 @@ class WinningIdeaResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLightBulb;
 
-    protected static ?int $navigationSort = 5;
+    protected static string|UnitEnum|null $navigationGroup = 'Conocimiento';
+
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'idea ganadora';
 

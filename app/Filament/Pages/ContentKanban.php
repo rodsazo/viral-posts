@@ -11,12 +11,15 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Support\Icons\Heroicon;
 use Illuminate\Support\Collection;
+use UnitEnum;
 
 class ContentKanban extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedViewColumns;
 
-    protected static ?int $navigationSort = 7;
+    protected static string|UnitEnum|null $navigationGroup = 'Producción';
+
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Kanban';
 

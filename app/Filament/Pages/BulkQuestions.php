@@ -16,12 +16,15 @@ use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
+use UnitEnum;
 
 class BulkQuestions extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static ?int $navigationSort = 2;
+    protected static string|UnitEnum|null $navigationGroup = 'Audiencia';
+
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Preguntas en lote';
 
