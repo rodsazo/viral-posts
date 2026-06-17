@@ -23,9 +23,9 @@ class BulkBeliefs extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Conocimiento';
+    protected static string|UnitEnum|null $navigationGroup = 'Audiencia';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 6;
 
     protected static ?string $navigationLabel = 'Creencias en lote';
 

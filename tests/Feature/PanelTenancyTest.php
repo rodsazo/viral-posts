@@ -3,6 +3,7 @@
 namespace Tests\Feature;
 
 use App\Models\Account;
+use App\Models\HerasTemplate;
 use App\Models\IdealFollower;
 use App\Models\Question;
 use App\Models\User;
@@ -68,6 +69,7 @@ class PanelTenancyTest extends TestCase
 
         $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
+        $template = HerasTemplate::factory()->create(['number' => 1]);
 
         $urls = [
             "/admin/{$account->slug}",                                   // dashboard
@@ -81,6 +83,9 @@ class PanelTenancyTest extends TestCase
             "/admin/{$account->slug}/winning-ideas/{$idea->id}/edit",    // relation manager: piezas
             "/admin/{$account->slug}/content-pieces/create",
             "/admin/{$account->slug}/content-kanban",                    // tablero kanban
+            "/admin/{$account->slug}/niches",                            // catálogo global
+            "/admin/{$account->slug}/viral-referents",                   // catálogo global
+            "/admin/{$account->slug}/heras-templates/{$template->id}",   // vista con imagen
         ];
 
         foreach ($urls as $url) {

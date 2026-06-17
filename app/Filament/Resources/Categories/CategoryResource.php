@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Categories;
 
+use App\Filament\Concerns\RestrictsDeletionToAdmins;
 use App\Filament\Resources\Categories\Pages\CreateCategory;
 use App\Filament\Resources\Categories\Pages\EditCategory;
 use App\Filament\Resources\Categories\Pages\ListCategories;
@@ -17,6 +18,8 @@ use UnitEnum;
 
 class CategoryResource extends Resource
 {
+    use RestrictsDeletionToAdmins;
+
     protected static ?string $model = Category::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedTag;
@@ -25,7 +28,7 @@ class CategoryResource extends Resource
 
     protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'Categorías';
+    protected static ?string $navigationLabel = 'Categorías de Preguntas';
 
     protected static ?string $modelLabel = 'categoría';
 

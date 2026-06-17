@@ -23,9 +23,9 @@ class BulkIdeas extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedQueueList;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Conocimiento';
+    protected static string|UnitEnum|null $navigationGroup = 'Producción';
 
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 2;
 
     protected static ?string $navigationLabel = 'Ideas en lote';
 

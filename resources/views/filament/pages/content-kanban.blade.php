@@ -15,6 +15,9 @@
                 <div class="vp-kanban-list" data-status="{{ $status->value }}" x-init="initColumn($el)">
                     @foreach ($column['pieces'] as $piece)
                         <div class="vp-kanban-card" data-id="{{ $piece->getKey() }}">
+                            @if ($piece->preview_image_url)
+                                <img src="{{ $piece->preview_image_url }}" alt="" class="vp-kanban-thumb" loading="lazy">
+                            @endif
                             <p class="vp-kanban-card-title">{{ $piece->title }}</p>
 
                             <div class="vp-kanban-tags">
@@ -104,6 +107,14 @@
         .dark .vp-kanban-card {
             background: #18181b;
             border-color: rgba(255, 255, 255, 0.1);
+        }
+        .vp-kanban-thumb {
+            width: 100%;
+            height: 96px;
+            object-fit: cover;
+            border-radius: 0.375rem;
+            margin-bottom: 0.5rem;
+            display: block;
         }
         .vp-kanban-card-title {
             margin: 0;

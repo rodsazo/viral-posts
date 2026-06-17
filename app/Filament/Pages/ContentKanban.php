@@ -19,7 +19,7 @@ class ContentKanban extends Page
 
     protected static string|UnitEnum|null $navigationGroup = 'Producción';
 
-    protected static ?int $navigationSort = 2;
+    protected static ?int $navigationSort = 4;
 
     protected static ?string $navigationLabel = 'Kanban';
 

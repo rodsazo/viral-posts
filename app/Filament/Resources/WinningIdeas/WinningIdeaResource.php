@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\WinningIdeas;
 
+use App\Filament\Concerns\RestrictsDeletionToAdmins;
 use App\Filament\Resources\WinningIdeas\Pages\CreateWinningIdea;
 use App\Filament\Resources\WinningIdeas\Pages\EditWinningIdea;
 use App\Filament\Resources\WinningIdeas\Pages\ListWinningIdeas;
@@ -20,13 +21,15 @@ use UnitEnum;
 
 class WinningIdeaResource extends Resource
 {
+    use RestrictsDeletionToAdmins;
+
     protected static ?string $model = WinningIdea::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedLightBulb;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Conocimiento';
+    protected static string|UnitEnum|null $navigationGroup = 'Producción';
 
-    protected static ?int $navigationSort = 3;
+    protected static ?int $navigationSort = 1;
 
     protected static ?string $modelLabel = 'idea ganadora';
 

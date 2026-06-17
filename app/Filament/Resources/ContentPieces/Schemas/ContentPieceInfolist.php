@@ -4,6 +4,8 @@ namespace App\Filament\Resources\ContentPieces\Schemas;
 
 use App\Models\Belief;
 use App\Models\ContentPiece;
+use App\Support\Rum;
+use Filament\Infolists\Components\ImageEntry;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
@@ -31,6 +33,31 @@ class ContentPieceInfolist
                             ->url(fn (ContentPiece $record) => $record->url, shouldOpenInNewTab: true)
                             ->placeholder('Sin publicar')
                             ->columnSpanFull(),
+                        ImageEntry::make('preview_image_url')
+                            ->label('Vista previa del post')
+                            ->height(200)
+                            ->placeholder('Sin imagen')
+                            ->columnSpanFull(),
+                    ]),
+
+                Section::make('Evaluación RUM')
+                    ->columns(2)
+                    ->schema([
+                        TextEntry::make('rum')
+                            ->label('RUM')
+                            ->badge()
+                            ->size('lg')
+                            ->color(fn ($state): string => Rum::color($state !== null ? (float) $state : null))
+                            ->formatStateUsing(fn ($state): string => $state !== null ? number_format((float) $state, 1) : '—')
+                            ->placeholder('Sin evaluar')
+                            ->columnSpanFull(),
+                        ...array_map(
+                            fn (string $key) => TextEntry::make("rum_factors.{$key}")
+                                ->label(Rum::FACTORS[$key]['label'])
+                                ->formatStateUsing(fn ($state): ?string => $state !== null ? (Rum::optionsFor($key)[(string) $state] ?? $state) : null)
+                                ->placeholder('—'),
+                            array_keys(Rum::FACTORS),
+                        ),
                     ]),
 
                 Section::make('Guión')

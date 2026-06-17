@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Beliefs;
 
+use App\Filament\Concerns\RestrictsDeletionToAdmins;
 use App\Filament\Resources\Beliefs\Pages\CreateBelief;
 use App\Filament\Resources\Beliefs\Pages\EditBelief;
 use App\Filament\Resources\Beliefs\Pages\ListBeliefs;
@@ -18,13 +19,15 @@ use UnitEnum;
 
 class BeliefResource extends Resource
 {
+    use RestrictsDeletionToAdmins;
+
     protected static ?string $model = Belief::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedScale;
 
-    protected static string|UnitEnum|null $navigationGroup = 'Conocimiento';
+    protected static string|UnitEnum|null $navigationGroup = 'Audiencia';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 5;
 
     protected static ?string $navigationLabel = 'Creencias';
 

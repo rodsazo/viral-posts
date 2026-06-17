@@ -3,6 +3,7 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\TeamRole;
 use Database\Factories\UserFactory;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
@@ -41,7 +42,22 @@ class User extends Authenticatable implements FilamentUser, HasTenants
      */
     public function accounts(): BelongsToMany
     {
-        return $this->belongsToMany(Account::class);
+        return $this->belongsToMany(Account::class)->withPivot('role')->withTimestamps();
+    }
+
+    /**
+     * Rol del usuario dentro de una marca (o null si no pertenece).
+     */
+    public function roleIn(Account $account): ?TeamRole
+    {
+        $role = $this->accounts()->whereKey($account->getKey())->value('role');
+
+        return $role !== null ? TeamRole::from($role) : null;
+    }
+
+    public function isAdminOf(Account $account): bool
+    {
+        return $this->roleIn($account) === TeamRole::Admin;
     }
 
     public function canAccessPanel(Panel $panel): bool

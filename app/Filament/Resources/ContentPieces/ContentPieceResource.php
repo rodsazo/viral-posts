@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\ContentPieces;
 
 use App\Enums\ContentStatus;
+use App\Filament\Concerns\RestrictsDeletionToAdmins;
 use App\Filament\Resources\ContentPieces\Pages\CreateContentPiece;
 use App\Filament\Resources\ContentPieces\Pages\EditContentPiece;
 use App\Filament\Resources\ContentPieces\Pages\ListContentPieces;
@@ -22,13 +23,15 @@ use UnitEnum;
 
 class ContentPieceResource extends Resource
 {
+    use RestrictsDeletionToAdmins;
+
     protected static ?string $model = ContentPiece::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedFilm;
 
     protected static string|UnitEnum|null $navigationGroup = 'Producción';
 
-    protected static ?int $navigationSort = 1;
+    protected static ?int $navigationSort = 3;
 
     protected static ?string $modelLabel = 'pieza de contenido';
 

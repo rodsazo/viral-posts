@@ -45,7 +45,12 @@ class Account extends Model
 
     public function users(): BelongsToMany
     {
-        return $this->belongsToMany(User::class);
+        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
+    }
+
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(AccountInvitation::class);
     }
 
     public function idealFollowers(): HasMany
@@ -76,5 +81,10 @@ class Account extends Model
     public function contentPieces(): HasMany
     {
         return $this->hasMany(ContentPiece::class);
+    }
+
+    public function captures(): HasMany
+    {
+        return $this->hasMany(Capture::class);
     }
 }

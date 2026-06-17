@@ -6,6 +6,7 @@ use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
+use App\Support\Rum;
 use Database\Factories\ContentPieceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -29,8 +30,11 @@ class ContentPiece extends Model
         'moral',
         'cta',
         'url',
+        'preview_image_url',
         'published_at',
         'rating',
+        'rum_factors',
+        'rum',
     ];
 
     protected function casts(): array
@@ -41,7 +45,17 @@ class ContentPiece extends Model
             'status' => ContentStatus::class,
             'rating' => ContentRating::class,
             'published_at' => 'datetime',
+            'rum_factors' => 'array',
+            'rum' => 'float',
         ];
+    }
+
+    protected static function booted(): void
+    {
+        // El RUM siempre se recalcula a partir de sus factores al guardar.
+        static::saving(function (ContentPiece $piece): void {
+            $piece->rum = Rum::compute($piece->rum_factors);
+        });
     }
 
     public function account(): BelongsTo

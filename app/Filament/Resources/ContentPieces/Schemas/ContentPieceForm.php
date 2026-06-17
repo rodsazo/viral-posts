@@ -8,15 +8,20 @@ use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
 use App\Models\Belief;
 use App\Models\WinningIdea;
+use App\Support\LinkPreview;
+use App\Support\Rum;
+use Filament\Actions\Action;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Notifications\Notification;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -113,16 +118,70 @@ class ContentPieceForm
                                     ->columnSpanFull(),
                             ]),
 
+                        Section::make('Evaluación RUM')
+                            ->description('Relevancia Única de Mercado: busca un RUM alto para más chance de viralidad.')
+                            ->columns(2)
+                            ->schema([
+                                ...array_map(
+                                    fn (string $key) => Select::make("rum_factors.{$key}")
+                                        ->label(Rum::FACTORS[$key]['label'])
+                                        ->options(Rum::optionsFor($key))
+                                        ->helperText(Rum::FACTORS[$key]['help'])
+                                        ->native(false)
+                                        ->live()
+                                        ->placeholder('Sin evaluar'),
+                                    array_keys(Rum::FACTORS),
+                                ),
+                                TextEntry::make('rum_display')
+                                    ->label('RUM')
+                                    ->state(fn (Get $get): ?float => Rum::compute($get('rum_factors')))
+                                    ->badge()
+                                    ->size('lg')
+                                    ->color(fn (?float $state): string => Rum::color($state))
+                                    ->formatStateUsing(fn (?float $state): string => $state !== null ? number_format($state, 1) : '—')
+                                    ->placeholder('Sin evaluar')
+                                    ->columnSpanFull(),
+                            ]),
+
                         Section::make('Publicación')
                             ->columns(2)
                             ->schema([
                                 TextInput::make('url')
                                     ->label('URL publicada')
                                     ->url()
-                                    ->placeholder('https://...'),
+                                    ->maxLength(2048)
+                                    ->placeholder('https://...')
+                                    ->suffixAction(
+                                        Action::make('fetchPreview')
+                                            ->label('Obtener vista previa')
+                                            ->icon('heroicon-m-photo')
+                                            ->action(function (Get $get, Set $set): void {
+                                                $image = app(LinkPreview::class)->imageFor($get('url'));
+
+                                                if ($image !== null) {
+                                                    $set('preview_image_url', $image);
+                                                    Notification::make()->title('Vista previa obtenida')->success()->send();
+
+                                                    return;
+                                                }
+
+                                                Notification::make()
+                                                    ->title('No se pudo obtener la imagen automáticamente')
+                                                    ->body('Pega la URL de la imagen a mano (Instagram suele requerirlo).')
+                                                    ->warning()
+                                                    ->send();
+                                            }),
+                                    ),
                                 DatePicker::make('published_at')
                                     ->label('Fecha de publicación')
                                     ->placeholder('Sin publicar'),
+                                TextInput::make('preview_image_url')
+                                    ->label('URL de imagen de previsualización')
+                                    ->url()
+                                    ->maxLength(2048)
+                                    ->prefixIcon('heroicon-m-photo')
+                                    ->helperText('Se rellena con "Obtener vista previa", o pégala manualmente.')
+                                    ->columnSpanFull(),
                             ]),
                     ]),
 

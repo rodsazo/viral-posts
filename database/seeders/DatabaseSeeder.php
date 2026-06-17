@@ -7,6 +7,7 @@ use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
+use App\Enums\TeamRole;
 use App\Enums\ViralMechanism;
 use App\Models\Account;
 use App\Models\Belief;
@@ -39,7 +40,14 @@ class DatabaseSeeder extends Seeder
             ['slug' => 'el-rod-y-el-rol'],
             ['name' => 'El Rod y El Rol', 'description' => 'Atraer gente nueva al rol de mesa con contenido viral.'],
         );
-        $account->users()->syncWithoutDetaching([$user->id]);
+        $account->users()->syncWithoutDetaching([$user->id => ['role' => TeamRole::Admin->value]]);
+
+        // Segundo usuario de ejemplo con rol Editor (para ver la gestión de miembros).
+        $editor = User::firstOrCreate(
+            ['email' => 'editor@elrodyelrol.test'],
+            ['name' => 'Editor Demo', 'password' => Hash::make('password')],
+        );
+        $account->users()->syncWithoutDetaching([$editor->id => ['role' => TeamRole::Editor->value]]);
 
         // Evitar duplicar el contenido demo si el seeder se ejecuta de nuevo.
         if ($account->questions()->exists()) {

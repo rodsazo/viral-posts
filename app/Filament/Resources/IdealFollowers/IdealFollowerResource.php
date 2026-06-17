@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\IdealFollowers;
 
+use App\Filament\Concerns\RestrictsDeletionToAdmins;
 use App\Filament\Resources\IdealFollowers\Pages\CreateIdealFollower;
 use App\Filament\Resources\IdealFollowers\Pages\EditIdealFollower;
 use App\Filament\Resources\IdealFollowers\Pages\ListIdealFollowers;
@@ -17,6 +18,8 @@ use UnitEnum;
 
 class IdealFollowerResource extends Resource
 {
+    use RestrictsDeletionToAdmins;
+
     protected static ?string $model = IdealFollower::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::OutlinedUsers;

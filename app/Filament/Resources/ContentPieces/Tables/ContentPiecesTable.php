@@ -7,6 +7,7 @@ use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
 use App\Models\ContentPiece;
+use App\Support\Rum;
 use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
@@ -14,6 +15,7 @@ use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
 use Filament\Notifications\Notification;
 use Filament\Tables\Columns\IconColumn;
+use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -26,6 +28,11 @@ class ContentPiecesTable
     {
         return $table
             ->columns([
+                ImageColumn::make('preview_image_url')
+                    ->label('Vista previa')
+                    ->height(48)
+                    ->square()
+                    ->toggleable(),
                 TextColumn::make('title')
                     ->label('Título')
                     ->wrap()
@@ -54,6 +61,13 @@ class ContentPiecesTable
                     ->badge()
                     ->placeholder('—')
                     ->sortable(),
+                TextColumn::make('rum')
+                    ->label('RUM')
+                    ->badge()
+                    ->placeholder('—')
+                    ->sortable()
+                    ->color(fn ($state): string => Rum::color($state !== null ? (float) $state : null))
+                    ->formatStateUsing(fn ($state): string => $state !== null ? number_format((float) $state, 1) : '—'),
                 IconColumn::make('url')
                     ->label('Enlace')
                     ->icon(fn ($record): ?string => filled($record->url) ? 'heroicon-m-link' : null)
@@ -98,6 +112,21 @@ class ContentPiecesTable
                         true: fn (Builder $query) => $query->whereNotNull('winning_idea_id'),
                         false: fn (Builder $query) => $query->whereNull('winning_idea_id'),
                     ),
+                SelectFilter::make('rum')
+                    ->label('RUM')
+                    ->options([
+                        'alto' => 'Alto (> 7)',
+                        'medio' => 'Medio (5–7)',
+                        'bajo' => 'Bajo (≤ 5)',
+                        'sin' => 'Sin evaluar',
+                    ])
+                    ->query(fn (Builder $query, array $data): Builder => match ($data['value'] ?? null) {
+                        'alto' => $query->where('rum', '>', 7),
+                        'medio' => $query->where('rum', '>', 5)->where('rum', '<=', 7),
+                        'bajo' => $query->where('rum', '<=', 5),
+                        'sin' => $query->whereNull('rum'),
+                        default => $query,
+                    }),
             ])
             ->recordActions([
                 Action::make('publish')
