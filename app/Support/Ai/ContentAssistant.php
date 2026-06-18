@@ -68,10 +68,12 @@ class ContentAssistant
      *
      * @return array<int, Suggestion>
      */
-    public function suggestIdeas(IdeaContext $context, int $max = 3): array
+    public function suggestIdeas(IdeaContext $context, ?int $max = null): array
     {
+        $max = $max ?? (int) config('ai.idea.suggestions', 3);
+
         $set = $this->generate(
-            system: $this->ideaSystemPrompt(),
+            system: $this->ideaSystemPrompt($max),
             userPrompt: $context->toPrompt(),
             format: IdeaVariantSet::class,
         );
@@ -148,12 +150,12 @@ class ContentAssistant
 
     private function scriptSystemPrompt(int $count): string
     {
-        $formula = collect((array) config('ai.script.formula', []))
-            ->map(fn (string $desc): string => "- {$desc}")
-            ->implode("\n");
+        $role = (string) config('ai.script.system.role');
+        $formula = $this->bullets((array) config('ai.script.formula', []));
+        $rules = $this->bullets((array) config('ai.script.system.rules', []));
 
         return <<<PROMPT
-        Eres un guionista experto en contenido viral de redes sociales, formado en la metodología de Víctor Heras.
+        {$role}
 
         Tu tarea: a partir del contexto que te da el creador (idea, preguntas de la audiencia y mitos/verdades),
         proponer {$count} variantes de guión claramente distintas en ángulo y tono. Cada variante sigue esta
@@ -161,34 +163,32 @@ class ContentAssistant
         {$formula}
 
         Reglas:
-        - Responde en español, en el tono cercano y directo de redes sociales.
-        - Sigue la fórmula anterior en cada variante.
-        - La historia debe ser concreta y específica, no genérica.
-        - Refuerza las verdades y desmiente los mitos indicados; responde a las preguntas de la audiencia.
-        - Si se dan fórmulas virales de referencia (Heras), úsalas como guía de estructura.
-        - No inventes datos, cifras ni hechos que no se deriven del contexto.
-        - Las variantes deben diferenciarse entre sí (distinto ángulo, gancho o estructura), no ser parafraseos.
-        - Son sugerencias: ofrece opciones de calidad, el creador elegirá.
+        {$rules}
         PROMPT;
     }
 
-    private function ideaSystemPrompt(): string
+    private function ideaSystemPrompt(int $count): string
     {
-        return <<<'PROMPT'
-        Eres un estratega de contenido viral para redes sociales, formado en la metodología de Víctor Heras.
+        $role = (string) config('ai.idea.system.role');
+        $rules = $this->bullets((array) config('ai.idea.system.rules', []));
+
+        return <<<PROMPT
+        {$role}
 
         Tu tarea: a partir de las preguntas de la audiencia y los mitos/verdades que te da el creador, proponer
-        entre 1 y 3 ideas ganadoras de contenido, claramente distintas en ángulo. Cada idea tiene un título, un
+        {$count} ideas ganadoras de contenido, claramente distintas en ángulo. Cada idea tiene un título, un
         concepto y un mecanismo de viralidad.
 
         Reglas:
-        - Responde en español.
-        - El título es corto y detiene el scroll; el concepto explica el ángulo en 2-4 frases.
-        - Cada idea debe responder a las preguntas de la audiencia y apoyarse en los mitos/verdades dados.
-        - No inventes datos ni hechos que no se deriven del contexto.
-        - Las ideas deben diferenciarse entre sí (distinto enfoque), no ser parafraseos.
-        - El mecanismo de viralidad debe ser exactamente uno de los valores permitidos.
-        - Son sugerencias: ofrece opciones de calidad, el creador elegirá.
+        {$rules}
         PROMPT;
+    }
+
+    /**
+     * @param  array<int|string, string>  $items
+     */
+    private function bullets(array $items): string
+    {
+        return collect($items)->map(fn (string $item): string => "- {$item}")->implode("\n");
     }
 }

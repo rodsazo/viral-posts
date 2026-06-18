@@ -35,15 +35,24 @@ Estudio es la herramienta de creación). El admin conserva las sugerencias en l�
 
 ### Configuración editable
 
-- **Fórmula del guión y nº de variantes:** [`config/ai.php`](../config/ai.php) (`ai.script.formula`,
-  `ai.script.suggestions` = 5 para el generador, `ai.script.inline_suggestions` = 3 para las sugerencias en
-  línea). El prompt del sistema lee la fórmula de ahí; editarla cambia la estructura que sigue la IA.
+Todo el prompt es afinable desde [`config/ai.php`](../config/ai.php) **sin tocar código**:
+
+- **Guión:** `ai.script.system.role` (rol), `ai.script.system.rules` (reglas), `ai.script.formula`
+  (estructura gancho/historia/moraleja/CTA), `ai.script.suggestions` (= 5, generador) y
+  `ai.script.inline_suggestions` (= 3, sugerencias en línea).
+- **Ideas:** `ai.idea.system.role`, `ai.idea.system.rules`, `ai.idea.suggestions` (= 3).
+
+`ContentAssistant` compone el prompt del sistema a partir de estos valores (rol + tarea + fórmula + reglas).
 
 ### Plantillas Heras en el contexto
 
 El guión incluye la fórmula Heras (`structure`, `suggested_format`, `viral_mechanism`) **solo cuando tiene
-contenido** (las placeholder vacías no ensucian el prompt). En el inline se toma la plantilla ligada a la
-idea; en el generador, además, las que el usuario selecciona explícitamente.
+contenido**. En el inline se toma la plantilla ligada a la idea; en el generador, además, las que el usuario
+selecciona explícitamente.
+
+Las **30 plantillas reales** (fuente: [`sources/PlantillasVictorHeras.md`](../sources/PlantillasVictorHeras.md))
+se cargan con `HerasTemplateSeeder` (idempotente y **no destructivo**: solo rellena las que aún están vacías,
+respeta las editadas). Para (re)cargar: `php artisan db:seed --class=HerasTemplateSeeder`.
 
 El usuario irá afinando los **prompts** de forma progresiva (en `ContentAssistant`) y la fórmula en `config/ai.php`.
 
