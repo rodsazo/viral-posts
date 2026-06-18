@@ -17,7 +17,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Collection;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
@@ -34,7 +34,18 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_super_admin' => 'boolean',
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * Rol de plataforma. Concede acceso total vía Gate::before.
+     * Se otorga/revoca SOLO por línea de comando (no `fillable`, sin UI).
+     */
+    public function isSuperAdmin(): bool
+    {
+        return $this->is_super_admin === true;
     }
 
     /**
@@ -62,7 +73,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants
 
     public function canAccessPanel(Panel $panel): bool
     {
-        return true;
+        // Usuario desactivado: sin acceso al panel.
+        return $this->is_active === true;
     }
 
     /**
@@ -70,11 +82,24 @@ class User extends Authenticatable implements FilamentUser, HasTenants
      */
     public function getTenants(Panel $panel): Collection
     {
-        return $this->accounts;
+        // El super admin puede operar sobre cualquier marca (no necesita ser miembro).
+        if ($this->isSuperAdmin()) {
+            return Account::query()->orderBy('name')->get();
+        }
+
+        // Miembros: solo marcas activas (las suspendidas no aparecen en el selector).
+        return $this->accounts()->where('accounts.is_active', true)->get();
     }
 
     public function canAccessTenant(Model $tenant): bool
     {
-        return $this->accounts()->whereKey($tenant)->exists();
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        return $this->accounts()
+            ->whereKey($tenant)
+            ->where('accounts.is_active', true)
+            ->exists();
     }
 }

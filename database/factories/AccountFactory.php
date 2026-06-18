@@ -21,6 +21,7 @@ class AccountFactory extends Factory
             'name' => $name,
             'slug' => Str::slug($name).'-'.Str::random(5),
             'description' => fake()->optional()->sentence(),
+            'is_active' => true,
         ];
     }
 }

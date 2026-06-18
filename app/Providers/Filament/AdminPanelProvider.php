@@ -3,7 +3,6 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Pages\Tenancy\EditAccountProfile;
-use App\Filament\Pages\Tenancy\RegisterAccount;
 use App\Models\Account;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
@@ -37,13 +36,14 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
             ])
             ->tenant(Account::class, slugAttribute: 'slug')
-            ->tenantRegistration(RegisterAccount::class)
+            // Sin auto-registro de marcas: las crea el super admin (recurso "Marcas").
             ->tenantProfile(EditAccountProfile::class)
             ->navigationGroups([
                 'Audiencia',
                 'Producción',
                 'Referencia',
                 'Equipo',
+                'Plataforma',
             ])
             ->navigationItems([
                 NavigationItem::make('Abrir Estudio')

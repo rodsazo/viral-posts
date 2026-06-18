@@ -1,6 +1,8 @@
 # 06 — Equipo, invitaciones y permisos
 
-> Solo los **administradores** ven el grupo de menú **Equipo** (Miembros, Invitaciones).
+> Hay **dos niveles** de rol: **por marca** (Admin/Editor, grupo *Equipo*) y de **plataforma**
+> (super admin, grupo *Plataforma*). El super admin se gestiona **solo por consola** (ver `docs/USUARIOS.md`).
+> Solo los **administradores** de la marca ven el grupo de menú **Equipo** (Miembros, Invitaciones).
 
 ## Invitaciones (Equipo → Invitaciones)
 
@@ -38,3 +40,27 @@
 - [ ] El editor **puede crear/editar** contenido (preguntas, ideas, piezas, etc.).
 - [ ] El editor **no ve botones de eliminar** en ningún listado (ni borrado masivo).
 - [ ] El admin sí puede eliminar.
+
+## Plataforma — Super admin (solo por consola)
+
+> Crear/otorgar/revocar super admin: `php artisan super-admin grant|revoke|list <email>`. Ver `docs/USUARIOS.md`.
+
+- [ ] **Sin super admin.** Un usuario normal **no ve** el grupo **Plataforma** (Marcas, Usuarios). Visitar
+      `/admin/{marca}/accounts` o `/admin/{marca}/users` → **403**.
+- [ ] **Catálogos globales (Heras/Referentes/Nichos).** Un usuario normal **los ve** pero **no** tiene botones
+      de crear/editar/borrar; entrar a `…/heras-templates/create` → **403**.
+- [ ] **Como super admin** (`php artisan super-admin grant <tu-email>`):
+  - [ ] Aparece el grupo **Plataforma** con **Marcas** y **Usuarios**.
+  - [ ] **Marcas:** listar todas, crear una (el slug se autogenera), editar; en una marca, pestaña **Miembros**
+        para **añadir** un usuario existente con rol, cambiar rol y quitar (con guarda del último admin).
+  - [ ] **Suspender marca.** En *Marcas*, acción **Suspender** (y **Reactivar**). Una marca suspendida: sus
+        miembros **no la ven** en el selector y reciben **403** al entrar (panel y `/studio/{marca}`); el super
+        admin sí puede entrar.
+  - [ ] **Usuarios:** directorio de todos los usuarios (con marca(s), badge de activo y de super admin);
+        editar nombre/email. El toggle *Super admin* está **deshabilitado** (se gestiona por consola). No hay crear ni borrar.
+  - [ ] **Desactivar usuario.** Acción **Desactivar** (y **Activar**). Un usuario desactivado recibe **403**
+        en el panel y en el Estudio. **No** aparece la acción para desactivarte **a ti mismo**.
+  - [ ] Puede crear/editar/borrar en los **catálogos globales**.
+  - [ ] El super admin ve **todas las marcas** en el selector de marca, aunque no sea miembro.
+- [ ] **Auto-registro desactivado.** Ya **no** existe la opción de "registrar nueva marca" para usuarios; las
+      marcas las crea el super admin.

@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\HerasTemplates;
 
-use App\Filament\Concerns\RestrictsDeletionToAdmins;
+use App\Filament\Concerns\RestrictsMutationToSuperAdmins;
 use App\Filament\Resources\HerasTemplates\Pages\CreateHerasTemplate;
 use App\Filament\Resources\HerasTemplates\Pages\EditHerasTemplate;
 use App\Filament\Resources\HerasTemplates\Pages\ListHerasTemplates;
@@ -21,7 +21,7 @@ use UnitEnum;
 
 class HerasTemplateResource extends Resource
 {
-    use RestrictsDeletionToAdmins;
+    use RestrictsMutationToSuperAdmins;
 
     protected static ?string $model = HerasTemplate::class;
 

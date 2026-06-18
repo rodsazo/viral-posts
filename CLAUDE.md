@@ -2,7 +2,8 @@
 
 Sistema de gestión de producción de contenido. **Laravel 13 + Filament v5** (panel admin) y un
 frontend a medida **Livewire 4 + Flux** (el "Estudio"), multi-marca con roles. Contexto completo en
-[docs/HANDOFF.md](docs/HANDOFF.md); pendientes de producción en [docs/PRODUCCION.md](docs/PRODUCCION.md).
+[docs/HANDOFF.md](docs/HANDOFF.md); pendientes de producción en [docs/PRODUCCION.md](docs/PRODUCCION.md);
+asistencia con **IA (Claude)** en [docs/IA.md](docs/IA.md).
 
 ## Reglas
 
@@ -17,3 +18,9 @@ frontend a medida **Livewire 4 + Flux** (el "Estudio"), multi-marca con roles. C
   con `Livewire\Component`). Ya usamos `hookText`, `findCapture`, `postUrl`.
 - **Multi-tenancy.** Todo lo de marca lleva `account_id` y se escopa por la marca activa; los catálogos de
   Referencia (Heras/Referentes/Nichos) son **globales** (`$isScopedToTenant = false`).
+- **Roles.** Dos niveles: por marca (`TeamRole` Admin/Editor) y de plataforma (`users.is_super_admin`). El
+  **super admin** gobierna catálogos globales, marcas y usuarios, y se gestiona **solo por consola**
+  (`php artisan super-admin grant|revoke|list`). No hay UI para otorgarlo. Detalles en [docs/USUARIOS.md](docs/USUARIOS.md).
+- **IA = sugerencia, no reemplazo.** Toda función de IA ofrece **hasta 3 alternativas**; el usuario elige y
+  **solo al elegir** se reescribe su contenido. Modelo `claude-opus-4-8`; clave **solo** en `.env`
+  (`ANTHROPIC_API_KEY`), nunca hardcodeada. Detalles en [docs/IA.md](docs/IA.md).

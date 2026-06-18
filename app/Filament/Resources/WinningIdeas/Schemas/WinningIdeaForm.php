@@ -3,13 +3,17 @@
 namespace App\Filament\Resources\WinningIdeas\Schemas;
 
 use App\Enums\ViralMechanism;
+use App\Filament\Actions\SuggestionAction;
 use App\Models\Belief;
 use App\Models\Question;
+use App\Support\Ai\ContentAssistant;
+use App\Support\Ai\IdeaContext;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Infolists\Components\TextEntry;
+use Filament\Schemas\Components\Actions;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
@@ -28,6 +32,12 @@ class WinningIdeaForm
                 Section::make()
                     ->columnSpan(2)
                     ->schema([
+                        Actions::make([
+                            SuggestionAction::make('suggestIdeas', fn (Get $get, ?string $brief): array => app(ContentAssistant::class)
+                                ->suggestIdeas(static::ideaContext($get, $brief)))
+                                ->label('Sugerir ideas (IA)')
+                                ->visible(fn (): bool => app(ContentAssistant::class)->isConfigured()),
+                        ]),
                         TextInput::make('title')
                             ->label('Título')
                             ->required()
@@ -117,6 +127,20 @@ class WinningIdeaForm
                             ->placeholder('Todas las preguntas elegidas tienen al menos un mito/verdad.'),
                     ]),
             ]);
+    }
+
+    /**
+     * Contexto para la IA: preguntas elegidas + sus mitos/verdades + el borrador actual.
+     */
+    private static function ideaContext(Get $get, ?string $brief = null): IdeaContext
+    {
+        return new IdeaContext(
+            questions: static::selectedQuestions($get)->pluck('body')->all(),
+            beliefs: static::relatedBeliefs($get),
+            draftTitle: $get('title'),
+            draftConcept: $get('concept'),
+            extra: $brief,
+        );
     }
 
     /**

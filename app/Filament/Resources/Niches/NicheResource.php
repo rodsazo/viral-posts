@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\Niches;
 
-use App\Filament\Concerns\RestrictsDeletionToAdmins;
+use App\Filament\Concerns\RestrictsMutationToSuperAdmins;
 use App\Filament\Resources\Niches\Pages\CreateNiche;
 use App\Filament\Resources\Niches\Pages\EditNiche;
 use App\Filament\Resources\Niches\Pages\ListNiches;
@@ -18,7 +18,7 @@ use UnitEnum;
 
 class NicheResource extends Resource
 {
-    use RestrictsDeletionToAdmins;
+    use RestrictsMutationToSuperAdmins;
 
     protected static ?string $model = Niche::class;
 

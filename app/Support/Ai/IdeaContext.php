@@ -1,0 +1,71 @@
+<?php
+
+namespace App\Support\Ai;
+
+/**
+ * Contexto que alimenta la generación de ideas ganadoras: las preguntas de la
+ * audiencia y los mitos/verdades en juego (más, opcionalmente, un borrador).
+ */
+class IdeaContext
+{
+    /**
+     * @param  array<int, string>  $questions  preguntas de la audiencia
+     * @param  array<int, string>  $beliefs  mitos/verdades ("[Tipo] enunciado")
+     */
+    public function __construct(
+        public array $questions = [],
+        public array $beliefs = [],
+        public ?string $draftTitle = null,
+        public ?string $draftConcept = null,
+        public ?string $extra = null,
+    ) {}
+
+    public function hasMaterial(): bool
+    {
+        return filled($this->questions) || filled($this->beliefs) || filled($this->draftConcept);
+    }
+
+    public function toPrompt(): string
+    {
+        $lines = [];
+
+        $lines[] = 'Propón ideas ganadoras de contenido a partir de este material.';
+
+        if (filled($this->questions)) {
+            $lines[] = '';
+            $lines[] = 'Preguntas de la audiencia:';
+            foreach ($this->questions as $q) {
+                $lines[] = "- {$q}";
+            }
+        }
+
+        if (filled($this->beliefs)) {
+            $lines[] = '';
+            $lines[] = 'Mitos a desmentir y verdades a reforzar:';
+            foreach ($this->beliefs as $b) {
+                $lines[] = "- {$b}";
+            }
+        }
+
+        $draft = array_filter([
+            'Título' => $this->draftTitle,
+            'Concepto' => $this->draftConcept,
+        ], fn ($v) => filled($v));
+
+        if (filled($draft)) {
+            $lines[] = '';
+            $lines[] = 'Borrador actual del creador (mejóralo o propón alternativas):';
+            foreach ($draft as $label => $value) {
+                $lines[] = "{$label}: {$value}";
+            }
+        }
+
+        if (filled($this->extra)) {
+            $lines[] = '';
+            $lines[] = 'Instrucciones adicionales del creador (priorízalas):';
+            $lines[] = $this->extra;
+        }
+
+        return implode("\n", $lines);
+    }
+}

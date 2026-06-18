@@ -18,7 +18,15 @@ class Account extends Model
         'name',
         'slug',
         'description',
+        'is_active',
     ];
+
+    protected function casts(): array
+    {
+        return [
+            'is_active' => 'boolean',
+        ];
+    }
 
     protected static function booted(): void
     {

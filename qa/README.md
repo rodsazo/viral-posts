@@ -26,6 +26,7 @@ los tests automáticos (`php artisan test`), no los sustituye: aquí se prueba l
 | [06-equipo-y-permisos.md](06-equipo-y-permisos.md) | Invitaciones, miembros, roles Admin/Editor, permisos |
 | [07-busqueda-dashboard.md](07-busqueda-dashboard.md) | Búsqueda global, filtros, dashboard, detección de huecos |
 | [08-estudio.md](08-estudio.md) | Frontend "Estudio": Inicio, Inbox, Kanban, Composer, selector de marca |
+| [09-ia.md](09-ia.md) | Asistente de IA (Claude): guión asistido en admin y Estudio (sugerencia, no reemplazo) |
 
 ## Entorno de pruebas
 

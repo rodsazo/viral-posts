@@ -2,7 +2,7 @@
 
 namespace App\Filament\Resources\ViralReferents;
 
-use App\Filament\Concerns\RestrictsDeletionToAdmins;
+use App\Filament\Concerns\RestrictsMutationToSuperAdmins;
 use App\Filament\Resources\ViralReferents\Pages\CreateViralReferent;
 use App\Filament\Resources\ViralReferents\Pages\EditViralReferent;
 use App\Filament\Resources\ViralReferents\Pages\ListViralReferents;
@@ -19,7 +19,7 @@ use UnitEnum;
 
 class ViralReferentResource extends Resource
 {
-    use RestrictsDeletionToAdmins;
+    use RestrictsMutationToSuperAdmins;
 
     protected static ?string $model = ViralReferent::class;
 

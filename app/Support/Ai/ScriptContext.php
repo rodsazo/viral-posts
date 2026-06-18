@@ -1,0 +1,193 @@
+<?php
+
+namespace App\Support\Ai;
+
+use App\Models\Belief;
+use App\Models\ContentPiece;
+use App\Models\HerasTemplate;
+use App\Models\WinningIdea;
+
+/**
+ * Contexto que alimenta la generación de guiones. Desacoplado del modelo persistido
+ * para poder construirlo desde una pieza guardada (Estudio) o desde el estado del
+ * formulario sin guardar (admin Filament).
+ */
+class ScriptContext
+{
+    /**
+     * @param  array<int, string>  $questions  preguntas que responde la pieza
+     * @param  array<int, string>  $beliefs  mitos/verdades a tratar ("[Tipo] enunciado")
+     * @param  array<int, string>  $templates  fórmulas Heras de referencia (texto ya formateado)
+     */
+    public function __construct(
+        public ?string $title = null,
+        public ?string $ideaTitle = null,
+        public ?string $ideaConcept = null,
+        public ?string $objective = null,
+        public ?string $format = null,
+        public array $questions = [],
+        public array $beliefs = [],
+        public ?string $currentHook = null,
+        public ?string $currentStory = null,
+        public ?string $currentMoral = null,
+        public ?string $currentCta = null,
+        public ?string $extra = null,
+        public array $templates = [],
+    ) {}
+
+    public static function fromPiece(ContentPiece $piece): self
+    {
+        $idea = $piece->winningIdea;
+
+        return new self(
+            title: $piece->title,
+            ideaTitle: $idea?->title,
+            ideaConcept: $idea?->concept,
+            objective: $piece->objective?->getLabel(),
+            format: $piece->format?->getLabel(),
+            questions: $piece->derivedQuestions()->pluck('body')->all(),
+            beliefs: static::beliefLabels($piece->derivedBeliefs()->all()),
+            currentHook: $piece->hook,
+            currentStory: $piece->story,
+            currentMoral: $piece->moral,
+            currentCta: $piece->cta,
+            templates: $idea?->herasTemplate ? static::templateLines([$idea->herasTemplate]) : [],
+        );
+    }
+
+    public static function fromIdea(?WinningIdea $idea): self
+    {
+        if ($idea === null) {
+            return new self;
+        }
+
+        return new self(
+            ideaTitle: $idea->title,
+            ideaConcept: $idea->concept,
+            questions: $idea->questions->pluck('body')->all(),
+            beliefs: static::beliefLabels($idea->derivedBeliefs()->all()),
+            templates: $idea->herasTemplate ? static::templateLines([$idea->herasTemplate]) : [],
+        );
+    }
+
+    /**
+     * Formatea plantillas Heras como líneas de contexto, omitiendo campos vacíos
+     * (las plantillas placeholder sin estructura no ensucian el prompt).
+     *
+     * @param  iterable<int, HerasTemplate>  $templates
+     * @return array<int, string>
+     */
+    public static function templateLines(iterable $templates): array
+    {
+        return collect($templates)
+            ->map(function (HerasTemplate $t): ?string {
+                $meta = collect([
+                    filled($t->suggested_format) ? "formato sugerido: {$t->suggested_format}" : null,
+                    filled($t->viral_mechanism) ? "mecanismo: {$t->viral_mechanism}" : null,
+                ])->filter()->implode('; ');
+
+                $line = 'Fórmula «'.$t->name.'»';
+                $line .= $meta !== '' ? " ({$meta})" : '';
+                $line .= filled($t->structure) ? ". Estructura: {$t->structure}" : '';
+
+                return $line;
+            })
+            ->filter()
+            ->values()
+            ->all();
+    }
+
+    /**
+     * @param  array<int, Belief>  $beliefs
+     * @return array<int, string>
+     */
+    private static function beliefLabels(array $beliefs): array
+    {
+        return array_map(
+            fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement,
+            $beliefs,
+        );
+    }
+
+    /**
+     * Indica si hay material suficiente para pedir un guión con sentido.
+     */
+    public function hasMaterial(): bool
+    {
+        return filled($this->ideaConcept) || filled($this->questions) || filled($this->beliefs);
+    }
+
+    /**
+     * Renderiza el contexto como el mensaje de usuario que recibe el modelo.
+     */
+    public function toPrompt(): string
+    {
+        $lines = [];
+
+        $lines[] = 'Crea el guión para esta pieza de contenido.';
+        $lines[] = '';
+
+        if (filled($this->title)) {
+            $lines[] = "Título de trabajo: {$this->title}";
+        }
+        if (filled($this->ideaTitle)) {
+            $lines[] = "Idea ganadora: {$this->ideaTitle}";
+        }
+        if (filled($this->ideaConcept)) {
+            $lines[] = "Concepto: {$this->ideaConcept}";
+        }
+        if (filled($this->objective)) {
+            $lines[] = "Objetivo: {$this->objective}";
+        }
+        if (filled($this->format)) {
+            $lines[] = "Formato: {$this->format}";
+        }
+
+        if (filled($this->questions)) {
+            $lines[] = '';
+            $lines[] = 'Preguntas de la audiencia que el guión debe responder:';
+            foreach ($this->questions as $q) {
+                $lines[] = "- {$q}";
+            }
+        }
+
+        if (filled($this->beliefs)) {
+            $lines[] = '';
+            $lines[] = 'Mitos a desmentir y verdades a reforzar:';
+            foreach ($this->beliefs as $b) {
+                $lines[] = "- {$b}";
+            }
+        }
+
+        if (filled($this->templates)) {
+            $lines[] = '';
+            $lines[] = 'Fórmulas virales de referencia a seguir (Ideas Ganadoras Referenciales — Heras):';
+            foreach ($this->templates as $t) {
+                $lines[] = "- {$t}";
+            }
+        }
+
+        $current = array_filter([
+            'Gancho' => $this->currentHook,
+            'Historia' => $this->currentStory,
+            'Moraleja' => $this->currentMoral,
+            'CTA' => $this->currentCta,
+        ], fn ($v) => filled($v));
+
+        if (filled($current)) {
+            $lines[] = '';
+            $lines[] = 'Borrador actual del creador (mejóralo o propón ángulos alternativos):';
+            foreach ($current as $label => $value) {
+                $lines[] = "{$label}: {$value}";
+            }
+        }
+
+        if (filled($this->extra)) {
+            $lines[] = '';
+            $lines[] = 'Instrucciones adicionales del creador (priorízalas):';
+            $lines[] = $this->extra;
+        }
+
+        return implode("\n", $lines);
+    }
+}

@@ -46,7 +46,9 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 - **No** ejecutar el seeder demo en producción (o separarlo: dejar global/`HerasTemplateSeeder` y crear el admin real con un comando seguro, no con contraseña fija).
 - Cookies de sesión seguras (`SESSION_SECURE_COOKIE=true`), forzar HTTPS.
 - **Rate limiting** en el login y **verificación de email**; revisar políticas de contraseña.
-- Gestión de secretos fuera del repo (variables del hosting / vault).
+- Gestión de secretos fuera del repo (variables del hosting / vault). Incluye la **`ANTHROPIC_API_KEY`**
+  del asistente de IA (ver [IA.md](IA.md)): solo por entorno, nunca en el repo; rotar si se expone.
+  Considerar además un **límite de uso/coste** de IA por marca (cada generación es una llamada de pago).
 
 ---
 

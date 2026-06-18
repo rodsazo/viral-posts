@@ -22,6 +22,7 @@
                         <a href="{{ route('studio.home', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.home')) }}">Inicio</a>
                         <a href="{{ route('studio.inbox', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.inbox')) }}">Inbox</a>
                         <a href="{{ route('studio.kanban', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.kanban')) }}">Kanban</a>
+                        <a href="{{ route('studio.generator', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.generator')) }}">✨ Generador</a>
                         <a href="{{ route('studio.pieces', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.pieces')) }}">Composer</a>
                     </nav>
                     <span class="text-zinc-400">·</span>
@@ -47,6 +48,10 @@
     </header>
 
     <main class="mx-auto max-w-7xl px-4 py-6">
+        @if (session('studio.flash'))
+            <flux:callout variant="success" icon="check-circle" class="mb-4">{{ session('studio.flash') }}</flux:callout>
+        @endif
+
         {{ $slot }}
     </main>
 

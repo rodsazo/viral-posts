@@ -74,6 +74,14 @@
 
                 <flux:separator text="Guión" />
 
+                @if ($this->aiEnabled)
+                    <div class="flex justify-end">
+                        <flux:button wire:click="suggestScript" icon="sparkles" variant="subtle" size="sm">
+                            Sugerir guión (IA)
+                        </flux:button>
+                    </div>
+                @endif
+
                 <flux:textarea wire:model.blur="hookText" label="Gancho" rows="2" />
                 <flux:textarea wire:model.blur="story" label="Historia" rows="4" />
                 <flux:textarea wire:model.blur="moral" label="Moraleja" rows="2" />
@@ -167,4 +175,50 @@
             </div>
         </section>
     @endif
+
+    {{-- Patrón de sugerencias IA: hasta 3 alternativas; aplicar solo al elegir. --}}
+    <flux:modal name="script-suggestions" class="md:w-[42rem]">
+        <div class="space-y-4">
+            <div>
+                <flux:heading size="lg">Sugerencias de guión</flux:heading>
+                <flux:subheading>Da instrucciones (opcional), genera y elige una. Si cierras sin elegir, tu guión no cambia.</flux:subheading>
+            </div>
+
+            <flux:textarea wire:model="aiBrief" label="Instrucciones adicionales (opcional)" rows="2" placeholder="Describe el post que quieres: ángulo, tono, detalles…" />
+
+            <div class="flex justify-end">
+                <flux:button
+                    wire:click="generateScriptSuggestions"
+                    icon="sparkles"
+                    variant="primary"
+                    size="sm"
+                    wire:loading.attr="disabled"
+                    wire:target="generateScriptSuggestions"
+                >
+                    <span wire:loading.remove wire:target="generateScriptSuggestions">
+                        {{ count($scriptSuggestions) ? 'Regenerar' : 'Generar sugerencias' }}
+                    </span>
+                    <span wire:loading wire:target="generateScriptSuggestions">Generando…</span>
+                </flux:button>
+            </div>
+
+            @if ($aiError)
+                <flux:callout variant="danger" icon="exclamation-triangle">{{ $aiError }}</flux:callout>
+            @endif
+
+            <div class="flex flex-col gap-3">
+                @forelse ($scriptSuggestions as $i => $suggestion)
+                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+                        <div class="mb-2 flex items-center justify-between">
+                            <flux:badge size="sm" color="zinc">{{ $suggestion['label'] }}</flux:badge>
+                            <flux:button wire:click="applyScriptSuggestion({{ $i }})" size="sm" variant="primary" icon="check">Usar esta</flux:button>
+                        </div>
+                        <p class="whitespace-pre-line text-sm text-zinc-600 dark:text-zinc-300">{{ $suggestion['preview'] }}</p>
+                    </div>
+                @empty
+                    <flux:text class="text-zinc-500" wire:loading.remove wire:target="generateScriptSuggestions">Escribe instrucciones (opcional) y pulsa “Generar sugerencias”.</flux:text>
+                @endforelse
+            </div>
+        </div>
+    </flux:modal>
 </div>
