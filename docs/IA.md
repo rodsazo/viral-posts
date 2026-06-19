@@ -18,20 +18,18 @@ por defecto para todas las secciones** donde se incorpore IA, salvo indicación 
 
 ## Disponibilidad
 
-La asistencia debe estar disponible **tanto en el admin (Filament) como en el Estudio (Livewire + Flux)**.
-La lógica de generación vive en una capa de servicio compartida; cada panel solo aporta su UI.
+La IA vive **solo en el Estudio** (Livewire + Flux). El **admin (Filament) no tiene funciones de IA**: es para
+*administrar*; el **Estudio** es la suite completa de creación. La lógica de generación vive en una capa de
+servicio compartida (`App\Support\Ai\*`); el Estudio aporta la UI y encola el trabajo.
 
 ## Casos de uso (orden de valor)
 
 | # | Caso | Entrada (contexto) | Salida | Estado |
 |---|------|--------------------|--------|--------|
-| 1 | **Guión a partir de idea clave** | Idea ganadora → preguntas → mitos/verdades (multi-salto) + objetivo/formato + **plantilla Heras** de la idea | Hasta 3 variantes de guión (gancho · historia · moraleja · CTA) | ✅ admin + Estudio |
-| 2 | **Ideas ganadoras** | Preguntas elegidas + sus mitos/verdades (+ borrador) | Hasta 3 ideas (título · concepto · mecanismo de viralidad) | ✅ admin · Estudio pendiente |
-| 3 | **Generador de piezas** (Estudio) | Idea + objetivo + formato + instrucciones + **Ideas Ganadoras Referenciales** (HerasTemplate, 0/1/varias, filtrables por Referente) | **5** guiones → el usuario elige 1 o varios → **crea una pieza por cada uno** con los parámetros del paso 1 | ✅ Estudio (`/studio/{marca}/generador`) |
+| 1 | **Guión asistido en línea** (composer) | Idea ganadora → preguntas → mitos/verdades (multi-salto) + objetivo/formato + **plantilla Heras** de la idea + instrucciones | Hasta 3 variantes de guión (gancho · historia · moraleja · CTA) | ✅ Estudio (composer) |
+| 2 | **Generador de piezas** | Idea + objetivo + formato + instrucciones + selección manual de preguntas/creencias (por seguidor) + **Ideas Ganadoras Referenciales** (HerasTemplate, 0/1/varias, filtrables por Referente) | **5** guiones → el usuario elige 1 o varios → **crea una pieza por cada uno** | ✅ Estudio (`/studio/{marca}/generador`) |
+| 3 | **Generador de ideas** | Seguidor ideal → preguntas/creencias elegidas + instrucciones | Hasta 3 ideas (título · concepto · mecanismo) → el usuario guarda 1 o varias como `WinningIdea` (enlazadas a las preguntas) | ✅ Estudio (`/studio/{marca}/ideas`) |
 | 4 | *(futuro)* Lluvia de preguntas/creencias | Seguidor ideal + categoría | Hasta 3 preguntas o creencias candidatas | ⏳ |
-
-El **generador de piezas** vive **solo en el Estudio** (el admin se mantiene esbelto, para administrar; el
-Estudio es la herramienta de creación). El admin conserva las sugerencias en línea de guión/idea.
 
 ### Configuración editable
 
@@ -62,7 +60,8 @@ El usuario irá afinando los **prompts** de forma progresiva (en `ContentAssista
 2. Un VO de contexto (`*Context`) con `toPrompt()` desde los datos del dominio.
 3. Un método `suggestX(...)` en `ContentAssistant` que reúsa `generate()` y devuelve `Suggestion[]`
    (cada `Suggestion` lleva `fields` = los campos a aplicar — uno o varios).
-4. UI: en el admin, `SuggestionAction::make(name, generator)`; en el Estudio, método Livewire + modal Flux.
+4. UI **en el Estudio**: componente Livewire que crea un `AiGeneration`, encola `GenerateSuggestionsJob` y
+   hace polling (`wire:poll`) hasta cargar las sugerencias; modal/tarjetas Flux para elegir y aplicar.
 
 ## Arquitectura técnica
 
@@ -82,9 +81,16 @@ El usuario irá afinando los **prompts** de forma progresiva (en `ContentAssista
 
 ## Notas
 
-- **Coste y latencia:** cada generación es una llamada de pago. Conviene *streaming* para salidas largas y
-  manejar errores/limites (429/5xx) con el reintento del SDK. Considerar un límite de uso por marca a futuro.
+- **Cola asíncrona (Estudio):** el **generador de piezas** y el **guión asistido en línea** del Estudio
+  generan en **segundo plano** (Job `GenerateSuggestionsJob` → registro `AiGeneration` → la UI hace polling
+  con `wire:poll`). **Requiere un worker de cola corriendo**: en dev, `php artisan queue:work` (junto a
+  `php artisan serve`); en producción, un supervisor (ver `PRODUCCION.md`). Sin worker, la UI se queda en
+  "Generando…". `QUEUE_CONNECTION=database` (sin Redis).
+- **Admin sin IA:** el panel admin **no** ofrece funciones de IA (es para administrar). Todo el flujo de
+  creación asistida vive en el Estudio. `config('ai.request_timeout')` (120 s) queda como salvaguarda del
+  servicio por si se invoca fuera de la cola.
+- **Coste y latencia:** cada generación es una llamada de pago. Si la latencia molesta, baja
+  `config('ai.effort')` a `medium`/`low`. Considerar un límite de uso por marca a futuro.
 - **No es asesoramiento garantizado:** las sugerencias son borradores; el creador siempre decide.
-- **QA:** cuando se implemente cada caso, añadir/actualizar el caso correspondiente en [`/qa/`](../qa/README.md)
-  (p. ej. `qa/09-ia.md`): que se ofrezcan ≤3 alternativas, que elegir reescriba y *no elegir* no cambie nada,
-  y que funcione igual en admin y en Estudio.
+- **QA:** al tocar la IA, actualizar [`qa/09-ia.md`](../qa/09-ia.md): que se ofrezcan ≤N alternativas, que
+  elegir reescriba y *no elegir* no cambie nada, y que la generación (en cola) muestre estado y cargue al terminar.

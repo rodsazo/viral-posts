@@ -14,6 +14,14 @@ return [
     |
     */
 
+    // Segundos máximos para una generación (sube el límite de PHP de la petición).
+    // Generar varios guiones con razonamiento puede tardar > 30 s (límite por defecto de PHP).
+    'request_timeout' => 120,
+
+    // Esfuerzo del modelo: null = por defecto (alto). Bájalo a 'medium'/'low' si la latencia molesta
+    // (menos calidad, más rápido). Valores: low | medium | high | max.
+    'effort' => null,
+
     'script' => [
 
         // Nº de variantes que pide el generador de piezas del Estudio.

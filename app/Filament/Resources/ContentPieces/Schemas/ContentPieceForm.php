@@ -6,11 +6,8 @@ use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
-use App\Filament\Actions\SuggestionAction;
 use App\Models\Belief;
 use App\Models\WinningIdea;
-use App\Support\Ai\ContentAssistant;
-use App\Support\Ai\ScriptContext;
 use App\Support\LinkPreview;
 use App\Support\Rum;
 use Filament\Actions\Action;
@@ -26,7 +23,6 @@ use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
-use Filament\Support\Contracts\HasLabel;
 use Illuminate\Database\Eloquent\Builder;
 
 class ContentPieceForm
@@ -95,12 +91,6 @@ class ContentPieceForm
 
                         Section::make('Guión')
                             ->description('Gancho → Historia → Moraleja → CTA.')
-                            ->afterHeader([
-                                SuggestionAction::make('suggestScript', fn (Get $get, ?string $brief): array => app(ContentAssistant::class)
-                                    ->suggestScripts(static::scriptContext($get, $brief)))
-                                    ->label('Sugerir guión (IA)')
-                                    ->visible(fn (): bool => app(ContentAssistant::class)->isConfigured()),
-                            ])
                             ->schema([
                                 // Guión asistido: recordatorio de las creencias que la pieza debería tratar.
                                 TextEntry::make('script_beliefs_reminder')
@@ -222,41 +212,6 @@ class ContentPieceForm
                             ->placeholder('—'),
                     ]),
             ]);
-    }
-
-    /**
-     * Contexto para la IA construido desde el estado actual del formulario (sin guardar):
-     * idea → preguntas → mitos/verdades, más el objetivo/formato y el borrador del guión.
-     */
-    private static function scriptContext(Get $get, ?string $brief = null): ScriptContext
-    {
-        $context = ScriptContext::fromIdea(static::selectedIdea($get));
-
-        $context->title = $get('title');
-        $context->objective = static::enumLabel(ContentObjective::class, $get('objective'));
-        $context->format = static::enumLabel(ContentFormat::class, $get('format'));
-        $context->currentHook = $get('hook');
-        $context->currentStory = $get('story');
-        $context->currentMoral = $get('moral');
-        $context->currentCta = $get('cta');
-        $context->extra = $brief;
-
-        return $context;
-    }
-
-    /**
-     * El estado del form puede ser el enum (en edición) o su valor escalar (al elegir en el select);
-     * normalizamos a la etiqueta legible sin forzar (string) sobre el objeto enum.
-     *
-     * @param  class-string<\BackedEnum&HasLabel>  $enum
-     */
-    private static function enumLabel(string $enum, mixed $value): ?string
-    {
-        if ($value instanceof $enum) {
-            return $value->getLabel();
-        }
-
-        return filled($value) ? $enum::tryFrom($value)?->getLabel() : null;
     }
 
     private static function selectedIdea(Get $get): ?WinningIdea

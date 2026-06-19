@@ -123,12 +123,9 @@
                     wire:click="generate"
                     icon="sparkles"
                     variant="primary"
-                    :disabled="! $this->aiEnabled"
-                    wire:loading.attr="disabled"
-                    wire:target="generate"
+                    :disabled="! $this->aiEnabled || $this->generating"
                 >
-                    <span wire:loading.remove wire:target="generate">{{ count($suggestions) ? 'Regenerar guiones' : 'Generar guiones' }}</span>
-                    <span wire:loading wire:target="generate">Generando…</span>
+                    {{ $this->generating ? 'Generando…' : (count($suggestions) ? 'Regenerar guiones' : 'Generar guiones') }}
                 </flux:button>
             </div>
         </section>
@@ -139,7 +136,13 @@
                 <flux:callout variant="danger" icon="exclamation-triangle" class="mb-4">{{ $aiError }}</flux:callout>
             @endif
 
-            @if (count($suggestions))
+            @if ($this->generating)
+                {{-- Generación en cola: sondeamos hasta que el job termine. --}}
+                <div wire:poll.2s="pollGeneration" class="rounded-xl border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">
+                    <flux:icon.arrow-path class="mx-auto mb-3 size-6 animate-spin text-zinc-400" />
+                    <flux:text class="text-zinc-500">Generando guiones en segundo plano… puede tardar un momento.</flux:text>
+                </div>
+            @elseif (count($suggestions))
                 <div class="mb-3 flex items-center justify-between">
                     <flux:heading size="lg">2 · Elige los guiones</flux:heading>
                     <flux:button

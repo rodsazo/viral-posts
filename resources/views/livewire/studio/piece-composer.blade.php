@@ -192,13 +192,9 @@
                     icon="sparkles"
                     variant="primary"
                     size="sm"
-                    wire:loading.attr="disabled"
-                    wire:target="generateScriptSuggestions"
+                    :disabled="$this->generatingScript"
                 >
-                    <span wire:loading.remove wire:target="generateScriptSuggestions">
-                        {{ count($scriptSuggestions) ? 'Regenerar' : 'Generar sugerencias' }}
-                    </span>
-                    <span wire:loading wire:target="generateScriptSuggestions">Generando…</span>
+                    {{ $this->generatingScript ? 'Generando…' : (count($scriptSuggestions) ? 'Regenerar' : 'Generar sugerencias') }}
                 </flux:button>
             </div>
 
@@ -206,19 +202,26 @@
                 <flux:callout variant="danger" icon="exclamation-triangle">{{ $aiError }}</flux:callout>
             @endif
 
-            <div class="flex flex-col gap-3">
-                @forelse ($scriptSuggestions as $i => $suggestion)
-                    <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
-                        <div class="mb-2 flex items-center justify-between">
-                            <flux:badge size="sm" color="zinc">{{ $suggestion['label'] }}</flux:badge>
-                            <flux:button wire:click="applyScriptSuggestion({{ $i }})" size="sm" variant="primary" icon="check">Usar esta</flux:button>
+            @if ($this->generatingScript)
+                <div wire:poll.2s="pollScript" class="flex items-center justify-center gap-2 rounded-lg border border-dashed border-zinc-300 p-6 text-center dark:border-zinc-700">
+                    <flux:icon.arrow-path class="size-5 animate-spin text-zinc-400" />
+                    <flux:text class="text-zinc-500">Generando en segundo plano…</flux:text>
+                </div>
+            @else
+                <div class="flex flex-col gap-3">
+                    @forelse ($scriptSuggestions as $i => $suggestion)
+                        <div class="rounded-lg border border-zinc-200 p-4 dark:border-zinc-800">
+                            <div class="mb-2 flex items-center justify-between">
+                                <flux:badge size="sm" color="zinc">{{ $suggestion['label'] }}</flux:badge>
+                                <flux:button wire:click="applyScriptSuggestion({{ $i }})" size="sm" variant="primary" icon="check">Usar esta</flux:button>
+                            </div>
+                            <p class="whitespace-pre-line text-sm text-zinc-600 dark:text-zinc-300">{{ $suggestion['preview'] }}</p>
                         </div>
-                        <p class="whitespace-pre-line text-sm text-zinc-600 dark:text-zinc-300">{{ $suggestion['preview'] }}</p>
-                    </div>
-                @empty
-                    <flux:text class="text-zinc-500" wire:loading.remove wire:target="generateScriptSuggestions">Escribe instrucciones (opcional) y pulsa “Generar sugerencias”.</flux:text>
-                @endforelse
-            </div>
+                    @empty
+                        <flux:text class="text-zinc-500">Escribe instrucciones (opcional) y pulsa “Generar sugerencias”.</flux:text>
+                    @endforelse
+                </div>
+            @endif
         </div>
     </flux:modal>
 </div>

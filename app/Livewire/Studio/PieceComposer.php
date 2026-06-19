@@ -5,7 +5,9 @@ namespace App\Livewire\Studio;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentStatus;
+use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
+use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\ContentPiece;
 use App\Models\WinningIdea;
@@ -17,7 +19,6 @@ use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Throwable;
 
 #[Layout('components.layouts.studio')]
 class PieceComposer extends Component
@@ -71,6 +72,9 @@ class PieceComposer extends Component
     public ?string $aiBrief = null;
 
     public ?string $aiError = null;
+
+    // Generación en curso (id del registro AiGeneration) mientras se procesa en la cola.
+    public ?int $scriptGenerationId = null;
 
     public function mount(Account $account): void
     {
@@ -222,19 +226,25 @@ class PieceComposer extends Component
         $this->aiError = null;
         $this->aiBrief = null;
         $this->scriptSuggestions = [];
+        $this->scriptGenerationId = null;
 
         $this->modal('script-suggestions')->show();
     }
 
-    /** Genera (o regenera) hasta 3 variantes de guión con el contexto + las instrucciones libres. */
+    /** ¿Generación de guión en curso (encolada)? La vista la usa para hacer polling. */
+    #[Computed]
+    public function generatingScript(): bool
+    {
+        return $this->scriptGenerationId !== null;
+    }
+
+    /** Encola la generación (o regeneración) de variantes de guión con el contexto + instrucciones. */
     public function generateScriptSuggestions(): void
     {
         $this->aiError = null;
         $this->scriptSuggestions = [];
 
-        $assistant = app(ContentAssistant::class);
-
-        if (! $assistant->isConfigured() || $this->pieceId === null) {
+        if (! app(ContentAssistant::class)->isConfigured() || $this->pieceId === null) {
             return;
         }
 
@@ -249,12 +259,38 @@ class PieceComposer extends Component
         $context->currentCta = $this->cta;
         $context->extra = $this->aiBrief;
 
-        try {
-            $suggestions = $assistant->suggestScripts($context);
-            $this->scriptSuggestions = array_map(fn ($s): array => $s->toArray(), $suggestions);
-        } catch (Throwable $e) {
-            $this->aiError = $e->getMessage();
+        $generation = AiGeneration::create([
+            'account_id' => $this->account->getKey(),
+            'user_id' => auth()->id(),
+            'kind' => 'script',
+            'status' => AiGeneration::STATUS_PROCESSING,
+        ]);
+
+        GenerateSuggestionsJob::dispatch($generation->id, $context, (int) config('ai.script.inline_suggestions', 3));
+
+        $this->scriptGenerationId = $generation->id;
+    }
+
+    /** Polling: cuando el job termina, carga las sugerencias (o el error) y deja de sondear. */
+    public function pollScript(): void
+    {
+        if ($this->scriptGenerationId === null) {
+            return;
         }
+
+        $generation = AiGeneration::find($this->scriptGenerationId);
+
+        if ($generation === null || $generation->isProcessing()) {
+            return;
+        }
+
+        if ($generation->isDone()) {
+            $this->scriptSuggestions = $generation->result ?? [];
+        } else {
+            $this->aiError = $generation->error ?: 'No se pudo generar. Inténtalo de nuevo.';
+        }
+
+        $this->scriptGenerationId = null;
     }
 
     /** Aplica la sugerencia elegida (afecta varios campos del guión) y guarda. */

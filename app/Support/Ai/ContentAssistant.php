@@ -119,6 +119,20 @@ class ContentAssistant
             throw new RuntimeException('Falta configurar ANTHROPIC_API_KEY para usar el asistente de IA.');
         }
 
+        $timeout = (int) config('ai.request_timeout', 120);
+
+        // Generar varios guiones con razonamiento puede superar el max_execution_time
+        // por defecto de PHP (30 s). Ampliamos el límite solo para esta operación.
+        if (function_exists('set_time_limit')) {
+            @set_time_limit($timeout + 30);
+        }
+
+        $outputConfig = ['format' => $format];
+
+        if (filled(config('ai.effort'))) {
+            $outputConfig['effort'] = (string) config('ai.effort');
+        }
+
         try {
             $message = $this->client()->messages->create(
                 maxTokens: 4096,
@@ -126,7 +140,8 @@ class ContentAssistant
                 system: $system,
                 thinking: ThinkingConfigAdaptive::with(),
                 messages: [['role' => 'user', 'content' => $userPrompt]],
-                outputConfig: ['format' => $format],
+                outputConfig: $outputConfig,
+                requestOptions: ['timeout' => (float) $timeout],
             );
 
             $parsed = $message->parsedOutput();

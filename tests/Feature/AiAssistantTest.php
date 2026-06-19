@@ -6,9 +6,13 @@ use App\Enums\BeliefType;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\TeamRole;
+use App\Enums\ViralMechanism;
+use App\Jobs\GenerateSuggestionsJob;
+use App\Livewire\Studio\IdeaGenerator;
 use App\Livewire\Studio\PieceComposer;
 use App\Livewire\Studio\PieceGenerator;
 use App\Models\Account;
+use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\ContentPiece;
 use App\Models\HerasTemplate;
@@ -21,6 +25,7 @@ use App\Support\Ai\IdeaContext;
 use App\Support\Ai\ScriptContext;
 use App\Support\Ai\Suggestion;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Queue;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -90,27 +95,91 @@ class AiAssistantTest extends TestCase
         $this->assertFalse((new IdeaContext)->hasMaterial());
     }
 
-    public function test_suggest_script_populates_suggestions_without_rewriting(): void
+    public function test_generating_script_enqueues_a_job_without_rewriting(): void
     {
+        Queue::fake();
+        config(['services.anthropic.key' => 'sk-ant-test']);
+
         $account = Account::factory()->create();
         $this->actingAs($this->member($account));
         $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'hook' => 'GANCHO ORIGINAL']);
 
-        $this->mock(ContentAssistant::class, function ($mock): void {
-            $mock->shouldReceive('isConfigured')->andReturn(true);
-            $mock->shouldReceive('suggestScripts')->once()->andReturn([
-                new Suggestion('Variante 1', ['hook' => 'G1', 'story' => 'S1', 'moral' => 'M1', 'cta' => 'C1'], 'preview 1'),
-                new Suggestion('Variante 2', ['hook' => 'G2', 'story' => 'S2', 'moral' => 'M2', 'cta' => 'C2'], 'preview 2'),
-            ]);
-        });
-
         Livewire::test(PieceComposer::class, ['account' => $account])
             ->set('aiBrief', 'Tono cercano')
             ->call('generateScriptSuggestions')
-            ->assertCount('scriptSuggestions', 2);
+            ->assertSet('scriptSuggestions', []);
 
-        // No se reescribió nada por el solo hecho de pedir sugerencias.
+        Queue::assertPushed(GenerateSuggestionsJob::class);
+        $this->assertDatabaseHas('ai_generations', [
+            'account_id' => $account->id,
+            'kind' => 'script',
+            'status' => 'processing',
+        ]);
+
+        // Pedir sugerencias no reescribe el guión.
         $this->assertSame('GANCHO ORIGINAL', $piece->refresh()->hook);
+    }
+
+    public function test_poll_script_loads_suggestions_when_job_is_done(): void
+    {
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+        ContentPiece::factory()->create(['account_id' => $account->id]);
+
+        $generation = AiGeneration::create([
+            'account_id' => $account->id,
+            'kind' => 'script',
+            'status' => AiGeneration::STATUS_DONE,
+            'result' => [
+                ['label' => 'Variante 1', 'fields' => ['hook' => 'H', 'story' => 'S', 'moral' => 'M', 'cta' => 'C'], 'preview' => 'p'],
+            ],
+        ]);
+
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->set('scriptGenerationId', $generation->id)
+            ->call('pollScript')
+            ->assertCount('scriptSuggestions', 1)
+            ->assertSet('scriptGenerationId', null);
+    }
+
+    public function test_job_runs_assistant_and_stores_result(): void
+    {
+        $account = Account::factory()->create();
+        $generation = AiGeneration::create([
+            'account_id' => $account->id,
+            'kind' => 'script',
+            'status' => AiGeneration::STATUS_PROCESSING,
+        ]);
+
+        $this->mock(ContentAssistant::class, function ($mock): void {
+            $mock->shouldReceive('suggestScripts')->once()->andReturn([
+                new Suggestion('V1', ['hook' => 'H', 'story' => 'S', 'moral' => 'M', 'cta' => 'C'], 'p'),
+            ]);
+        });
+
+        (new GenerateSuggestionsJob($generation->id, new ScriptContext, 3))->handle(app(ContentAssistant::class));
+
+        $generation->refresh();
+        $this->assertSame(AiGeneration::STATUS_DONE, $generation->status);
+        $this->assertCount(1, $generation->result);
+    }
+
+    public function test_job_marks_failed_on_error(): void
+    {
+        $account = Account::factory()->create();
+        $generation = AiGeneration::create([
+            'account_id' => $account->id,
+            'kind' => 'script',
+            'status' => AiGeneration::STATUS_PROCESSING,
+        ]);
+
+        $this->mock(ContentAssistant::class, function ($mock): void {
+            $mock->shouldReceive('suggestScripts')->andThrow(new \RuntimeException('boom'));
+        });
+
+        (new GenerateSuggestionsJob($generation->id, new ScriptContext, 3))->handle(app(ContentAssistant::class));
+
+        $this->assertSame(AiGeneration::STATUS_FAILED, $generation->refresh()->status);
     }
 
     public function test_applying_a_suggestion_rewrites_several_fields_and_saves(): void
@@ -144,24 +213,21 @@ class AiAssistantTest extends TestCase
             ->assertForbidden();
     }
 
-    public function test_generator_generates_suggestions_via_assistant(): void
+    public function test_generator_enqueues_a_job_when_generating(): void
     {
+        Queue::fake();
+        config(['services.anthropic.key' => 'sk-ant-test']);
+
         $account = Account::factory()->create();
         $this->actingAs($this->member($account));
-
-        $this->mock(ContentAssistant::class, function ($mock): void {
-            $mock->shouldReceive('isConfigured')->andReturn(true);
-            $mock->shouldReceive('suggestScripts')->once()->andReturn([
-                new Suggestion('Variante 1', ['hook' => 'H1', 'story' => 'S1', 'moral' => 'M1', 'cta' => 'C1'], 'p1'),
-                new Suggestion('Variante 2', ['hook' => 'H2', 'story' => 'S2', 'moral' => 'M2', 'cta' => 'C2'], 'p2'),
-            ]);
-        });
 
         Livewire::test(PieceGenerator::class, ['account' => $account])
             ->set('instructions', 'tono cercano')
             ->call('generate')
-            ->assertCount('suggestions', 2);
+            ->assertSet('suggestions', []);
 
+        Queue::assertPushed(GenerateSuggestionsJob::class);
+        $this->assertDatabaseHas('ai_generations', ['account_id' => $account->id, 'kind' => 'script', 'status' => 'processing']);
         // Generar no crea piezas todavía.
         $this->assertSame(0, ContentPiece::where('account_id', $account->id)->count());
     }
@@ -177,26 +243,21 @@ class AiAssistantTest extends TestCase
         $belief = Belief::factory()->create(['account_id' => $account->id, 'type' => BeliefType::Myth, 'statement' => 'MITO ELEGIDO']);
         $q1->beliefs()->attach($belief->id);
 
-        $captured = null;
-        $this->mock(ContentAssistant::class, function ($mock) use (&$captured): void {
-            $mock->shouldReceive('isConfigured')->andReturn(true);
-            $mock->shouldReceive('suggestScripts')->once()
-                ->andReturnUsing(function (ScriptContext $context) use (&$captured): array {
-                    $captured = $context;
-
-                    return [new Suggestion('V1', ['hook' => 'H', 'story' => 'S', 'moral' => 'M', 'cta' => 'C'], 'p')];
-                });
-        });
+        Queue::fake();
+        config(['services.anthropic.key' => 'sk-ant-test']);
 
         Livewire::test(PieceGenerator::class, ['account' => $account])
             ->set('idealFollowerId', $follower->id)
             ->set('questionIds', [$q1->id])
             ->set('beliefIds', [$belief->id])
-            ->call('generate')
-            ->assertCount('suggestions', 1);
+            ->call('generate');
 
-        $this->assertSame(['PREGUNTA ELEGIDA'], $captured->questions);
-        $this->assertSame(['[Mito] MITO ELEGIDO'], $captured->beliefs);
+        // El contexto que se encola lleva solo lo elegido manualmente.
+        Queue::assertPushed(GenerateSuggestionsJob::class, function (GenerateSuggestionsJob $job): bool {
+            return $job->context instanceof ScriptContext
+                && $job->context->questions === ['PREGUNTA ELEGIDA']
+                && $job->context->beliefs === ['[Mito] MITO ELEGIDO'];
+        });
     }
 
     public function test_generator_creates_one_piece_per_selected_suggestion(): void
@@ -232,6 +293,73 @@ class AiAssistantTest extends TestCase
         $this->assertSame($idea->id, $first->winning_idea_id);
         $this->assertSame($objective, $first->objective);
         $this->assertSame($format, $first->format);
+    }
+
+    public function test_idea_generator_requires_membership(): void
+    {
+        $account = Account::factory()->create();
+
+        $this->actingAs(User::factory()->create())
+            ->get("/studio/{$account->slug}/ideas")
+            ->assertForbidden();
+    }
+
+    public function test_idea_generator_enqueues_an_idea_job_with_chosen_context(): void
+    {
+        Queue::fake();
+        config(['services.anthropic.key' => 'sk-ant-test']);
+
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+
+        $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
+        $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA X']);
+        $belief = Belief::factory()->create(['account_id' => $account->id, 'type' => BeliefType::Myth, 'statement' => 'CREENCIA X']);
+        $question->beliefs()->attach($belief->id);
+
+        Livewire::test(IdeaGenerator::class, ['account' => $account])
+            ->set('idealFollowerId', $follower->id)
+            ->set('questionIds', [$question->id])
+            ->set('beliefIds', [$belief->id])
+            ->call('generate')
+            ->assertSet('suggestions', []);
+
+        Queue::assertPushed(GenerateSuggestionsJob::class, function (GenerateSuggestionsJob $job): bool {
+            return $job->context instanceof IdeaContext
+                && $job->context->questions === ['PREGUNTA X']
+                && $job->context->beliefs === ['[Mito] CREENCIA X'];
+        });
+
+        $this->assertDatabaseHas('ai_generations', ['account_id' => $account->id, 'kind' => 'idea', 'status' => 'processing']);
+    }
+
+    public function test_idea_generator_creates_winning_ideas_and_links_questions(): void
+    {
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+
+        $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
+        $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
+
+        Livewire::test(IdeaGenerator::class, ['account' => $account])
+            ->set('idealFollowerId', $follower->id)
+            ->set('questionIds', [$question->id])
+            ->set('suggestions', [
+                ['label' => 'Idea 1', 'fields' => ['title' => 'IDEA NUEVA', 'concept' => 'CONCEPTO', 'viral_mechanism' => 'curiosidad'], 'preview' => 'p'],
+                ['label' => 'Idea 2', 'fields' => ['title' => 'OTRA IDEA', 'concept' => 'CONCEPTO 2'], 'preview' => 'p2'],
+            ])
+            ->set('selected', [0])
+            ->call('createIdeas')
+            ->assertRedirect(route('studio.generator', $account));
+
+        $idea = WinningIdea::where('account_id', $account->id)->where('title', 'IDEA NUEVA')->first();
+        $this->assertNotNull($idea);
+        $this->assertSame('CONCEPTO', $idea->concept);
+        $this->assertSame(ViralMechanism::Curiosidad, $idea->viral_mechanism);
+        $this->assertTrue($idea->questions->contains($question->id));
+
+        // Solo se creó la idea seleccionada.
+        $this->assertSame(1, WinningIdea::where('account_id', $account->id)->count());
     }
 
     public function test_template_lines_include_structure_and_skip_empty(): void

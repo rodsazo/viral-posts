@@ -6,7 +6,7 @@
 ## General
 
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
-- [ ] **Navegación** superior: Inicio · Inbox · Kanban · ✨ Generador · Composer; el enlace de la sección actual se **resalta**. (El **Generador** se detalla en [09-ia.md](09-ia.md).)
+- [ ] **Navegación** superior: Inicio · Inbox · Kanban · 💡 Ideas · ✨ Generador · Composer; el enlace de la sección actual se **resalta**. (**Ideas** y **Generador** se detallan en [09-ia.md](09-ia.md).)
 - [ ] **Selector de marca.** Junto al nombre, un desplegable lista **las marcas del usuario**; cambiar de marca mantiene la sección (Inicio/Inbox/…). *(Con una sola marca aparece solo esa.)*
 - [ ] **Volver al admin** (botón) regresa a `/admin`.
 

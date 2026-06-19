@@ -5,7 +5,9 @@ namespace App\Livewire\Studio;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentStatus;
+use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
+use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\HerasTemplate;
 use App\Models\Question;
@@ -19,7 +21,6 @@ use Illuminate\Support\Str;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Throwable;
 
 /**
  * Generador de piezas (solo Estudio): un flujo fuera de la edición que, a partir de
@@ -63,6 +64,9 @@ class PieceGenerator extends Component
     public array $selected = [];
 
     public ?string $aiError = null;
+
+    // Generación en curso (id del registro AiGeneration) mientras se procesa en la cola.
+    public ?int $generationId = null;
 
     public function mount(Account $account): void
     {
@@ -116,16 +120,21 @@ class PieceGenerator extends Component
             ->values();
     }
 
-    /** Pide a la IA las variantes de guión (paso 2). Puede regenerarse. */
+    /** ¿Hay una generación en curso (encolada)? La vista la usa para hacer polling. */
+    #[Computed]
+    public function generating(): bool
+    {
+        return $this->generationId !== null;
+    }
+
+    /** Encola la generación de guiones (paso 2). Puede regenerarse. */
     public function generate(): void
     {
         $this->aiError = null;
         $this->suggestions = [];
         $this->selected = [];
 
-        $assistant = app(ContentAssistant::class);
-
-        if (! $assistant->isConfigured()) {
+        if (! app(ContentAssistant::class)->isConfigured()) {
             return;
         }
 
@@ -142,12 +151,38 @@ class PieceGenerator extends Component
             ->values()
             ->all();
 
-        try {
-            $suggestions = $assistant->suggestScripts($context, (int) config('ai.script.suggestions', 5));
-            $this->suggestions = array_map(fn ($s): array => $s->toArray(), $suggestions);
-        } catch (Throwable $e) {
-            $this->aiError = $e->getMessage();
+        $generation = AiGeneration::create([
+            'account_id' => $this->account->getKey(),
+            'user_id' => auth()->id(),
+            'kind' => 'script',
+            'status' => AiGeneration::STATUS_PROCESSING,
+        ]);
+
+        GenerateSuggestionsJob::dispatch($generation->id, $context, (int) config('ai.script.suggestions', 5));
+
+        $this->generationId = $generation->id;
+    }
+
+    /** Polling: cuando el job termina, carga las sugerencias (o el error) y deja de sondear. */
+    public function pollGeneration(): void
+    {
+        if ($this->generationId === null) {
+            return;
         }
+
+        $generation = AiGeneration::find($this->generationId);
+
+        if ($generation === null || $generation->isProcessing()) {
+            return;
+        }
+
+        if ($generation->isDone()) {
+            $this->suggestions = $generation->result ?? [];
+        } else {
+            $this->aiError = $generation->error ?: 'No se pudo generar. Inténtalo de nuevo.';
+        }
+
+        $this->generationId = null;
     }
 
     /** Crea una pieza por cada variante seleccionada (paso 3) y lleva al composer. */
