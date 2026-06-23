@@ -92,6 +92,11 @@ El usuario irá afinando los **prompts** de forma progresiva (en `ContentAssista
 - **Admin sin IA:** el panel admin **no** ofrece funciones de IA (es para administrar). Todo el flujo de
   creación asistida vive en el Estudio. `config('ai.request_timeout')` (120 s) queda como salvaguarda del
   servicio por si se invoca fuera de la cola.
+- **Registro de interacciones:** **toda** llamada a la IA (guiones, ideas, Kickstart) pasa por
+  `ContentAssistant::generate()`, que loguea el **prompt** (system + mensaje) y el **resultado** en un canal
+  diario propio (`Log::channel('ai')` → `storage/logs/ai-YYYY-MM-DD.log`, retención `AI_LOG_DAYS`=30 días,
+  definido en `config/logging.php`). También registra los fallos (timeout, error de API, respuesta
+  inesperada) con su duración. Usa el driver `daily` nativo de Laravel; nada de paquetes externos.
 - **Coste y latencia:** cada generación es una llamada de pago. Si la latencia molesta, baja
   `config('ai.effort')` a `medium`/`low`. Considerar un límite de uso por marca a futuro.
 - **No es asesoramiento garantizado:** las sugerencias son borradores; el creador siempre decide.

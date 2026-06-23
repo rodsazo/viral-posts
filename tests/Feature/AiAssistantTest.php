@@ -53,6 +53,16 @@ class AiAssistantTest extends TestCase
         $this->assertTrue(app(ContentAssistant::class)->isConfigured());
     }
 
+    public function test_ai_log_channel_is_a_dedicated_daily_file(): void
+    {
+        $channel = config('logging.channels.ai');
+
+        $this->assertIsArray($channel);
+        $this->assertSame('daily', $channel['driver']);
+        $this->assertSame(storage_path('logs/ai.log'), $channel['path']);
+        $this->assertNotSame(config('logging.channels.single.path'), $channel['path']);
+    }
+
     public function test_script_context_from_idea_includes_questions_and_beliefs(): void
     {
         $account = Account::factory()->create();

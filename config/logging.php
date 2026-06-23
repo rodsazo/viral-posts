@@ -73,6 +73,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Canal diario dedicado a las interacciones con la IA (prompt + resultado).
+        // Escribe en storage/logs/ai-YYYY-MM-DD.log.
+        'ai' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/ai.log'),
+            'level' => 'debug',
+            'days' => env('AI_LOG_DAYS', 30),
+            'replace_placeholders' => true,
+        ],
+
         'slack' => [
             'driver' => 'slack',
             'url' => env('LOG_SLACK_WEBHOOK_URL'),

@@ -6,6 +6,7 @@ use Anthropic\Client;
 use Anthropic\Messages\ThinkingConfigAdaptive;
 use App\Enums\PainType;
 use App\Enums\ViralMechanism;
+use Illuminate\Support\Facades\Log;
 use RuntimeException;
 use Throwable;
 
@@ -165,10 +166,23 @@ class ContentAssistant
             $outputConfig['effort'] = (string) config('ai.effort');
         }
 
+        $model = (string) config('services.anthropic.model');
+        $workflow = class_basename($format);
+        $startedAt = microtime(true);
+
+        // Logueamos el prompt enviado antes de la llamada: así queda registro aunque
+        // la petición falle o se agote el tiempo a mitad de generación.
+        Log::channel('ai')->info('Petición IA', [
+            'workflow' => $workflow,
+            'model' => $model,
+            'system' => $system,
+            'prompt' => $userPrompt,
+        ]);
+
         try {
             $message = $this->client()->messages->create(
                 maxTokens: 4096,
-                model: (string) config('services.anthropic.model'),
+                model: $model,
                 system: $system,
                 thinking: ThinkingConfigAdaptive::with(),
                 messages: [['role' => 'user', 'content' => $userPrompt]],
@@ -178,16 +192,48 @@ class ContentAssistant
 
             $parsed = $message->parsedOutput();
         } catch (Throwable $e) {
+            Log::channel('ai')->error('Respuesta IA fallida', [
+                'workflow' => $workflow,
+                'model' => $model,
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                'error' => $e->getMessage(),
+            ]);
+
             report($e);
 
             throw new RuntimeException('No se pudo obtener una sugerencia de la IA. Inténtalo de nuevo en un momento.', previous: $e);
         }
 
         if (! $parsed instanceof $format) {
+            Log::channel('ai')->error('Respuesta IA inesperada', [
+                'workflow' => $workflow,
+                'model' => $model,
+                'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+            ]);
+
             throw new RuntimeException('La IA devolvió una respuesta inesperada. Inténtalo de nuevo.');
         }
 
+        Log::channel('ai')->info('Respuesta IA', [
+            'workflow' => $workflow,
+            'model' => $model,
+            'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+            'result' => $this->stringifyResult($parsed),
+        ]);
+
         return $parsed;
+    }
+
+    /**
+     * Serializa la salida estructurada de la IA a JSON legible para el log.
+     */
+    private function stringifyResult(object $parsed): string
+    {
+        if (method_exists($parsed, 'toJson')) {
+            return (string) $parsed->toJson();
+        }
+
+        return (string) json_encode($parsed, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
     }
 
     private function client(): Client
