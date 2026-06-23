@@ -40,4 +40,9 @@ return [
         'model' => env('ANTHROPIC_MODEL', 'claude-opus-4-8'),
     ],
 
+    // FontAwesome 7 Pro: Kit (.js) o CSS (.css) para renderizar los íconos en el panel admin.
+    'fontawesome' => [
+        'url' => env('FONTAWESOME_URL'),
+    ],
+
 ];

@@ -1,6 +1,7 @@
-# 05 — Referencia (Plantillas Heras, Referentes virales, Nichos)
+# 05 — Referencia (Plantillas Heras, Ganchos, Referentes virales, Nichos)
 
-> Estos catálogos son **globales** (compartidos por todas las marcas), no por marca.
+> Estos catálogos son **globales** (compartidos por todas las marcas), no por marca, y se editan **solo en el admin**.
+> Crear/editar/borrar está reservado al **super admin** (cualquier miembro del admin puede verlos).
 
 ## Nichos
 
@@ -23,3 +24,15 @@
 - [ ] **Vista (👁)** de una plantilla: muestra la **imagen grande** + enlace al post.
 - [ ] **Relación con Idea.** En una Idea ganadora, el selector "Plantilla Heras" lista `#N · nombre`; queda visible en la tabla e infolist de la idea.
 - [ ] **Búsqueda global** encuentra plantillas/referentes y muestra su referente/nicho como subtítulo.
+
+## Plantillas de gancho (menú: Referencia → "Ganchos (plantillas)")
+
+> Catálogo **global**, solo admin. Plantillas para el **gancho** (primera parte de una pieza).
+
+- [ ] **Crear** una plantilla de gancho: **Referente** (obligatorio), **Ícono** (FontAwesome), **Objetivo**, **Notas**.
+- [ ] **Ejemplos por nicho:** genérico + Salud + Sexo + Dinero + Desarrollo Personal (textos).
+- [ ] **Referencias:** **URL de referencia** + **Ejemplos reales** (lista de URLs; añadir/quitar varias).
+- [ ] **Picker de ícono.** El campo *Ícono* es un desplegable **buscable** con íconos de FontAwesome; al guardar,
+      el ícono aparece en la tabla. *(Requiere cargar FontAwesome 7 Pro: define `FONTAWESOME_URL` en `.env` con el
+      Kit `.js` o la CSS `.css`. Sin esa URL, el picker funciona por nombre pero los íconos no se dibujan.)*
+- [ ] **Permisos.** Un usuario que **no** es super admin ve la lista pero entrar a *crear* da **403**.

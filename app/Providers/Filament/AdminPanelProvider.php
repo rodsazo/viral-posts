@@ -35,6 +35,8 @@ class AdminPanelProvider extends PanelProvider
             ->colors([
                 'primary' => Color::Amber,
             ])
+            // FontAwesome (Kit .js o CSS .css) para los íconos de las plantillas de gancho.
+            ->renderHook('panels::head.end', fn (): string => static::fontAwesomeTag())
             ->tenant(Account::class, slugAttribute: 'slug')
             // Sin auto-registro de marcas: las crea el super admin (recurso "Marcas").
             ->tenantProfile(EditAccountProfile::class)
@@ -78,5 +80,19 @@ class AdminPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    /** Etiqueta para cargar FontAwesome: <script> si es un Kit (.js), <link> si es CSS. */
+    protected static function fontAwesomeTag(): string
+    {
+        $url = config('services.fontawesome.url');
+
+        if (blank($url)) {
+            return '';
+        }
+
+        return str_ends_with($url, '.css')
+            ? '<link rel="stylesheet" href="'.e($url).'" crossorigin="anonymous">'
+            : '<script src="'.e($url).'" crossorigin="anonymous"></script>';
     }
 }
