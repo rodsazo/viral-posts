@@ -19,6 +19,7 @@ class ScriptContext
      * @param  array<int, string>  $beliefs  mitos/verdades a tratar ("[Tipo] enunciado")
      * @param  array<int, string>  $templates  fórmulas Heras de referencia (texto ya formateado)
      * @param  array<int, string>  $hooks  plantillas de gancho a usar (texto ya formateado)
+     * @param  array<int, string>  $ctas  CTAs hacia las que debe fluir cada variante (texto ya formateado)
      */
     public function __construct(
         public ?string $title = null,
@@ -35,6 +36,7 @@ class ScriptContext
         public ?string $extra = null,
         public array $templates = [],
         public array $hooks = [],
+        public array $ctas = [],
     ) {}
 
     public static function fromPiece(ContentPiece $piece): self
@@ -175,6 +177,17 @@ class ScriptContext
                 .'Si hay menos ganchos que variantes pedidas, inventa los ganchos restantes acordes al contenido.';
             foreach ($this->hooks as $h) {
                 $lines[] = "- {$h}";
+            }
+        }
+
+        if (filled($this->ctas)) {
+            $lines[] = '';
+            $lines[] = count($this->ctas) === 1
+                ? 'Llamada a la acción (CTA) obligatoria: TODAS las variantes deben terminar dirigiendo al espectador hacia esta CTA. '
+                    .'El contenido debe fluir de forma natural hacia ella (sin forzarla) y rematar con ella en el campo CTA:'
+                : 'Llamadas a la acción (CTA) a usar: cada variante debe fluir de forma natural hacia una de estas CTAs y rematar con ella en el campo CTA:';
+            foreach ($this->ctas as $cta) {
+                $lines[] = "- {$cta}";
             }
         }
 

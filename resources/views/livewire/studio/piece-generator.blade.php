@@ -119,6 +119,26 @@
                     @endif
                 </div>
 
+                {{-- CTA hacia la que debe fluir el guión (de momento, una sola) --}}
+                <div class="flex flex-col gap-2">
+                    <flux:subheading>Llamada a la acción (CTA)</flux:subheading>
+                    @if (count($ctas))
+                        <div class="max-h-44 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+                            <flux:radio.group wire:model.live="selectedCtaId">
+                                <flux:radio value="" label="Sin CTA (la IA decide el cierre)" />
+                                @foreach ($ctas as $cta)
+                                    <flux:radio value="{{ $cta->id }}" label="[{{ $cta->category->getLabel() }}] {{ $cta->text }}" />
+                                @endforeach
+                            </flux:radio.group>
+                        </div>
+                        <flux:text class="text-xs text-zinc-400">Si eliges una, todas las variantes fluirán hacia esa CTA.</flux:text>
+                    @else
+                        <flux:text class="text-xs text-zinc-400">
+                            No hay CTAs todavía. Créalas en <a href="{{ route('studio.ctas', $account) }}" class="underline" wire:navigate>📣 CTAs</a>.
+                        </flux:text>
+                    @endif
+                </div>
+
                 {{-- Contexto en vivo de la idea (cuando no se elige seguidor manualmente) --}}
                 @if (! $idealFollowerId && (count($this->contextQuestions) || count($this->contextBeliefs)))
                     <flux:separator />

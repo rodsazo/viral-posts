@@ -68,6 +68,10 @@ class PieceGenerator extends Component
 
     public ?int $hookReferentFilter = null;
 
+    // CTA hacia la que debe fluir el guión. Por ahora una sola; el contexto/prompt ya
+    // soportan varias (lista), así que pasar a multi-selección luego es solo cambiar la UI.
+    public ?int $selectedCtaId = null;
+
     // Paso 2-3 — sugerencias y selección.
     /** @var array<int, array{label: string, fields: array<string, string>, preview: string}> */
     public array $suggestions = [];
@@ -163,6 +167,7 @@ class PieceGenerator extends Component
             ->values()
             ->all();
         $context->hooks = $this->hookLines();
+        $context->ctas = $this->ctaLines();
 
         $generation = AiGeneration::create([
             'account_id' => $this->account->getKey(),
@@ -325,6 +330,27 @@ class PieceGenerator extends Component
     }
 
     /**
+     * CTA(s) seleccionada(s) formateada(s) para el prompt. Devuelve una lista aunque
+     * de momento solo se elija una, para que añadir multi-selección sea trivial.
+     *
+     * @return array<int, string>
+     */
+    private function ctaLines(): array
+    {
+        if (! $this->selectedCtaId) {
+            return [];
+        }
+
+        $cta = $this->account->contentCtas()->find($this->selectedCtaId);
+
+        if ($cta === null) {
+            return [];
+        }
+
+        return ['CTA ['.$cta->category->getLabel().'] «'.$cta->text.'» — objetivo: '.$cta->category->promptIntent()];
+    }
+
+    /**
      * Preguntas que se enviarán: las marcadas manualmente si hay seguidor elegido;
      * en caso contrario, las derivadas de la idea ganadora.
      *
@@ -391,6 +417,7 @@ class PieceGenerator extends Component
                 ->orderBy('name')
                 ->get(),
             'hookReferents' => ViralReferent::query()->whereHas('hookTemplates')->orderBy('name')->get(),
+            'ctas' => $this->account->contentCtas()->orderBy('category')->orderBy('id')->get(),
             'excerpt' => fn (?string $text): string => Str::limit((string) $text, 90),
         ]);
     }

@@ -6,7 +6,16 @@
 ## General
 
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
-- [ ] **Navegación** superior: Inicio · Inbox · 👥 Audiencia · 🚀 Kickstart · Kanban · 💡 Ideas · ✨ Generador · Composer; el enlace de la sección actual se **resalta**. (**Ideas**, **Generador** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
+- [ ] **Navegación** superior: Inicio · Inbox · 👥 Audiencia · 🚀 Kickstart · Kanban · 💡 Ideas · ✨ Generador · 📣 CTAs · Composer; el enlace de la sección actual se **resalta**. (**Ideas**, **Generador** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
+
+## CTAs (`/studio/{marca}/ctas`)
+
+> Llamadas a la acción reutilizables de la marca. También gestionables en el admin (*Producción → CTAs*).
+
+- [ ] **Alta.** El bloque "Nueva CTA" (categoría **Seguir / Palabra clave** + texto, máx. 600) crea una CTA al pulsar **Añadir CTA**.
+- [ ] **Autoguardado.** Editar la categoría o el texto de una CTA existente persiste solo (recargar lo confirma); aparece el badge **Guardado**.
+- [ ] **Borrado.** El botón 🗑 (con confirmación) elimina la CTA.
+- [ ] **Aislamiento por marca.** Solo aparecen las CTAs de la marca activa.
 
 ## Audiencia (`/studio/{marca}/audiencia`)
 

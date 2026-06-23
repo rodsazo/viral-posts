@@ -30,6 +30,14 @@
 - [ ] **Vista (👁)** de una pieza: muestra toda la info + la cascada de idea/preguntas/creencias (solo lectura).
 - [ ] **Permisos.** Como **Editor** (login `editor@elrodyelrol.test`), el botón de **eliminar no aparece**; como **Admin** sí.
 
+## CTAs (Producción → CTAs)
+
+> Llamadas a la acción de la marca (escopadas por marca). También gestionables en el Estudio (📣 CTAs).
+
+- [ ] **Crear/editar** una CTA: **categoría** (Seguir / Palabra clave) + **texto** (máx. 600).
+- [ ] **Tabla**: badge de categoría + texto; **filtro** por categoría.
+- [ ] **Permisos.** Cualquier miembro puede crear/editar; **eliminar** queda reservado al **Admin** de la marca.
+
 ## Kanban (Producción → Kanban, en el panel Filament)
 
 - [ ] **Columnas por estado** (Planificación → Publicada) con tarjetas.

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\BeliefType;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
+use App\Enums\CtaCategory;
 use App\Enums\PainType;
 use App\Enums\TeamRole;
 use App\Enums\ViralMechanism;
@@ -15,6 +16,7 @@ use App\Livewire\Studio\PieceGenerator;
 use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
+use App\Models\ContentCta;
 use App\Models\ContentPiece;
 use App\Models\HerasTemplate;
 use App\Models\HookTemplate;
@@ -271,6 +273,56 @@ class AiAssistantTest extends TestCase
                 && $job->context->questions === ['PREGUNTA ELEGIDA']
                 && $job->context->beliefs === ['[Mito] MITO ELEGIDO'];
         });
+    }
+
+    public function test_script_context_prompt_includes_cta_instruction(): void
+    {
+        $context = new ScriptContext(ctas: ['CTA [Seguir] «Sígueme para más» — objetivo: invitar a SEGUIR la cuenta']);
+        $prompt = $context->toPrompt();
+
+        $this->assertStringContainsString('Llamada a la acción (CTA) obligatoria', $prompt);
+        $this->assertStringContainsString('fluir de forma natural', $prompt);
+        $this->assertStringContainsString('Sígueme para más', $prompt);
+    }
+
+    public function test_generator_sends_selected_cta_to_claude(): void
+    {
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+
+        $cta = ContentCta::factory()->create([
+            'account_id' => $account->id,
+            'category' => CtaCategory::Keyword,
+            'text' => 'Comenta GUIA y te la mando',
+        ]);
+
+        Queue::fake();
+        config(['services.anthropic.key' => 'sk-ant-test']);
+
+        Livewire::test(PieceGenerator::class, ['account' => $account])
+            ->set('selectedCtaId', $cta->id)
+            ->call('generate');
+
+        Queue::assertPushed(GenerateSuggestionsJob::class, function (GenerateSuggestionsJob $job): bool {
+            return $job->context instanceof ScriptContext
+                && count($job->context->ctas) === 1
+                && str_contains($job->context->ctas[0], 'Comenta GUIA y te la mando')
+                && str_contains($job->context->ctas[0], 'Palabra clave');
+        });
+    }
+
+    public function test_generator_only_lists_ctas_from_the_active_brand(): void
+    {
+        $account = Account::factory()->create();
+        $other = Account::factory()->create();
+        $this->actingAs($this->member($account));
+
+        ContentCta::factory()->create(['account_id' => $account->id, 'text' => 'CTA PROPIA']);
+        ContentCta::factory()->create(['account_id' => $other->id, 'text' => 'CTA AJENA']);
+
+        Livewire::test(PieceGenerator::class, ['account' => $account])
+            ->assertSee('CTA PROPIA')
+            ->assertDontSee('CTA AJENA');
     }
 
     public function test_piece_generator_caps_hooks_at_five_and_can_remove(): void

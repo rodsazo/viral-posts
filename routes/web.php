@@ -3,6 +3,7 @@
 use App\Http\Controllers\InvitationController;
 use App\Livewire\Studio\AudienceHub;
 use App\Livewire\Studio\CaptureInbox;
+use App\Livewire\Studio\ContentCtaManager;
 use App\Livewire\Studio\IdeaGenerator;
 use App\Livewire\Studio\IdealFollowerKickstart;
 use App\Livewire\Studio\PieceComposer;
@@ -27,5 +28,6 @@ Route::middleware(['auth', 'membership'])->group(function () {
     Route::get('/studio/{account:slug}/kanban', StudioKanban::class)->name('studio.kanban');
     Route::get('/studio/{account:slug}/ideas', IdeaGenerator::class)->name('studio.ideas');
     Route::get('/studio/{account:slug}/generador', PieceGenerator::class)->name('studio.generator');
+    Route::get('/studio/{account:slug}/ctas', ContentCtaManager::class)->name('studio.ctas');
     Route::get('/studio/{account:slug}/piezas', PieceComposer::class)->name('studio.pieces');
 });

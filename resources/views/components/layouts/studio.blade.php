@@ -34,6 +34,7 @@
                         <a href="{{ route('studio.kanban', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.kanban')) }}">Kanban</a>
                         <a href="{{ route('studio.ideas', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.ideas')) }}">💡 Ideas</a>
                         <a href="{{ route('studio.generator', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.generator')) }}">✨ Generador</a>
+                        <a href="{{ route('studio.ctas', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.ctas')) }}">📣 CTAs</a>
                         <a href="{{ route('studio.pieces', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.pieces')) }}">Composer</a>
                     </nav>
                     <span class="text-zinc-400">·</span>

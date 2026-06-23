@@ -120,4 +120,9 @@ class Account extends Model implements HasAvatar
     {
         return $this->hasMany(Capture::class);
     }
+
+    public function contentCtas(): HasMany
+    {
+        return $this->hasMany(ContentCta::class);
+    }
 }
