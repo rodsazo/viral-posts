@@ -32,8 +32,8 @@
                         ? 'bg-zinc-200 font-medium text-zinc-900 dark:bg-zinc-700 dark:text-white'
                         : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'))
                     {{-- Un grupo se marca activo si la ruta actual es cualquiera de sus hijas (incluidas las próximas). --}}
-                    @php($audienceActive = request()->routeIs('studio.audience', 'studio.kickstart'))
-                    @php($contentActive = request()->routeIs('studio.ideas', 'studio.generator', 'studio.pieces', 'studio.ctas'))
+                    @php($audienceActive = request()->routeIs('studio.audience', 'studio.kickstart', 'studio.ctas'))
+                    @php($contentActive = request()->routeIs('studio.ideas', 'studio.generator', 'studio.pieces'))
                     @php($planActive = request()->routeIs('studio.kanban', 'studio.calendar'))
                     @php($analyticsActive = request()->routeIs('studio.performance', 'studio.ai-usage'))
 
@@ -50,6 +50,7 @@
                             </button>
                             <flux:menu>
                                 <flux:menu.item href="{{ route('studio.audience', $currentAccount) }}" icon="user-group">Seguidores ideales</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.ctas', $currentAccount) }}" icon="megaphone">CTAs</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.kickstart', $currentAccount) }}" icon="rocket-launch">Kickstart</flux:menu.item>
                             </flux:menu>
                         </flux:dropdown>
@@ -64,7 +65,6 @@
                                 <flux:menu.item href="{{ route('studio.ideas', $currentAccount) }}" icon="light-bulb">Ideas</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.generator', $currentAccount) }}" icon="sparkles">Generador</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.pieces', $currentAccount) }}" icon="document-text">Composer</flux:menu.item>
-                                <flux:menu.item href="{{ route('studio.ctas', $currentAccount) }}" icon="megaphone">CTAs</flux:menu.item>
                             </flux:menu>
                         </flux:dropdown>
 
