@@ -11,10 +11,12 @@ class IdeaContext
     /**
      * @param  array<int, string>  $questions  preguntas de la audiencia
      * @param  array<int, string>  $beliefs  mitos/verdades ("[Tipo] enunciado")
+     * @param  array<int, string>  $pains  dolores/problemas/deseos ("[Tipo] enunciado")
      */
     public function __construct(
         public array $questions = [],
         public array $beliefs = [],
+        public array $pains = [],
         public ?string $draftTitle = null,
         public ?string $draftConcept = null,
         public ?string $extra = null,
@@ -22,7 +24,7 @@ class IdeaContext
 
     public function hasMaterial(): bool
     {
-        return filled($this->questions) || filled($this->beliefs) || filled($this->draftConcept);
+        return filled($this->questions) || filled($this->beliefs) || filled($this->pains) || filled($this->draftConcept);
     }
 
     public function toPrompt(): string
@@ -44,6 +46,14 @@ class IdeaContext
             $lines[] = 'Mitos a desmentir y verdades a reforzar:';
             foreach ($this->beliefs as $b) {
                 $lines[] = "- {$b}";
+            }
+        }
+
+        if (filled($this->pains)) {
+            $lines[] = '';
+            $lines[] = 'Dolores, problemas y deseos del seguidor:';
+            foreach ($this->pains as $p) {
+                $lines[] = "- {$p}";
             }
         }
 

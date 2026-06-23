@@ -6,6 +6,7 @@ use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
+use App\Models\Pain;
 use App\Models\Question;
 use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\IdeaContext;
@@ -32,6 +33,9 @@ class IdeaGenerator extends Component
 
     /** @var array<int, int|string> */
     public array $beliefIds = [];
+
+    /** @var array<int, int|string> */
+    public array $painIds = [];
 
     public ?string $instructions = null;
 
@@ -66,6 +70,7 @@ class IdeaGenerator extends Component
     {
         $this->questionIds = [];
         $this->beliefIds = [];
+        $this->painIds = [];
     }
 
     /**
@@ -86,16 +91,45 @@ class IdeaGenerator extends Component
     }
 
     /**
+     * Creencias del seguidor: las ligadas DIRECTAMENTE a él más las que llegan vía sus preguntas.
+     *
      * @return Collection<int, Belief>
      */
     #[Computed]
     public function followerBeliefs(): Collection
     {
-        return $this->followerQuestions
-            ->flatMap->beliefs
+        if (! $this->idealFollowerId) {
+            return collect();
+        }
+
+        $direct = $this->account->beliefs()
+            ->where('ideal_follower_id', $this->idealFollowerId)
+            ->get();
+
+        return $direct
+            ->merge($this->followerQuestions->flatMap->beliefs)
             ->unique('id')
             ->sortBy('statement')
             ->values();
+    }
+
+    /**
+     * Dolores / problemas / deseos del seguidor.
+     *
+     * @return Collection<int, Pain>
+     */
+    #[Computed]
+    public function followerPains(): Collection
+    {
+        if (! $this->idealFollowerId) {
+            return collect();
+        }
+
+        return $this->account->pains()
+            ->where('ideal_follower_id', $this->idealFollowerId)
+            ->orderBy('type')
+            ->orderBy('body')
+            ->get();
     }
 
     /** @return array<int, string> */
@@ -128,11 +162,28 @@ class IdeaGenerator extends Component
             ->all();
     }
 
+    /** @return array<int, string> */
+    #[Computed]
+    public function contextPains(): array
+    {
+        if (! $this->idealFollowerId || empty($this->painIds)) {
+            return [];
+        }
+
+        $ids = array_map('intval', $this->painIds);
+
+        return $this->followerPains
+            ->whereIn('id', $ids)
+            ->map(fn (Pain $p): string => '['.$p->type->getLabel().'] '.$p->body)
+            ->values()
+            ->all();
+    }
+
     #[Computed]
     public function canGenerate(): bool
     {
         return $this->aiEnabled
-            && (filled($this->contextQuestions) || filled($this->contextBeliefs) || filled($this->instructions));
+            && (filled($this->contextQuestions) || filled($this->contextBeliefs) || filled($this->contextPains) || filled($this->instructions));
     }
 
     /** Encola la generación de ideas. Puede regenerarse. */
@@ -149,6 +200,7 @@ class IdeaGenerator extends Component
         $context = new IdeaContext(
             questions: $this->contextQuestions,
             beliefs: $this->contextBeliefs,
+            pains: $this->contextPains,
             extra: $this->instructions,
         );
 

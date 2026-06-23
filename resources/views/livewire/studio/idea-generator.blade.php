@@ -42,7 +42,18 @@
                             @forelse ($this->followerBeliefs as $belief)
                                 <flux:checkbox wire:model.live="beliefIds" value="{{ $belief->id }}" label="[{{ $belief->type->getLabel() }}] {{ $belief->statement }}" />
                             @empty
-                                <flux:text class="text-zinc-500">Las preguntas de este seguidor aún no tienen mitos/verdades.</flux:text>
+                                <flux:text class="text-zinc-500">Este seguidor aún no tiene mitos/verdades.</flux:text>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    <div>
+                        <flux:subheading class="mb-1">Dolores/deseos a enviar</flux:subheading>
+                        <div class="max-h-40 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+                            @forelse ($this->followerPains as $pain)
+                                <flux:checkbox wire:model.live="painIds" value="{{ $pain->id }}" label="[{{ $pain->type->getLabel() }}] {{ $pain->body }}" />
+                            @empty
+                                <flux:text class="text-zinc-500">Este seguidor aún no tiene dolores/deseos.</flux:text>
                             @endforelse
                         </div>
                     </div>

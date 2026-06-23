@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\BeliefType;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
+use App\Enums\PainType;
 use App\Enums\TeamRole;
 use App\Enums\ViralMechanism;
 use App\Jobs\GenerateSuggestionsJob;
@@ -17,6 +18,7 @@ use App\Models\Belief;
 use App\Models\ContentPiece;
 use App\Models\HerasTemplate;
 use App\Models\IdealFollower;
+use App\Models\Pain;
 use App\Models\Question;
 use App\Models\User;
 use App\Models\WinningIdea;
@@ -331,6 +333,42 @@ class AiAssistantTest extends TestCase
         });
 
         $this->assertDatabaseHas('ai_generations', ['account_id' => $account->id, 'kind' => 'idea', 'status' => 'processing']);
+    }
+
+    public function test_idea_generator_sends_direct_beliefs_and_pains(): void
+    {
+        Queue::fake();
+        config(['services.anthropic.key' => 'sk-ant-test']);
+
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+        $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
+
+        // Creencia ligada DIRECTAMENTE al seguidor (no vía pregunta) + un deseo.
+        $belief = Belief::factory()->create([
+            'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
+            'type' => BeliefType::Truth,
+            'statement' => 'VERDAD DIRECTA',
+        ]);
+        $pain = Pain::factory()->create([
+            'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
+            'type' => PainType::Desire,
+            'body' => 'DESEO X',
+        ]);
+
+        Livewire::test(IdeaGenerator::class, ['account' => $account])
+            ->set('idealFollowerId', $follower->id)
+            ->set('beliefIds', [$belief->id])
+            ->set('painIds', [$pain->id])
+            ->call('generate');
+
+        Queue::assertPushed(GenerateSuggestionsJob::class, function (GenerateSuggestionsJob $job): bool {
+            return $job->context instanceof IdeaContext
+                && $job->context->beliefs === ['[Verdad] VERDAD DIRECTA']
+                && $job->context->pains === ['[Deseo] DESEO X'];
+        });
     }
 
     public function test_idea_generator_creates_winning_ideas_and_links_questions(): void
