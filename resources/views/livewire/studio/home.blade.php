@@ -2,10 +2,11 @@
     {{-- Totales --}}
     <section>
         <flux:heading size="lg" class="mb-3">Resumen de {{ $account->name }}</flux:heading>
+        @php($statColors = ['text-violet-300', 'text-cyan-300', 'text-pink-300', 'text-amber-300'])
         <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
             @foreach ($totals as $label => $count)
                 <div class="rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
-                    <div class="text-2xl font-bold">{{ $count }}</div>
+                    <div class="text-2xl font-bold {{ $statColors[$loop->index % count($statColors)] }}">{{ $count }}</div>
                     <flux:text class="text-zinc-500">{{ $label }}</flux:text>
                 </div>
             @endforeach
@@ -24,7 +25,7 @@
             @foreach ($pipeline as $stage)
                 <div class="flex items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 py-2 dark:border-zinc-800 dark:bg-zinc-900">
                     <span class="text-sm text-zinc-600 dark:text-zinc-300">{{ $stage['label'] }}</span>
-                    <flux:badge size="sm" :color="$stage['count'] > 0 ? 'amber' : 'zinc'">{{ $stage['count'] }}</flux:badge>
+                    <flux:badge size="sm" :color="$stage['count'] > 0 ? $stage['color'] : 'zinc'">{{ $stage['count'] }}</flux:badge>
                 </div>
             @endforeach
         </div>
@@ -53,7 +54,7 @@
                 @forelse ($recentPieces as $piece)
                     <a href="{{ route('studio.pieces', $account) }}" class="flex items-center justify-between rounded-lg px-3 py-2 hover:bg-zinc-50 dark:hover:bg-zinc-800">
                         <span class="truncate text-sm">{{ $piece->title }}</span>
-                        <flux:badge size="sm" color="zinc">{{ $piece->status->getLabel() }}</flux:badge>
+                        <flux:badge size="sm" :color="$piece->status->fluxColor()">{{ $piece->status->getLabel() }}</flux:badge>
                     </a>
                 @empty
                     <flux:text class="px-3 py-2 text-zinc-500">Aún no hay piezas.</flux:text>

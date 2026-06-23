@@ -6,11 +6,24 @@
         wire:ignore
         class="flex gap-4 overflow-x-auto pb-4"
     >
+        {{-- Franja superior por estado: pinta el tablero como una progresión de color. --}}
+        @php($columnAccent = [
+            'planificacion' => 'bg-violet-400',
+            'guion_listo' => 'bg-blue-400',
+            'lista_para_grabacion' => 'bg-cyan-400',
+            'grabada' => 'bg-amber-400',
+            'editada' => 'bg-pink-400',
+            'publicada' => 'bg-green-400',
+        ])
         @foreach ($columns as $column)
             @php($status = $column['status'])
-            <div class="flex w-72 shrink-0 flex-col rounded-xl bg-zinc-100 dark:bg-white/5">
+            <div class="flex w-72 shrink-0 flex-col overflow-hidden rounded-xl bg-zinc-100 dark:bg-white/5">
+                <div class="h-1 {{ $columnAccent[$status->value] ?? 'bg-zinc-400' }}"></div>
                 <header class="flex items-center justify-between px-3 py-2">
-                    <span class="text-sm font-semibold text-zinc-700 dark:text-zinc-200">{{ $status->getLabel() }}</span>
+                    <span class="flex items-center gap-2 text-sm font-semibold text-zinc-700 dark:text-zinc-200">
+                        <span class="size-2 rounded-full {{ $columnAccent[$status->value] ?? 'bg-zinc-400' }}"></span>
+                        {{ $status->getLabel() }}
+                    </span>
                     <span
                         class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-zinc-200 px-1.5 text-xs font-medium text-zinc-700 dark:bg-white/10 dark:text-zinc-300"
                         x-text="counts['{{ $status->value }}']"

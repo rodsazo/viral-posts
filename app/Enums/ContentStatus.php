@@ -39,6 +39,23 @@ enum ContentStatus: string implements HasColor, HasLabel
     }
 
     /**
+     * Color de la paleta Flux (badges del Estudio). Distinto de getColor(), que usa
+     * los nombres semánticos de Filament (info/primary/success). Aquí pintamos el flujo
+     * como una progresión de color: planificación → publicada.
+     */
+    public function fluxColor(): string
+    {
+        return match ($this) {
+            self::Planificacion => 'violet',
+            self::GuionListo => 'blue',
+            self::ListaParaGrabacion => 'cyan',
+            self::Grabada => 'amber',
+            self::Editada => 'pink',
+            self::Publicada => 'green',
+        };
+    }
+
+    /**
      * Orden del flujo de producción.
      */
     public static function ordered(): array

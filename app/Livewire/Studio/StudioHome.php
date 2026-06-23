@@ -29,6 +29,7 @@ class StudioHome extends Component
 
         $pipeline = collect(ContentStatus::cases())->map(fn (ContentStatus $status) => [
             'label' => $status->getLabel(),
+            'color' => $status->fluxColor(),
             'count' => (int) ($byStatus[$status->value] ?? 0),
         ])->all();
 

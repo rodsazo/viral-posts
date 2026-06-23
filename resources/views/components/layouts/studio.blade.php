@@ -40,13 +40,13 @@
 
                     <nav class="flex items-center gap-1">
                         <a href="{{ route('studio.home', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.home')) }}">
-                            <flux:icon.home variant="micro" class="size-4" /> Inicio
+                            <flux:icon.home variant="micro" class="size-4 text-violet-300" /> Inicio
                         </a>
 
                         {{-- Audiencia --}}
                         <flux:dropdown position="bottom" align="start">
                             <button type="button" class="{{ $navLink($audienceActive) }}">
-                                <flux:icon.users variant="micro" class="size-4" /> Audiencia
+                                <flux:icon.users variant="micro" class="size-4 text-cyan-300" /> Audiencia
                                 <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
                             </button>
                             <flux:menu>
@@ -59,7 +59,7 @@
                         {{-- Contenido --}}
                         <flux:dropdown position="bottom" align="start">
                             <button type="button" class="{{ $navLink($contentActive) }}">
-                                <flux:icon.pencil-square variant="micro" class="size-4" /> Contenido
+                                <flux:icon.pencil-square variant="micro" class="size-4 text-pink-300" /> Contenido
                                 <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
                             </button>
                             <flux:menu>
@@ -72,7 +72,7 @@
                         {{-- Planificación --}}
                         <flux:dropdown position="bottom" align="start">
                             <button type="button" class="{{ $navLink($planActive) }}">
-                                <flux:icon.calendar-days variant="micro" class="size-4" /> Planificación
+                                <flux:icon.calendar-days variant="micro" class="size-4 text-amber-300" /> Planificación
                                 <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
                             </button>
                             <flux:menu>
@@ -84,7 +84,7 @@
                         {{-- Análisis --}}
                         <flux:dropdown position="bottom" align="start">
                             <button type="button" class="{{ $navLink($analyticsActive) }}">
-                                <flux:icon.chart-bar variant="micro" class="size-4" /> Análisis
+                                <flux:icon.chart-bar variant="micro" class="size-4 text-emerald-300" /> Análisis
                                 <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
                             </button>
                             <flux:menu>
