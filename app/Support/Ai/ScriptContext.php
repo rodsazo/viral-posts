@@ -18,6 +18,7 @@ class ScriptContext
      * @param  array<int, string>  $questions  preguntas que responde la pieza
      * @param  array<int, string>  $beliefs  mitos/verdades a tratar ("[Tipo] enunciado")
      * @param  array<int, string>  $templates  fórmulas Heras de referencia (texto ya formateado)
+     * @param  array<int, string>  $hooks  plantillas de gancho a usar (texto ya formateado)
      */
     public function __construct(
         public ?string $title = null,
@@ -33,6 +34,7 @@ class ScriptContext
         public ?string $currentCta = null,
         public ?string $extra = null,
         public array $templates = [],
+        public array $hooks = [],
     ) {}
 
     public static function fromPiece(ContentPiece $piece): self
@@ -164,6 +166,15 @@ class ScriptContext
             $lines[] = 'Fórmulas virales de referencia a seguir (Ideas Ganadoras Referenciales — Heras):';
             foreach ($this->templates as $t) {
                 $lines[] = "- {$t}";
+            }
+        }
+
+        if (filled($this->hooks)) {
+            $lines[] = '';
+            $lines[] = 'Plantillas de gancho a usar: usa CADA una en una variante distinta para construir su gancho. '
+                .'Si hay menos ganchos que variantes pedidas, inventa los ganchos restantes acordes al contenido.';
+            foreach ($this->hooks as $h) {
+                $lines[] = "- {$h}";
             }
         }
 

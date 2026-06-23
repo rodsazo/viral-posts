@@ -29,7 +29,7 @@
 
 > Catálogo **global**, solo admin. Plantillas para el **gancho** (primera parte de una pieza).
 
-- [ ] **Crear** una plantilla de gancho: **Referente** (obligatorio), **Ícono** (FontAwesome), **Objetivo**, **Notas**.
+- [ ] **Crear** una plantilla de gancho: **Nombre**, **Referente** (obligatorio), **Ícono** (FontAwesome), **Objetivo**, **Notas**.
 - [ ] **Ejemplos por nicho:** genérico + Salud + Sexo + Dinero + Desarrollo Personal (textos).
 - [ ] **Referencias:** **URL de referencia** + **Ejemplos reales** (lista de URLs; añadir/quitar varias).
 - [ ] **Picker de ícono.** El campo *Ícono* es un desplegable **buscable** con íconos de FontAwesome; al guardar,

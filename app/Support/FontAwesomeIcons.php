@@ -2,8 +2,6 @@
 
 namespace App\Support;
 
-use Illuminate\Support\HtmlString;
-
 /**
  * Lista curada de íconos FontAwesome para el selector de plantillas de gancho.
  * El valor guardado es la clase completa (p. ej. "fa-solid fa-fire"). Para verlos
@@ -86,18 +84,18 @@ class FontAwesomeIcons
     ];
 
     /**
-     * Opciones para un Select de Filament con `allowHtml()`: clase => HTML con ícono + etiqueta.
+     * Opciones para un Select de Filament con `allowHtml()`: clase => HTML (string) con ícono + etiqueta.
+     * Debe devolver strings planos (no HtmlString): el componente los serializa a JS y un objeto
+     * aparecería como "[object Object]".
      *
-     * @return array<string, HtmlString>
+     * @return array<string, string>
      */
     public static function options(): array
     {
         $options = [];
 
         foreach (self::ICONS as $class => $label) {
-            $options[$class] = new HtmlString(
-                '<i class="'.e($class).'" style="width:1.25rem;text-align:center"></i>&nbsp;&nbsp;'.e($label)
-            );
+            $options[$class] = '<i class="'.e($class).' fa-fw"></i> &nbsp; '.e($label);
         }
 
         return $options;

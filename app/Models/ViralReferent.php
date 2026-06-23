@@ -29,4 +29,9 @@ class ViralReferent extends Model
     {
         return $this->hasMany(HerasTemplate::class);
     }
+
+    public function hookTemplates(): HasMany
+    {
+        return $this->hasMany(HookTemplate::class);
+    }
 }

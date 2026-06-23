@@ -96,6 +96,29 @@
                     </div>
                 </div>
 
+                {{-- Plantillas de ganchos seleccionadas --}}
+                <div class="flex flex-col gap-2">
+                    <div class="flex items-center justify-between">
+                        <flux:subheading>Plantillas de ganchos <span class="text-zinc-400">({{ count($selectedHookIds) }}/5)</span></flux:subheading>
+                        <flux:button wire:click="openHookPicker" size="xs" variant="subtle" icon="plus">Agregar gancho</flux:button>
+                    </div>
+                    @if (count($this->selectedHooks))
+                        <div class="flex flex-wrap gap-2">
+                            @foreach ($this->selectedHooks as $hook)
+                                <span class="inline-flex items-center gap-2 rounded-lg border border-zinc-200 bg-zinc-50 py-1 pl-2 pr-1 text-sm dark:border-zinc-700 dark:bg-zinc-800">
+                                    @if ($hook->icon)<i class="{{ $hook->icon }}"></i>@endif
+                                    {{ $hook->name }}
+                                    <button type="button" wire:click="removeHook({{ $hook->id }})" class="rounded p-0.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-700 dark:hover:bg-zinc-700">
+                                        <flux:icon.x-mark variant="micro" />
+                                    </button>
+                                </span>
+                            @endforeach
+                        </div>
+                    @else
+                        <flux:text class="text-xs text-zinc-400">Sin ganchos. La IA inventará los ganchos de las 5 variantes.</flux:text>
+                    @endif
+                </div>
+
                 {{-- Contexto en vivo de la idea (cuando no se elige seguidor manualmente) --}}
                 @if (! $idealFollowerId && (count($this->contextQuestions) || count($this->contextBeliefs)))
                     <flux:separator />
@@ -174,4 +197,84 @@
             @endif
         </section>
     </div>
+
+    {{-- Modal: selector de plantillas de gancho --}}
+    <flux:modal name="hook-picker" class="md:w-[52rem]">
+        <div class="space-y-4">
+            <div>
+                <flux:heading size="lg">Plantillas de ganchos</flux:heading>
+                <flux:subheading>Elige hasta 5. La IA usará uno por variante; los que falten los inventará.</flux:subheading>
+            </div>
+
+            <div class="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <flux:input wire:model.live.debounce.300ms="hookSearch" placeholder="Buscar por nombre u objetivo…" icon="magnifying-glass" />
+                <flux:select wire:model.live="hookReferentFilter" placeholder="Todos los referentes">
+                    <flux:select.option value="">Todos los referentes</flux:select.option>
+                    @foreach ($hookReferents as $referent)
+                        <flux:select.option value="{{ $referent->id }}">{{ $referent->name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+            </div>
+
+            @php($selectedCount = count($modalHookIds))
+            <div class="grid max-h-[26rem] grid-cols-1 gap-3 overflow-y-auto pr-1 sm:grid-cols-2">
+                @forelse ($hooks as $hook)
+                    @php($checked = in_array((string) $hook->id, array_map('strval', $modalHookIds), true))
+                    @php($examples = collect([
+                        'Genérico' => $hook->example_generic,
+                        'Salud' => $hook->example_health,
+                        'Sexo' => $hook->example_sex,
+                        'Dinero' => $hook->example_money,
+                        'Desarrollo Personal' => $hook->example_personal_dev,
+                    ])->filter()->map(fn ($t, $l) => ['label' => $l, 'text' => $t])->values())
+                    <div @class([
+                        'rounded-lg border p-3',
+                        'border-amber-400 bg-amber-50 dark:border-amber-500/50 dark:bg-amber-500/10' => $checked,
+                        'border-zinc-200 dark:border-zinc-800' => ! $checked,
+                    ])>
+                        <div class="flex items-start gap-3">
+                            <flux:checkbox wire:model.live="modalHookIds" value="{{ $hook->id }}" :disabled="! $checked && $selectedCount >= 5" />
+                            <div class="min-w-0 flex-1">
+                                <div class="flex flex-wrap items-center gap-2">
+                                    @if ($hook->icon)<i class="{{ $hook->icon }} text-zinc-500"></i>@endif
+                                    <span class="font-medium">{{ $hook->name }}</span>
+                                    <flux:badge size="sm" color="gray">{{ $hook->viralReferent?->name }}</flux:badge>
+                                </div>
+                                @if ($hook->objective)
+                                    <p class="mt-1 text-xs text-zinc-500 dark:text-zinc-400">{{ $hook->objective }}</p>
+                                @endif
+
+                                {{-- Carrusel de ejemplos --}}
+                                <div x-data="{ i: 0, slides: @js($examples) }" class="mt-2 rounded-md bg-zinc-50 p-2 dark:bg-zinc-800/60">
+                                    <template x-if="slides.length === 0">
+                                        <p class="text-xs italic text-zinc-400">Sin ejemplos.</p>
+                                    </template>
+                                    <template x-if="slides.length">
+                                        <div>
+                                            <div class="mb-1 flex items-center justify-between">
+                                                <span class="text-[11px] font-semibold uppercase tracking-wide text-zinc-500" x-text="slides[i].label"></span>
+                                                <span class="text-xs text-zinc-400" x-show="slides.length > 1" x-text="(i + 1) + '/' + slides.length"></span>
+                                            </div>
+                                            <p class="text-xs text-zinc-600 dark:text-zinc-300" x-text="slides[i].text"></p>
+                                            <div class="mt-2 flex justify-end gap-1" x-show="slides.length > 1">
+                                                <button type="button" @click="i = (i - 1 + slides.length) % slides.length" class="rounded px-1.5 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700">‹</button>
+                                                <button type="button" @click="i = (i + 1) % slides.length" class="rounded px-1.5 text-zinc-500 hover:bg-zinc-200 dark:hover:bg-zinc-700">›</button>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <flux:text class="col-span-full text-zinc-500">No hay plantillas de gancho que coincidan.</flux:text>
+                @endforelse
+            </div>
+
+            <div class="flex items-center justify-between">
+                <flux:text class="text-sm text-zinc-500">{{ $selectedCount }}/5 seleccionados</flux:text>
+                <flux:button wire:click="confirmHooks" variant="primary" icon="check">Confirmar</flux:button>
+            </div>
+        </div>
+    </flux:modal>
 </div>

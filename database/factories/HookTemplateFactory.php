@@ -17,6 +17,7 @@ class HookTemplateFactory extends Factory
     {
         return [
             'viral_referent_id' => ViralReferent::factory(),
+            'name' => fake()->unique()->words(2, true),
             'objective' => fake()->sentence(),
             'notes' => fake()->optional()->sentence(),
             'example_generic' => fake()->sentence(),

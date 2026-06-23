@@ -18,6 +18,7 @@ class HookTemplate extends Model
 
     protected $fillable = [
         'viral_referent_id',
+        'name',
         'objective',
         'notes',
         'example_generic',

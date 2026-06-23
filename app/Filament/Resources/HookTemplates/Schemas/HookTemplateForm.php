@@ -19,6 +19,10 @@ class HookTemplateForm
                 Section::make('Plantilla')
                     ->columns(2)
                     ->schema([
+                        TextInput::make('name')
+                            ->label('Nombre del gancho')
+                            ->required()
+                            ->maxLength(255),
                         Select::make('viral_referent_id')
                             ->label('Referente')
                             ->relationship('viralReferent', 'name')

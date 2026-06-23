@@ -38,11 +38,11 @@ class HookTemplateResource extends Resource
 
     protected static ?string $pluralModelLabel = 'plantillas de gancho';
 
-    protected static ?string $recordTitleAttribute = 'objective';
+    protected static ?string $recordTitleAttribute = 'name';
 
     public static function getGloballySearchableAttributes(): array
     {
-        return ['objective', 'notes', 'example_generic'];
+        return ['name', 'objective', 'notes', 'example_generic'];
     }
 
     public static function getGlobalSearchResultDetails(Model $record): array

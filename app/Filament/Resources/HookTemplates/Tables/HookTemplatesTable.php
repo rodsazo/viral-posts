@@ -22,6 +22,11 @@ class HookTemplatesTable
                     ->formatStateUsing(fn (?string $state): HtmlString => new HtmlString(
                         $state ? '<i class="'.e($state).'"></i>' : '—'
                     )),
+                TextColumn::make('name')
+                    ->label('Nombre')
+                    ->weight('semibold')
+                    ->searchable()
+                    ->sortable(),
                 TextColumn::make('viralReferent.name')
                     ->label('Referente')
                     ->badge()

@@ -17,6 +17,7 @@ use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\ContentPiece;
 use App\Models\HerasTemplate;
+use App\Models\HookTemplate;
 use App\Models\IdealFollower;
 use App\Models\Pain;
 use App\Models\Question;
@@ -259,6 +260,47 @@ class AiAssistantTest extends TestCase
             return $job->context instanceof ScriptContext
                 && $job->context->questions === ['PREGUNTA ELEGIDA']
                 && $job->context->beliefs === ['[Mito] MITO ELEGIDO'];
+        });
+    }
+
+    public function test_piece_generator_caps_hooks_at_five_and_can_remove(): void
+    {
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+        $hooks = HookTemplate::factory()->count(7)->create();
+
+        $component = Livewire::test(PieceGenerator::class, ['account' => $account])
+            ->set('modalHookIds', $hooks->pluck('id')->all())
+            ->call('confirmHooks')
+            ->assertCount('selectedHookIds', 5);
+
+        $first = (int) $component->get('selectedHookIds')[0];
+        $component->call('removeHook', $first)->assertCount('selectedHookIds', 4);
+    }
+
+    public function test_piece_generator_sends_selected_hooks_to_claude(): void
+    {
+        Queue::fake();
+        config(['services.anthropic.key' => 'sk-ant-test']);
+
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+        $hook = HookTemplate::factory()->create([
+            'name' => 'GANCHO PRUEBA',
+            'objective' => 'OBJETIVO X',
+            'example_generic' => 'EJEMPLO GENERICO',
+        ]);
+
+        Livewire::test(PieceGenerator::class, ['account' => $account])
+            ->set('modalHookIds', [$hook->id])
+            ->call('confirmHooks')
+            ->call('generate');
+
+        Queue::assertPushed(GenerateSuggestionsJob::class, function (GenerateSuggestionsJob $job): bool {
+            return $job->context instanceof ScriptContext
+                && collect($job->context->hooks)->contains(fn (string $h): bool => str_contains($h, 'GANCHO PRUEBA')
+                    && str_contains($h, 'OBJETIVO X')
+                    && str_contains($h, 'EJEMPLO GENERICO'));
         });
     }
 

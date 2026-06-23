@@ -10,6 +10,7 @@ use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\HerasTemplate;
+use App\Models\HookTemplate;
 use App\Models\Question;
 use App\Models\ViralReferent;
 use App\Models\WinningIdea;
@@ -55,6 +56,17 @@ class PieceGenerator extends Component
 
     /** @var array<int, int|string> */
     public array $herasTemplateIds = [];
+
+    // Plantillas de gancho seleccionadas (hasta 5) + estado del modal selector.
+    /** @var array<int, int|string> */
+    public array $selectedHookIds = [];
+
+    /** @var array<int, int|string> */
+    public array $modalHookIds = [];
+
+    public ?string $hookSearch = null;
+
+    public ?int $hookReferentFilter = null;
 
     // Paso 2-3 — sugerencias y selección.
     /** @var array<int, array{label: string, fields: array<string, string>, preview: string}> */
@@ -150,6 +162,7 @@ class PieceGenerator extends Component
             ->unique()
             ->values()
             ->all();
+        $context->hooks = $this->hookLines();
 
         $generation = AiGeneration::create([
             'account_id' => $this->account->getKey(),
@@ -245,6 +258,72 @@ class PieceGenerator extends Component
         return HerasTemplate::query()->whereKey($this->herasTemplateIds)->get();
     }
 
+    /** Abre el modal selector de ganchos, sembrando la selección actual. */
+    public function openHookPicker(): void
+    {
+        $this->modalHookIds = $this->selectedHookIds;
+        $this->modal('hook-picker')->show();
+    }
+
+    /** Confirma la selección del modal (máx. 5) y lo cierra. */
+    public function confirmHooks(): void
+    {
+        $this->selectedHookIds = array_slice(array_values($this->modalHookIds), 0, 5);
+        $this->modal('hook-picker')->close();
+    }
+
+    /** Quita un gancho de la selección (botón ✕ de la mini-tarjeta). */
+    public function removeHook(int $id): void
+    {
+        $this->selectedHookIds = array_values(array_filter(
+            $this->selectedHookIds,
+            fn ($x): bool => (int) $x !== $id,
+        ));
+    }
+
+    /**
+     * Ganchos seleccionados (modelos), en el orden de selección.
+     *
+     * @return Collection<int, HookTemplate>
+     */
+    #[Computed]
+    public function selectedHooks(): Collection
+    {
+        if (empty($this->selectedHookIds)) {
+            return collect();
+        }
+
+        $ids = array_map('intval', $this->selectedHookIds);
+
+        return HookTemplate::query()->whereKey($ids)->get()
+            ->sortBy(fn (HookTemplate $h): int => array_search($h->id, $ids, true))
+            ->values();
+    }
+
+    /**
+     * Cada gancho seleccionado formateado para el prompt (nombre + objetivo + ejemplos).
+     *
+     * @return array<int, string>
+     */
+    private function hookLines(): array
+    {
+        return $this->selectedHooks->map(function (HookTemplate $h): string {
+            $examples = collect([
+                'Genérico' => $h->example_generic,
+                'Salud' => $h->example_health,
+                'Sexo' => $h->example_sex,
+                'Dinero' => $h->example_money,
+                'Desarrollo Personal' => $h->example_personal_dev,
+            ])->filter()->map(fn (string $t, string $l): string => "[{$l}] {$t}")->implode(' | ');
+
+            $line = 'Gancho «'.$h->name.'»';
+            $line .= filled($h->objective) ? ' — objetivo: '.$h->objective : '';
+            $line .= $examples !== '' ? '. Ejemplos: '.$examples : '';
+
+            return $line;
+        })->values()->all();
+    }
+
     /**
      * Preguntas que se enviarán: las marcadas manualmente si hay seguidor elegido;
      * en caso contrario, las derivadas de la idea ganadora.
@@ -303,6 +382,15 @@ class PieceGenerator extends Component
                 ->when($this->referentFilter, fn ($q) => $q->where('viral_referent_id', $this->referentFilter))
                 ->orderBy('number')
                 ->get(),
+            'hooks' => HookTemplate::query()
+                ->with('viralReferent')
+                ->when($this->hookReferentFilter, fn ($q) => $q->where('viral_referent_id', $this->hookReferentFilter))
+                ->when(filled($this->hookSearch), fn ($q) => $q->where(fn ($w) => $w
+                    ->where('name', 'like', '%'.$this->hookSearch.'%')
+                    ->orWhere('objective', 'like', '%'.$this->hookSearch.'%')))
+                ->orderBy('name')
+                ->get(),
+            'hookReferents' => ViralReferent::query()->whereHas('hookTemplates')->orderBy('name')->get(),
             'excerpt' => fn (?string $text): string => Str::limit((string) $text, 90),
         ]);
     }

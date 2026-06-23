@@ -7,6 +7,14 @@
     @if (file_exists(public_path('hot')) || file_exists(public_path('build/manifest.json')))
         @vite(['resources/css/app.css'])
     @endif
+    @php($faUrl = config('services.fontawesome.url'))
+    @if (filled($faUrl))
+        @if (str_ends_with($faUrl, '.css'))
+            <link rel="stylesheet" href="{{ $faUrl }}" crossorigin="anonymous">
+        @else
+            <script src="{{ $faUrl }}" crossorigin="anonymous"></script>
+        @endif
+    @endif
     @fluxAppearance
 </head>
 <body class="min-h-full bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
