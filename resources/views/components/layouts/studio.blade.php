@@ -30,14 +30,22 @@
                     </nav>
                     <span class="text-zinc-400">·</span>
                     <flux:dropdown>
-                        <flux:button variant="ghost" size="sm" icon:trailing="chevron-down">{{ $currentAccount->name }}</flux:button>
+                        <flux:button variant="ghost" size="sm" icon:trailing="chevron-down">
+                            <span class="flex items-center gap-2">
+                                <x-brand-thumb :brand="$currentAccount" size="size-5" />
+                                {{ $currentAccount->name }}
+                            </span>
+                        </flux:button>
                         <flux:menu>
                             @foreach (auth()->user()->accounts as $brand)
                                 <flux:menu.item
                                     href="{{ route(request()->route()->getName(), $brand) }}"
                                     :checked="$brand->is($currentAccount)"
                                 >
-                                    {{ $brand->name }}
+                                    <span class="flex items-center gap-2">
+                                        <x-brand-thumb :brand="$brand" size="size-5" />
+                                        {{ $brand->name }}
+                                    </span>
                                 </flux:menu.item>
                             @endforeach
                         </flux:menu>

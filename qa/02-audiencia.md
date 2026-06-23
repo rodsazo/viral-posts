@@ -6,6 +6,9 @@
 
 - [ ] **Admin → Datos de la marca:** existen y se guardan **Promesa de la marca**, **Oferta(s) principal(es)** y
       **Perfil del cliente ideal** (textos largos). También editables por el super admin en *Plataforma → Marcas*.
+- [ ] **Logo de la marca.** Subir una imagen en *Datos de la marca* (o *Plataforma → Marcas*). Se muestra como
+      miniatura en la barra del Estudio y el selector de marca, y en el selector de marca del admin. Sin logo,
+      aparece un cuadro con la inicial. (Requiere `php artisan storage:link`.)
 
 ## Seguidores ideales
 

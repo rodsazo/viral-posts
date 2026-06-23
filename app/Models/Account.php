@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use Database\Factories\AccountFactory;
+use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
-class Account extends Model
+class Account extends Model implements HasAvatar
 {
     /** @use HasFactory<AccountFactory> */
     use HasFactory;
@@ -17,12 +19,27 @@ class Account extends Model
     protected $fillable = [
         'name',
         'slug',
+        'logo_path',
         'description',
         'brand_promise',
         'main_offers',
         'ideal_customer_profile',
         'is_active',
     ];
+
+    /** URL pública del logo de la marca, o null si no tiene. */
+    public function logoUrl(): ?string
+    {
+        return filled($this->logo_path)
+            ? Storage::disk('public')->url($this->logo_path)
+            : null;
+    }
+
+    /** Avatar de la marca para el selector de marca de Filament (admin). */
+    public function getFilamentAvatarUrl(): ?string
+    {
+        return $this->logoUrl();
+    }
 
     protected function casts(): array
     {

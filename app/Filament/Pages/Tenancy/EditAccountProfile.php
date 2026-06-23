@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages\Tenancy;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Pages\Tenancy\EditTenantProfile;
@@ -22,6 +23,14 @@ class EditAccountProfile extends EditTenantProfile
                     ->label('Nombre de la marca')
                     ->required()
                     ->maxLength(255),
+                FileUpload::make('logo_path')
+                    ->label('Logo / imagen')
+                    ->image()
+                    ->avatar()
+                    ->disk('public')
+                    ->directory('brand-logos')
+                    ->imageEditor()
+                    ->helperText('Se muestra como miniatura en el Estudio y el selector de marca.'),
                 Textarea::make('description')
                     ->label('Descripción')
                     ->rows(3),

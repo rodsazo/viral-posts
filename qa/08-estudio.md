@@ -16,7 +16,7 @@
 - [ ] **Seleccionar** un seguidor → editar **nombre**, **nivel de conciencia** (0–4) y **descripción**; autoguarda (indicador "Guardado", recargar confirma).
 - [ ] **Preguntas / Creencias / Dolores:** cada sección lista los ítems del seguidor; editar el texto/tipo **autoguarda**; **añadir** (campo + Enter/botón) y **borrar** (✕).
 - [ ] **Borrar seguidor** (con confirmación) elimina también sus preguntas/creencias/dolores.
-- [ ] **Selector de marca.** Junto al nombre, un desplegable lista **las marcas del usuario**; cambiar de marca mantiene la sección (Inicio/Inbox/…). *(Con una sola marca aparece solo esa.)*
+- [ ] **Selector de marca.** Junto al nombre, un desplegable lista **las marcas del usuario** (cada una con su **miniatura/logo**, o la inicial si no tiene); cambiar de marca mantiene la sección (Inicio/Inbox/…). *(Con una sola marca aparece solo esa.)*
 - [ ] **Volver al admin** (botón) regresa a `/admin`.
 
 ## Inicio (`/studio/{marca}`)

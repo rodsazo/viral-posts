@@ -68,6 +68,7 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 ## Candidatos adicionales (a desarrollar más adelante)
 
 - **Cachés de despliegue + assets:** `config:cache`, `route:cache`, `view:cache`, cache de componentes Filament, `npm run build`, OPcache.
+  - **`php artisan storage:link`** en el deploy (los **logos de marca** se guardan en el disco `public` y se sirven vía ese symlink).
   - **Node ≥ 22.12** (o ≥ 20.19) para el build de Vite 8/Flux — la 22.0–22.11 falla (`rolldown-binding…node`). Fijado en `.nvmrc` (24.16) y `engines`. Dev en M3 (arm64), prod en **Ubuntu (linux-x64)**: en el deploy correr `npm ci && npm run build` con Node ≥22.12 (npm baja el binario `linux-x64-gnu` automáticamente), **o** construir en CI y enviar `public/build/` (la salida es portable).
 - **Colas y correo reales:** driver de cola (`database`/`redis`) y `mail` real (notificaciones, restablecer contraseña).
   - 🔴 **El asistente de IA del Estudio depende de un worker de cola** (`GenerateSuggestionsJob`). En producción hay que

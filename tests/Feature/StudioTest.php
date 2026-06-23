@@ -52,6 +52,16 @@ class StudioTest extends TestCase
             ->assertSee('PIEZA EN EL ESTUDIO');
     }
 
+    public function test_account_logo_url_reflects_the_stored_path(): void
+    {
+        $account = Account::factory()->create(['logo_path' => null]);
+        $this->assertNull($account->logoUrl());
+
+        $account->update(['logo_path' => 'brand-logos/foo.png']);
+        $this->assertStringContainsString('brand-logos/foo.png', (string) $account->logoUrl());
+        $this->assertSame($account->logoUrl(), $account->getFilamentAvatarUrl());
+    }
+
     public function test_brand_switcher_lists_the_users_brands(): void
     {
         $brandA = Account::factory()->create(['name' => 'MARCA ALFA']);

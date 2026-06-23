@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Accounts\Schemas;
 
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
@@ -22,6 +23,13 @@ class AccountForm
                     ->maxLength(255)
                     ->helperText('Se genera del nombre si lo dejas vacío. Debe ser único.')
                     ->unique(ignoreRecord: true),
+                FileUpload::make('logo_path')
+                    ->label('Logo / imagen')
+                    ->image()
+                    ->avatar()
+                    ->disk('public')
+                    ->directory('brand-logos')
+                    ->imageEditor(),
                 Textarea::make('description')
                     ->label('Descripción')
                     ->rows(3)
