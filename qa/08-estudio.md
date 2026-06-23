@@ -6,7 +6,15 @@
 ## General
 
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
-- [ ] **Navegación** superior: Inicio · Inbox · 👥 Audiencia · 🚀 Kickstart · Kanban · 💡 Ideas · ✨ Generador · 📣 CTAs · Composer; el enlace de la sección actual se **resalta**. (**Ideas**, **Generador** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
+- [ ] **Navegación** agrupada (sin emojis, iconos consistentes): **Inicio** + 4 desplegables —
+      **Audiencia** (Seguidores ideales · Kickstart), **Contenido** (Ideas · Generador · Composer · CTAs),
+      **Planificación** (Kanban · *Calendario, próx.*), **Análisis** (*Rendimiento* · *Uso de IA*, próx.).
+      El **grupo** de la sección actual se **resalta**; al abrir un menú se ve su lista. (**Ideas**,
+      **Generador** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
+- [ ] **Lado derecho:** botón de **captura rápida (Inbox)** (icono), **selector de marca** (con miniatura)
+      y **Volver al admin**. Cambiar de marca mantiene la misma sección.
+- [ ] **Próximamente.** *Calendario*, *Rendimiento* y *Uso de IA* aparecen como filas **deshabilitadas**
+      con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
 
 ## CTAs (`/studio/{marca}/ctas`)
 

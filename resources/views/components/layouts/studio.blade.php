@@ -21,25 +21,92 @@
 <body class="min-h-full bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
     <header class="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
-            <div class="flex items-center gap-4 text-sm">
-                <span class="font-semibold">🎬 Estudio</span>
+            <div class="flex items-center gap-3 text-sm">
+                <span class="flex items-center gap-1.5 font-semibold">
+                    <flux:icon.film variant="micro" class="size-4 text-amber-500" />
+                    Estudio
+                </span>
                 @isset($currentAccount)
+                    {{-- Estilo de píldora compartido por enlaces y disparadores de grupo (activo-aware). --}}
+                    @php($navLink = fn (bool $active) => 'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 '.($active
+                        ? 'bg-zinc-200 font-medium text-zinc-900 dark:bg-zinc-700 dark:text-white'
+                        : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'))
+                    {{-- Un grupo se marca activo si la ruta actual es cualquiera de sus hijas (incluidas las próximas). --}}
+                    @php($audienceActive = request()->routeIs('studio.audience', 'studio.kickstart'))
+                    @php($contentActive = request()->routeIs('studio.ideas', 'studio.generator', 'studio.pieces', 'studio.ctas'))
+                    @php($planActive = request()->routeIs('studio.kanban', 'studio.calendar'))
+                    @php($analyticsActive = request()->routeIs('studio.performance', 'studio.ai-usage'))
+
                     <nav class="flex items-center gap-1">
-                        @php($navLink = fn (bool $active) => $active
-                            ? 'rounded-md px-2 py-1 bg-zinc-200 font-medium text-zinc-900 dark:bg-zinc-700 dark:text-white'
-                            : 'rounded-md px-2 py-1 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800')
-                        <a href="{{ route('studio.home', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.home')) }}">Inicio</a>
-                        <a href="{{ route('studio.inbox', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.inbox')) }}">Inbox</a>
-                        <a href="{{ route('studio.audience', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.audience')) }}">👥 Audiencia</a>
-                        <a href="{{ route('studio.kickstart', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.kickstart')) }}">🚀 Kickstart</a>
-                        <a href="{{ route('studio.kanban', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.kanban')) }}">Kanban</a>
-                        <a href="{{ route('studio.ideas', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.ideas')) }}">💡 Ideas</a>
-                        <a href="{{ route('studio.generator', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.generator')) }}">✨ Generador</a>
-                        <a href="{{ route('studio.ctas', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.ctas')) }}">📣 CTAs</a>
-                        <a href="{{ route('studio.pieces', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.pieces')) }}">Composer</a>
+                        <a href="{{ route('studio.home', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.home')) }}">
+                            <flux:icon.home variant="micro" class="size-4" /> Inicio
+                        </a>
+
+                        {{-- Audiencia --}}
+                        <flux:dropdown position="bottom" align="start">
+                            <button type="button" class="{{ $navLink($audienceActive) }}">
+                                <flux:icon.users variant="micro" class="size-4" /> Audiencia
+                                <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
+                            </button>
+                            <flux:menu>
+                                <flux:menu.item href="{{ route('studio.audience', $currentAccount) }}" icon="user-group">Seguidores ideales</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.kickstart', $currentAccount) }}" icon="rocket-launch">Kickstart</flux:menu.item>
+                            </flux:menu>
+                        </flux:dropdown>
+
+                        {{-- Contenido --}}
+                        <flux:dropdown position="bottom" align="start">
+                            <button type="button" class="{{ $navLink($contentActive) }}">
+                                <flux:icon.pencil-square variant="micro" class="size-4" /> Contenido
+                                <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
+                            </button>
+                            <flux:menu>
+                                <flux:menu.item href="{{ route('studio.ideas', $currentAccount) }}" icon="light-bulb">Ideas</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.generator', $currentAccount) }}" icon="sparkles">Generador</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.pieces', $currentAccount) }}" icon="document-text">Composer</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.ctas', $currentAccount) }}" icon="megaphone">CTAs</flux:menu.item>
+                            </flux:menu>
+                        </flux:dropdown>
+
+                        {{-- Planificación --}}
+                        <flux:dropdown position="bottom" align="start">
+                            <button type="button" class="{{ $navLink($planActive) }}">
+                                <flux:icon.calendar-days variant="micro" class="size-4" /> Planificación
+                                <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
+                            </button>
+                            <flux:menu>
+                                <flux:menu.item href="{{ route('studio.kanban', $currentAccount) }}" icon="view-columns">Kanban</flux:menu.item>
+                                <x-studio.menu-soon icon="calendar" label="Calendario" />
+                            </flux:menu>
+                        </flux:dropdown>
+
+                        {{-- Análisis --}}
+                        <flux:dropdown position="bottom" align="start">
+                            <button type="button" class="{{ $navLink($analyticsActive) }}">
+                                <flux:icon.chart-bar variant="micro" class="size-4" /> Análisis
+                                <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
+                            </button>
+                            <flux:menu>
+                                <x-studio.menu-soon icon="arrow-trending-up" label="Rendimiento" />
+                                <x-studio.menu-soon icon="banknotes" label="Uso de IA" />
+                            </flux:menu>
+                        </flux:dropdown>
                     </nav>
-                    <span class="text-zinc-400">·</span>
-                    <flux:dropdown>
+                @endisset
+            </div>
+
+            @isset($currentAccount)
+                <div class="flex items-center gap-2">
+                    {{-- Captura rápida (Inbox): acción puntual, no una fase del flujo. --}}
+                    <flux:button
+                        :href="route('studio.inbox', $currentAccount)"
+                        :variant="request()->routeIs('studio.inbox') ? 'filled' : 'ghost'"
+                        size="sm"
+                        icon="inbox-arrow-down"
+                        aria-label="Captura rápida (Inbox)"
+                    />
+
+                    <flux:dropdown position="bottom" align="end">
                         <flux:button variant="ghost" size="sm" icon:trailing="chevron-down">
                             <span class="flex items-center gap-2">
                                 <x-brand-thumb :brand="$currentAccount" size="size-5" />
@@ -60,11 +127,16 @@
                             @endforeach
                         </flux:menu>
                     </flux:dropdown>
-                @endisset
-            </div>
-            <flux:button href="/admin" variant="ghost" size="sm" icon="arrow-left">
-                Volver al admin
-            </flux:button>
+
+                    <flux:button href="/admin" variant="ghost" size="sm" icon="arrow-left">
+                        Volver al admin
+                    </flux:button>
+                </div>
+            @else
+                <flux:button href="/admin" variant="ghost" size="sm" icon="arrow-left">
+                    Volver al admin
+                </flux:button>
+            @endisset
         </div>
     </header>
 
