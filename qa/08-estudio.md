@@ -5,6 +5,9 @@
 
 ## General
 
+- [ ] **Tema.** El Estudio usa un **tema oscuro fijo** plomo-violáceo con **acento violeta** (sin conmutador
+      claro/oscuro). Cards/header apenas más claros que el fondo, texto claro, primarios violeta. El **admin**
+      (Filament) conserva su propio tema y **no** se ve afectado.
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
 - [ ] **Navegación** agrupada (sin emojis, iconos consistentes): **Inicio** + 4 desplegables —
       **Audiencia** (Seguidores ideales · Kickstart), **Contenido** (Ideas · Generador · Composer · CTAs),

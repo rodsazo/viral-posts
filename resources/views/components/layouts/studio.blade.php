@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es" class="h-full">
+<html lang="es" class="h-full dark">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -16,15 +16,16 @@
             <script src="{{ $faUrl }}" crossorigin="anonymous"></script>
         @endif
     @endif
-    @fluxAppearance
+    {{-- El Estudio fija su propio tema oscuro (clase `dark` en <html>); no usamos el
+         conmutador de apariencia de Flux para que el tema no se revierta a claro. --}}
 </head>
-<body class="min-h-full bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
+<body class="studio-shell min-h-full bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
     <header class="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
             <div class="flex items-center gap-3 text-sm">
                 <span class="flex items-center gap-1.5 font-semibold">
-                    <flux:icon.film variant="micro" class="size-4 text-amber-500" />
-                    Estudio
+                    <flux:icon.film variant="micro" class="size-4 text-violet-400" />
+                    <span class="bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">Estudio</span>
                 </span>
                 @isset($currentAccount)
                     {{-- Estilo de píldora compartido por enlaces y disparadores de grupo (activo-aware). --}}
