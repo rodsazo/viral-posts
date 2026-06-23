@@ -18,6 +18,9 @@ class Account extends Model
         'name',
         'slug',
         'description',
+        'brand_promise',
+        'main_offers',
+        'ideal_customer_profile',
         'is_active',
     ];
 
@@ -79,6 +82,11 @@ class Account extends Model
     public function beliefs(): HasMany
     {
         return $this->hasMany(Belief::class);
+    }
+
+    public function pains(): HasMany
+    {
+        return $this->hasMany(Pain::class);
     }
 
     public function winningIdeas(): HasMany

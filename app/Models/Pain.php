@@ -2,30 +2,31 @@
 
 namespace App\Models;
 
-use App\Enums\BeliefType;
-use Database\Factories\BeliefFactory;
+use App\Enums\PainType;
+use Database\Factories\PainFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
-class Belief extends Model
+/**
+ * Dolor / Problema / Deseo de un seguidor ideal. Hermano de Question/Belief.
+ */
+class Pain extends Model
 {
-    /** @use HasFactory<BeliefFactory> */
+    /** @use HasFactory<PainFactory> */
     use HasFactory;
 
     protected $fillable = [
         'account_id',
         'ideal_follower_id',
         'type',
-        'statement',
-        'stance',
+        'body',
     ];
 
     protected function casts(): array
     {
         return [
-            'type' => BeliefType::class,
+            'type' => PainType::class,
         ];
     }
 
@@ -37,10 +38,5 @@ class Belief extends Model
     public function idealFollower(): BelongsTo
     {
         return $this->belongsTo(IdealFollower::class);
-    }
-
-    public function questions(): BelongsToMany
-    {
-        return $this->belongsToMany(Question::class);
     }
 }

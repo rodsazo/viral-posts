@@ -21,6 +21,8 @@
                             : 'rounded-md px-2 py-1 text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800')
                         <a href="{{ route('studio.home', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.home')) }}">Inicio</a>
                         <a href="{{ route('studio.inbox', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.inbox')) }}">Inbox</a>
+                        <a href="{{ route('studio.audience', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.audience')) }}">👥 Audiencia</a>
+                        <a href="{{ route('studio.kickstart', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.kickstart')) }}">🚀 Kickstart</a>
                         <a href="{{ route('studio.kanban', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.kanban')) }}">Kanban</a>
                         <a href="{{ route('studio.ideas', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.ideas')) }}">💡 Ideas</a>
                         <a href="{{ route('studio.generator', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.generator')) }}">✨ Generador</a>

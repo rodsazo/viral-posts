@@ -1,8 +1,16 @@
-# 02 — Audiencia (Seguidores, Categorías, Preguntas)
+# 02 — Audiencia (Seguidores, Categorías, Preguntas, Dolores)
+
+> La audiencia se edita en el **admin** (este archivo) **y** en el Estudio (hub *Audiencia*, ver [08-estudio.md](08-estudio.md)).
+
+## Datos de la marca
+
+- [ ] **Admin → Datos de la marca:** existen y se guardan **Promesa de la marca**, **Oferta(s) principal(es)** y
+      **Perfil del cliente ideal** (textos largos). También editables por el super admin en *Plataforma → Marcas*.
 
 ## Seguidores ideales
 
 - [ ] **Crear** un seguidor ideal con nombre y descripción. → Aparece en el listado.
+- [ ] **Nivel de conciencia.** Campo *Nivel de conciencia (Heras)* (0–4) en el form del seguidor; se guarda.
 - [ ] **Editar / Eliminar** (como admin). → Cambios reflejados.
 - [ ] **Estado vacío.** Sin seguidores, el listado muestra el mensaje guía ("Define a quién le hablas…").
 - [ ] **Relation manager.** Al **editar** un seguidor, pestaña con sus **preguntas**: crear una pregunta desde ahí (hereda la marca). → Se crea asociada al seguidor.
@@ -21,6 +29,17 @@
 - [ ] **Crear creencia inline.** En el selector de "Mitos y verdades" de la pregunta, botón **+ crear** → crea una creencia sin salir. → Queda seleccionada.
 - [ ] **Filtros (B4).** Filtrar la tabla por **seguidor ideal** y por **categoría**; también "con/sin creencias".
 - [ ] **Búsqueda** por texto de la pregunta.
+
+## Dolores / Problemas / Deseos (Audiencia → Dolores)
+
+- [ ] **Crear** un dolor: **seguidor ideal (obligatorio)**, **tipo** (Dolor/Problema/Deseo) y enunciado. → Se guarda.
+- [ ] **Filtros** por tipo y por seguidor; búsqueda por texto.
+- [ ] **Borrar el seguidor** elimina también sus dolores (cascada).
+
+## Creencias por seguidor
+
+- [ ] En el form de **Creencia**, el campo opcional **Seguidor ideal** permite ligar un mito/verdad directamente
+      a un seguidor (además de relacionarlo con preguntas).
 
 ## Preguntas en lote (Audiencia → Preguntas en lote)
 

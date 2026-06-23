@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\AiGeneration;
+use App\Support\Ai\BrandContext;
 use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\IdeaContext;
 use App\Support\Ai\ScriptContext;
@@ -32,7 +33,7 @@ class GenerateSuggestionsJob implements ShouldQueue
 
     public function __construct(
         public int $generationId,
-        public ScriptContext|IdeaContext $context,
+        public ScriptContext|IdeaContext|BrandContext $context,
         public int $max,
     ) {}
 
@@ -45,13 +46,16 @@ class GenerateSuggestionsJob implements ShouldQueue
         }
 
         try {
-            $suggestions = $this->context instanceof ScriptContext
-                ? $assistant->suggestScripts($this->context, $this->max)
-                : $assistant->suggestIdeas($this->context, $this->max);
+            $result = match (true) {
+                // Kickstart: array anidado de hipótesis (ya en forma serializable).
+                $this->context instanceof BrandContext => $assistant->suggestIdealFollowers($this->context, $this->max),
+                $this->context instanceof ScriptContext => $this->serialize($assistant->suggestScripts($this->context, $this->max)),
+                default => $this->serialize($assistant->suggestIdeas($this->context, $this->max)),
+            };
 
             $generation->update([
                 'status' => AiGeneration::STATUS_DONE,
-                'result' => array_map(fn (Suggestion $s): array => $s->toArray(), $suggestions),
+                'result' => $result,
             ]);
         } catch (Throwable $e) {
             report($e);
@@ -69,5 +73,14 @@ class GenerateSuggestionsJob implements ShouldQueue
             'status' => AiGeneration::STATUS_FAILED,
             'error' => 'No se pudo generar. Inténtalo de nuevo.',
         ]);
+    }
+
+    /**
+     * @param  array<int, Suggestion>  $suggestions
+     * @return array<int, array<string, mixed>>
+     */
+    private function serialize(array $suggestions): array
+    {
+        return array_map(fn (Suggestion $s): array => $s->toArray(), $suggestions);
     }
 }

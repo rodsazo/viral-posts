@@ -76,6 +76,8 @@ class PanelTenancyTest extends TestCase
             "/admin/{$account->slug}/questions",
             "/admin/{$account->slug}/questions/create",
             "/admin/{$account->slug}/beliefs/create",
+            "/admin/{$account->slug}/pains",
+            "/admin/{$account->slug}/pains/create",
             "/admin/{$account->slug}/ideal-followers/{$follower->id}/edit", // relation manager: preguntas
             "/admin/{$account->slug}/winning-ideas",
             "/admin/{$account->slug}/winning-ideas/create",

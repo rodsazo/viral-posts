@@ -29,6 +29,12 @@ class BeliefForm
                     ->schema([
                         Section::make()
                             ->schema([
+                                Select::make('ideal_follower_id')
+                                    ->label('Seguidor ideal')
+                                    ->relationship('idealFollower', 'name', $scopeToTenant)
+                                    ->searchable()
+                                    ->placeholder('Sin seguidor (creencia de marca)')
+                                    ->helperText('Opcional: mito/verdad propio de un seguidor ideal.'),
                                 Select::make('type')
                                     ->label('Tipo')
                                     ->options(BeliefType::class)

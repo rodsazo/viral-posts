@@ -4,6 +4,7 @@ namespace App\Support\Ai;
 
 use Anthropic\Client;
 use Anthropic\Messages\ThinkingConfigAdaptive;
+use App\Enums\PainType;
 use App\Enums\ViralMechanism;
 use RuntimeException;
 use Throwable;
@@ -106,6 +107,37 @@ class ContentAssistant
     }
 
     /**
+     * Kickstart: genera hipótesis de seguidor ideal a partir del contexto de marca.
+     * Devuelve un array anidado (no Suggestion[]) porque cada hipótesis lleva hijos.
+     *
+     * @return array<int, array{name: string, description: string, awareness_level: int, pains: array<int, array{type: string, body: string}>, questions: array<int, string>, beliefs: array<int, string>}>
+     */
+    public function suggestIdealFollowers(BrandContext $context, ?int $max = null): array
+    {
+        $max = $max ?? (int) config('ai.kickstart.suggestions', 3);
+
+        $set = $this->generate(
+            system: $this->kickstartSystemPrompt($max),
+            userPrompt: $context->toPrompt(),
+            format: IdealFollowerHypothesisSet::class,
+        );
+
+        $hypotheses = array_slice($set->hypotheses ?? [], 0, $max);
+
+        return array_map(fn (IdealFollowerHypothesis $h): array => [
+            'name' => $h->name,
+            'description' => $h->description,
+            'awareness_level' => $h->awareness_level,
+            'pains' => array_map(fn (PainItem $p): array => [
+                'type' => PainType::tryFrom($p->type)?->value ?? PainType::Pain->value,
+                'body' => $p->body,
+            ], $h->pains),
+            'questions' => array_values($h->questions),
+            'beliefs' => array_values($h->beliefs),
+        ], $hypotheses);
+    }
+
+    /**
      * Llamada genérica con structured output. `$format` es una clase StructuredOutputModel.
      *
      * @template T of object
@@ -193,6 +225,27 @@ class ContentAssistant
         Tu tarea: a partir de las preguntas de la audiencia y los mitos/verdades que te da el creador, proponer
         {$count} ideas ganadoras de contenido, claramente distintas en ángulo. Cada idea tiene un título, un
         concepto y un mecanismo de viralidad.
+
+        Reglas:
+        {$rules}
+        PROMPT;
+    }
+
+    private function kickstartSystemPrompt(int $count): string
+    {
+        $role = (string) config('ai.kickstart.system.role');
+        $rules = $this->bullets((array) config('ai.kickstart.system.rules', []));
+        $awareness = (string) config('ai.kickstart.awareness');
+        $examples = (string) config('ai.kickstart.examples');
+
+        return <<<PROMPT
+        {$role}
+
+        Tu tarea: propón {$count} hipótesis de seguidor ideal para la marca dada, distintas entre sí.
+
+        {$awareness}
+
+        {$examples}
 
         Reglas:
         {$rules}

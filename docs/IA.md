@@ -29,7 +29,8 @@ servicio compartida (`App\Support\Ai\*`); el Estudio aporta la UI y encola el tr
 | 1 | **Guión asistido en línea** (composer) | Idea ganadora → preguntas → mitos/verdades (multi-salto) + objetivo/formato + **plantilla Heras** de la idea + instrucciones | Hasta 3 variantes de guión (gancho · historia · moraleja · CTA) | ✅ Estudio (composer) |
 | 2 | **Generador de piezas** | Idea + objetivo + formato + instrucciones + selección manual de preguntas/creencias (por seguidor) + **Ideas Ganadoras Referenciales** (HerasTemplate, 0/1/varias, filtrables por Referente) | **5** guiones → el usuario elige 1 o varios → **crea una pieza por cada uno** | ✅ Estudio (`/studio/{marca}/generador`) |
 | 3 | **Generador de ideas** | Seguidor ideal → preguntas/creencias elegidas + instrucciones | Hasta 3 ideas (título · concepto · mecanismo) → el usuario guarda 1 o varias como `WinningIdea` (enlazadas a las preguntas) | ✅ Estudio (`/studio/{marca}/ideas`) |
-| 4 | *(futuro)* Lluvia de preguntas/creencias | Seguidor ideal + categoría | Hasta 3 preguntas o creencias candidatas | ⏳ |
+| 4 | **Kickstart · Seguidores ideales** | Info de la marca (descripción, promesa, ofertas, cliente ideal) + instrucciones | **3** hipótesis de seguidor ideal, cada una con nivel de conciencia + 4 dolores/problemas/deseos + 4 preguntas + 4 mitos → el usuario guarda 1 o varias (crea `IdealFollower` + `Question`/`Belief`/`Pain`) | ✅ Estudio (`/studio/{marca}/kickstart`) |
+| 5 | *(futuro)* Lluvia de preguntas/creencias | Seguidor ideal + categoría | Hasta 3 preguntas o creencias candidatas | ⏳ |
 
 ### Configuración editable
 
@@ -39,6 +40,8 @@ Todo el prompt es afinable desde [`config/ai.php`](../config/ai.php) **sin tocar
   (estructura gancho/historia/moraleja/CTA), `ai.script.suggestions` (= 5, generador) y
   `ai.script.inline_suggestions` (= 3, sugerencias en línea).
 - **Ideas:** `ai.idea.system.role`, `ai.idea.system.rules`, `ai.idea.suggestions` (= 3).
+- **Kickstart:** `ai.kickstart.system.role/rules`, `ai.kickstart.suggestions` (= 3), `ai.kickstart.awareness`
+  (explicación de los niveles de conciencia) y `ai.kickstart.examples` (buenos/malos ejemplos de seguidor ideal).
 
 `ContentAssistant` compone el prompt del sistema a partir de estos valores (rol + tarea + fórmula + reglas).
 

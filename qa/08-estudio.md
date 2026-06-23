@@ -6,7 +6,16 @@
 ## General
 
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
-- [ ] **Navegación** superior: Inicio · Inbox · Kanban · 💡 Ideas · ✨ Generador · Composer; el enlace de la sección actual se **resalta**. (**Ideas** y **Generador** se detallan en [09-ia.md](09-ia.md).)
+- [ ] **Navegación** superior: Inicio · Inbox · 👥 Audiencia · 🚀 Kickstart · Kanban · 💡 Ideas · ✨ Generador · Composer; el enlace de la sección actual se **resalta**. (**Ideas**, **Generador** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
+
+## Audiencia (`/studio/{marca}/audiencia`)
+
+> Hub para editar la audiencia desde el Estudio (también editable en el admin).
+
+- [ ] **Lista de seguidores** a la izquierda; **"Nuevo"** crea un seguidor.
+- [ ] **Seleccionar** un seguidor → editar **nombre**, **nivel de conciencia** (0–4) y **descripción**; autoguarda (indicador "Guardado", recargar confirma).
+- [ ] **Preguntas / Creencias / Dolores:** cada sección lista los ítems del seguidor; editar el texto/tipo **autoguarda**; **añadir** (campo + Enter/botón) y **borrar** (✕).
+- [ ] **Borrar seguidor** (con confirmación) elimina también sus preguntas/creencias/dolores.
 - [ ] **Selector de marca.** Junto al nombre, un desplegable lista **las marcas del usuario**; cambiar de marca mantiene la sección (Inicio/Inbox/…). *(Con una sola marca aparece solo esa.)*
 - [ ] **Volver al admin** (botón) regresa a `/admin`.
 

@@ -26,6 +26,18 @@ class AccountForm
                     ->label('Descripción')
                     ->rows(3)
                     ->columnSpanFull(),
+                Textarea::make('brand_promise')
+                    ->label('Promesa de la marca')
+                    ->rows(3)
+                    ->columnSpanFull(),
+                Textarea::make('main_offers')
+                    ->label('Oferta(s) principal(es)')
+                    ->rows(3)
+                    ->columnSpanFull(),
+                Textarea::make('ideal_customer_profile')
+                    ->label('Perfil del cliente ideal')
+                    ->rows(3)
+                    ->columnSpanFull(),
                 Toggle::make('is_active')
                     ->label('Marca activa')
                     ->default(true)
