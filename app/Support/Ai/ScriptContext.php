@@ -149,7 +149,7 @@ class ScriptContext
 
         if (filled($this->questions)) {
             $lines[] = '';
-            $lines[] = 'Preguntas de la audiencia que el guión debe responder:';
+            $lines[] = 'Preguntas de la audiencia que el guión debe responder. Para cada guión puedes elegir una o varias. Trata de repartirlas equitativamente:';
             foreach ($this->questions as $q) {
                 $lines[] = "- {$q}";
             }

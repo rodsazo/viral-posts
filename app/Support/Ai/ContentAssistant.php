@@ -246,6 +246,7 @@ class ContentAssistant
         $role = (string) config('ai.script.system.role');
         $formula = $this->bullets((array) config('ai.script.formula', []));
         $rules = $this->bullets((array) config('ai.script.system.rules', []));
+        $checklist = $this->bullets((array) config('ai.script.system.checklist', []));
 
         return <<<PROMPT
         {$role}
@@ -257,6 +258,9 @@ class ContentAssistant
 
         Reglas:
         {$rules}
+
+        Verificación: Cada contenido debe cumplir con la mayor cantidad posible de las siguientes verificaciones:
+        {$checklist}
         PROMPT;
     }
 

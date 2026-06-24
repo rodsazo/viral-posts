@@ -36,10 +36,10 @@ return [
         | de la pieza (hook/story/moral/cta).
         */
         'formula' => [
-            'hook' => 'Gancho — 1-2 frases que detienen el scroll y abren un bucle de curiosidad.',
-            'story' => 'Historia — el desarrollo principal, concreto y en primera persona (3-6 frases); nada genérico.',
-            'moral' => 'Moraleja — la lección o reencuadre que refuerza las verdades y desmiente los mitos.',
-            'cta' => 'CTA — llamada a la acción clara y específica para el espectador.',
+            'hook' => 'Gancho — una sola frase o imagen que detenga el scroll. Puede coincidir con la idea ganadora, pero esto no es obligatorio. Prohibido empezar con saludo, presentación o contexto. El gancho va primero.',
+            'story' => 'Historia — Abre con un elemento de credibilidad (historia personal, antes/después, dato, caso real). MANTÉN la curiosidad: NO reveles aún la respuesta, el método o el "secreto". Puedes (si ves conveniente) insertar un REGANCHO a media historia: un segundo pico de tensión, miedo o curiosidad que reabra el interés antes de soltar la enseñanza.',
+            'moral' => 'Moraleja — (la enseñanza): el valor que posiciona a quien habla como experto. Es obligatoria. Sin ella, el CTA no funciona. Aquí, y solo aquí, se revela el método/respuesta retenido en la historia. Si el objetivo es venta, este tramo debe demostrar dominio real del tema.',
+            'cta' => 'CTA — Coherente con el objetivo declarado. Por defecto, pide un comentario con UNA palabra clave (activa el algoritmo) y/o dirige a la acción/enlace de destino. Una sola acción clara, no varias, ya sea "sígueme", "comenta X" u otra.',
         ],
 
         // Prompt del sistema (rol + reglas). Editable para afinar el estilo de los guiones.
@@ -48,12 +48,25 @@ return [
             'rules' => [
                 'Responde en español, en el tono cercano y directo de redes sociales.',
                 'Sigue la fórmula anterior en cada variante.',
-                'La historia debe ser concreta y específica, no genérica.',
-                'Refuerza las verdades y desmiente los mitos indicados; responde a las preguntas de la audiencia.',
+                'Tu prioridad #1 NO es informar: es RETENER atención.',
+                'Asume que el usuario hace swipe constantemente y que solo verá los primeros 0,6–6 segundos si el gancho falla.',
                 'Si se dan fórmulas virales de referencia (Heras), úsalas como guía de estructura.',
                 'No inventes datos, cifras ni hechos que no se deriven del contexto.',
                 'Las variantes deben diferenciarse entre sí (distinto ángulo, gancho o estructura), no ser parafraseos.',
                 'Son sugerencias: ofrece opciones de calidad, el creador elegirá.',
+                'Apunta a 45–60 s de lectura (rango aceptable 30 s a 1 min 30 s). Sé conciso.',
+                'Retén la respuesta lo máximo posible; revélala lo más tarde que tenga sentido.',
+                'Congruencia > relleno: el contenido se apoya en lo que la marca ES y VENDE',
+                'La info de IA solo rellena huecos, nunca es la base. Marca con [HUECO: ...] lo que deba completar la persona real cuando no tengas su dato concreto',
+            ],
+            'checklist' => [
+                'El gancho detiene el scroll en <6 s y se entiende solo.',
+                'Lo entendería un niño de 5 años.',
+                'Hay elemento de credibilidad en la historia.',
+                'Se sostiene la curiosidad (no se revela el método antes de tiempo)',
+                'Hay moraleja que demuestra experticia',
+                'El CTA es único y coherente con el objetivo',
+                'Genera debate o bien toca un deseo/dolor fuerte',
             ],
         ],
 
