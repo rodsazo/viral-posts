@@ -117,7 +117,7 @@ class DatabaseSeeder extends Seeder
             'title' => 'Tu primera partida en 10 minutos',
             'concept' => 'Desmontar el mito de la dificultad mostrando una partida real arrancando de cero con amigos.',
             'viral_mechanism' => ViralMechanism::Sorpresa,
-            'reference_url' => 'https://www.instagram.com/reel/ejemplo-viral/',
+            'example_urls' => ['https://www.instagram.com/reel/ejemplo-viral/'],
         ]);
         $idea->questions()->attach([$q1->id, $q3->id]);
 

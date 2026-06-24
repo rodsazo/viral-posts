@@ -3,11 +3,11 @@
 namespace App\Filament\Resources\WinningIdeas\Tables;
 
 use App\Enums\ViralMechanism;
+use App\Models\WinningIdea;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
@@ -43,12 +43,11 @@ class WinningIdeasTable
                     ->counts('contentPieces')
                     ->badge()
                     ->toggleable(),
-                IconColumn::make('reference_url')
-                    ->label('Referencia')
-                    ->icon(fn ($record): ?string => filled($record->reference_url) ? 'heroicon-m-link' : null)
-                    ->color('info')
-                    ->url(fn ($record) => $record->reference_url, shouldOpenInNewTab: true)
-                    ->toggleable(),
+                TextColumn::make('validation')
+                    ->label('Validación')
+                    ->badge()
+                    ->state(fn (WinningIdea $record) => $record->validationStatus())
+                    ->tooltip(fn (WinningIdea $record): string => ($record->example_urls ? count($record->example_urls) : 0).' ejemplo(s) real(es)'),
                 TextColumn::make('created_at')
                     ->label('Creada')
                     ->dateTime()
@@ -70,6 +69,15 @@ class WinningIdeasTable
                     ->queries(
                         true: fn (Builder $query) => $query->has('questions'),
                         false: fn (Builder $query) => $query->doesntHave('questions'),
+                    ),
+                TernaryFilter::make('validated')
+                    ->label('Validación')
+                    ->placeholder('Todas')
+                    ->trueLabel('Validadas (con ejemplos)')
+                    ->falseLabel('Pendientes (sin ejemplos)')
+                    ->queries(
+                        true: fn (Builder $query) => $query->whereNotNull('example_urls')->where('example_urls', '!=', '[]'),
+                        false: fn (Builder $query) => $query->where(fn (Builder $q) => $q->whereNull('example_urls')->orWhere('example_urls', '[]')),
                     ),
             ])
             ->recordActions([

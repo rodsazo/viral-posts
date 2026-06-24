@@ -1,0 +1,133 @@
+<div>
+    <div class="mb-4">
+        <flux:heading size="xl">Ideas ganadoras</flux:heading>
+        <flux:subheading>Gestiona tus ideas ganadoras: concepto, mecanismo, preguntas y ejemplos reales de viralidad.</flux:subheading>
+    </div>
+
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {{-- Lista --}}
+        <section class="lg:col-span-4">
+            <div class="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
+                <flux:button wire:click="newIdea" variant="primary" icon="plus" size="sm" class="w-full">Nueva idea</flux:button>
+
+                <div class="mt-1 flex max-h-[32rem] flex-col gap-1 overflow-y-auto">
+                    @forelse ($ideas as $idea)
+                        <button
+                            type="button"
+                            wire:key="idea-{{ $idea->id }}"
+                            wire:click="selectIdea({{ $idea->id }})"
+                            @class([
+                                'flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition',
+                                'bg-zinc-100 dark:bg-zinc-800' => $selectedId === $idea->id,
+                                'hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => $selectedId !== $idea->id,
+                            ])
+                        >
+                            <span class="min-w-0 flex-1 truncate">{{ $idea->title }}</span>
+                            <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" />
+                        </button>
+                    @empty
+                        <flux:text class="px-3 py-6 text-center text-zinc-500">Aún no hay ideas. Crea la primera.</flux:text>
+                    @endforelse
+                </div>
+            </div>
+        </section>
+
+        {{-- Editor --}}
+        <section class="lg:col-span-8">
+            @if ($selectedId)
+                <div class="flex flex-col gap-5 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+                    {{-- Cabecera: validación + guardado + borrar --}}
+                    <div class="flex items-center justify-between gap-3">
+                        <flux:badge :color="$this->validationStatus->fluxColor()" :icon="$this->validationStatus->icon()">
+                            {{ $this->validationStatus->getLabel() }}
+                        </flux:badge>
+                        <div class="flex items-center gap-2">
+                            @if ($saved)
+                                <flux:badge size="sm" color="green" icon="check">Guardado</flux:badge>
+                            @endif
+                            @if ($this->canDelete())
+                                <flux:button wire:click="deleteIdea({{ $selectedId }})" wire:confirm="¿Eliminar esta idea ganadora?" variant="subtle" size="sm" icon="trash" />
+                            @endif
+                        </div>
+                    </div>
+
+                    <flux:input wire:model.blur="title" label="Título" />
+
+                    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                        <flux:select wire:model.live="viral_mechanism" label="Mecanismo de viralidad" placeholder="Sin definir">
+                            <flux:select.option value="">Sin definir</flux:select.option>
+                            @foreach ($mechanisms as $mechanism)
+                                <flux:select.option value="{{ $mechanism->value }}">{{ $mechanism->getLabel() }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                        <flux:select wire:model.live="heras_template_id" label="Plantilla Heras" placeholder="Sin plantilla">
+                            <flux:select.option value="">Sin plantilla</flux:select.option>
+                            @foreach ($herasTemplates as $template)
+                                <flux:select.option value="{{ $template->id }}">{{ $template->display_name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    </div>
+
+                    <flux:textarea wire:model.blur="concept" label="Concepto" rows="4" placeholder="Explica el ángulo de la idea en 2-4 frases." />
+
+                    {{-- Ejemplos reales --}}
+                    <div class="flex flex-col gap-2">
+                        <flux:subheading>Ejemplos reales (URLs)</flux:subheading>
+                        <flux:text class="text-xs text-zinc-400">Posts virales de otros creadores con una idea similar. Con al menos uno, la idea queda <span class="font-medium">Validada</span>.</flux:text>
+
+                        @if (count($exampleUrls))
+                            <div class="flex flex-col gap-2">
+                                @foreach ($exampleUrls as $i => $url)
+                                    <div class="flex items-center gap-2" wire:key="ex-{{ $i }}">
+                                        <flux:input wire:model.blur="exampleUrls.{{ $i }}" class="flex-1" icon="link" />
+                                        <flux:button wire:click="removeExampleUrl({{ $i }})" wire:confirm="¿Quitar este ejemplo?" variant="subtle" size="sm" icon="x-mark" />
+                                    </div>
+                                @endforeach
+                            </div>
+                        @endif
+
+                        <div class="flex items-center gap-2">
+                            <flux:input
+                                wire:model="newExampleUrl"
+                                wire:keydown.enter.prevent="addExampleUrl"
+                                class="flex-1"
+                                icon="link"
+                                placeholder="https://instagram.com/p/…  ó  https://tiktok.com/@…"
+                            />
+                            <flux:button wire:click="addExampleUrl" variant="filled" size="sm" icon="plus">Añadir</flux:button>
+                        </div>
+                    </div>
+
+                    {{-- Preguntas que resuelve --}}
+                    <div class="flex flex-col gap-2">
+                        <flux:subheading>Preguntas que resuelve</flux:subheading>
+                        <flux:input wire:model.live.debounce.300ms="questionSearch" size="sm" icon="magnifying-glass" placeholder="Buscar preguntas…" />
+                        <div class="max-h-52 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+                            @forelse ($questions as $question)
+                                <flux:checkbox wire:model.live="questionIds" value="{{ $question->id }}" label="{{ $question->body }}" />
+                            @empty
+                                <flux:text class="text-zinc-500">No hay preguntas que coincidan.</flux:text>
+                            @endforelse
+                        </div>
+                    </div>
+
+                    {{-- Contexto multi-salto: mitos/verdades derivados --}}
+                    @if (count($this->contextBeliefs))
+                        <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-800/40">
+                            <flux:subheading class="mb-1">Mitos y verdades en juego</flux:subheading>
+                            <ul class="list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
+                                @foreach ($this->contextBeliefs as $belief)
+                                    <li>{{ $belief }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    @endif
+                </div>
+            @else
+                <div class="rounded-xl border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">
+                    <flux:text class="text-zinc-500">Elige una idea de la lista o crea una nueva para empezar a editarla.</flux:text>
+                </div>
+            @endif
+        </section>
+    </div>
+</div>

@@ -10,14 +10,31 @@
       (Filament) conserva su propio tema y **no** se ve afectado.
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
 - [ ] **Navegación** agrupada (sin emojis, iconos consistentes): **Inicio** + 4 desplegables —
-      **Audiencia** (Seguidores ideales · Kickstart), **Contenido** (Ideas · Generador · Composer · CTAs),
+      **Audiencia** (Seguidores ideales · CTAs · Kickstart),
+      **Contenido** (Ideas ganadoras · Generador de ideas · Generador de piezas · Composer),
       **Planificación** (Kanban · *Calendario, próx.*), **Análisis** (*Rendimiento* · *Uso de IA*, próx.).
-      El **grupo** de la sección actual se **resalta**; al abrir un menú se ve su lista. (**Ideas**,
-      **Generador** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
+      El **grupo** de la sección actual se **resalta**; al abrir un menú se ve su lista. (**Generador de ideas**,
+      **Generador de piezas** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
 - [ ] **Lado derecho:** botón de **captura rápida (Inbox)** (icono), **selector de marca** (con miniatura)
       y **Volver al admin**. Cambiar de marca mantiene la misma sección.
 - [ ] **Próximamente.** *Calendario*, *Rendimiento* y *Uso de IA* aparecen como filas **deshabilitadas**
       con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
+- [ ] **Confirmación en acciones destructivas.** Cualquier borrado pide confirmación antes de ejecutarse:
+      seguidor (avisa del borrado en cascada de sus preguntas/creencias/dolores), pregunta, creencia, dolor,
+      idea ganadora, ejemplo de idea, CTA y captura del Inbox. *Convertir* una captura (→ idea/pregunta/creencia)
+      no pide confirmación (no destruye datos; los traslada).
+
+## Ideas ganadoras (`/studio/{marca}/ideas-ganadoras`)
+
+> Menú **Contenido → Ideas ganadoras**. CRUD completo de ideas ganadoras en el Estudio (paridad con el admin),
+> con autoguardado. No confundir con **Generador de ideas** (flujo IA) ni con **Generador de piezas**.
+
+- [ ] **Lista + nueva.** Columna izquierda con las ideas de la marca (cada una con badge de validación); **"Nueva idea"** crea y selecciona una.
+- [ ] **Autoguardado.** Editar título, concepto, mecanismo o plantilla Heras persiste solo (badge **Guardado**).
+- [ ] **Ejemplos reales.** Añadir/quitar URLs (Enter o botón **Añadir**). Con ≥1 ejemplo el badge de cabecera pasa a **Validada** (verde); sin ejemplos, **Pendiente de validación** (gris) — **en vivo**.
+- [ ] **Preguntas.** Buscador + casillas para vincular preguntas de la marca; al marcar, debajo aparecen sus **mitos/verdades** derivados.
+- [ ] **Borrado solo Admin.** El botón 🗑 solo aparece para **Admin** de la marca; un **Editor** no lo ve.
+- [ ] **Aislamiento por marca.** Solo se listan ideas de la marca activa.
 
 ## CTAs (`/studio/{marca}/ctas`)
 

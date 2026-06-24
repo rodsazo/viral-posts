@@ -25,12 +25,18 @@ class WinningIdeaInfolist
                         TextEntry::make('herasTemplate.display_name')
                             ->label('Plantilla Heras')
                             ->placeholder('Sin plantilla'),
-                        TextEntry::make('reference_url')
-                            ->label('Referencia viral')
-                            ->placeholder('Sin referencia')
-                            ->url(fn (WinningIdea $record): ?string => $record->reference_url, shouldOpenInNewTab: true)
-                            ->icon('heroicon-m-link')
+                        TextEntry::make('validation')
+                            ->label('Validación')
+                            ->badge()
+                            ->state(fn (WinningIdea $record) => $record->validationStatus()),
+                        TextEntry::make('example_urls')
+                            ->label('Ejemplos reales (viralidad)')
+                            ->state(fn (WinningIdea $record): array => $record->example_urls ?? [])
+                            ->listWithLineBreaks()
+                            ->bulleted()
+                            ->url(fn (string $state): string => $state, shouldOpenInNewTab: true)
                             ->color('info')
+                            ->placeholder('Sin ejemplos: idea pendiente de validación.')
                             ->columnSpanFull(),
                         TextEntry::make('concept')
                             ->label('Concepto')

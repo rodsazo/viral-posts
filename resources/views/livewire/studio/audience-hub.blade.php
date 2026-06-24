@@ -64,7 +64,7 @@
                     @foreach ($questions as $id => $q)
                         <div class="flex items-start gap-2" wire:key="q-{{ $id }}">
                             <flux:textarea wire:model.blur="questions.{{ $id }}.body" rows="1" class="flex-1" />
-                            <flux:button wire:click="deleteQuestion({{ $id }})" icon="x-mark" variant="subtle" size="sm" />
+                            <flux:button wire:click="deleteQuestion({{ $id }})" wire:confirm="¿Eliminar esta pregunta?" icon="x-mark" variant="subtle" size="sm" />
                         </div>
                     @endforeach
                     <div class="flex items-end gap-2">
@@ -84,7 +84,7 @@
                                 @endforeach
                             </flux:select>
                             <flux:textarea wire:model.blur="beliefs.{{ $id }}.statement" rows="1" class="flex-1" />
-                            <flux:button wire:click="deleteBelief({{ $id }})" icon="x-mark" variant="subtle" size="sm" />
+                            <flux:button wire:click="deleteBelief({{ $id }})" wire:confirm="¿Eliminar este mito/verdad?" icon="x-mark" variant="subtle" size="sm" />
                         </div>
                     @endforeach
                     <div class="flex items-end gap-2">
@@ -109,7 +109,7 @@
                                 @endforeach
                             </flux:select>
                             <flux:textarea wire:model.blur="pains.{{ $id }}.body" rows="1" class="flex-1" />
-                            <flux:button wire:click="deletePain({{ $id }})" icon="x-mark" variant="subtle" size="sm" />
+                            <flux:button wire:click="deletePain({{ $id }})" wire:confirm="¿Eliminar este dolor/problema/deseo?" icon="x-mark" variant="subtle" size="sm" />
                         </div>
                     @endforeach
                     <div class="flex items-end gap-2">

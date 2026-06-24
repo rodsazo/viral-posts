@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ValidationStatus;
 use App\Enums\ViralMechanism;
 use Database\Factories\WinningIdeaFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -22,14 +23,29 @@ class WinningIdea extends Model
         'title',
         'concept',
         'viral_mechanism',
-        'reference_url',
+        'example_urls',
     ];
 
     protected function casts(): array
     {
         return [
             'viral_mechanism' => ViralMechanism::class,
+            'example_urls' => 'array',
         ];
+    }
+
+    /**
+     * Una idea está "Validada" si tiene al menos un ejemplo real de viralidad
+     * (URLs de posts de otros creadores); si no, queda pendiente de validación.
+     */
+    public function isValidated(): bool
+    {
+        return filled($this->example_urls);
+    }
+
+    public function validationStatus(): ValidationStatus
+    {
+        return $this->isValidated() ? ValidationStatus::Validated : ValidationStatus::Pending;
     }
 
     public function account(): BelongsTo

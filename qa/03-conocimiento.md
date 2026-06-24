@@ -15,13 +15,18 @@
 
 ## Ideas ganadoras
 
-- [ ] **Crear** una idea: título, concepto, mecanismo de viralidad (enum), plantilla Heras (opcional), referencia viral (URL).
+- [ ] **Crear** una idea: título, concepto, mecanismo de viralidad (enum), plantilla Heras (opcional).
+- [ ] **Ejemplos reales (URLs).** Repeater "Añadir ejemplo" con una o varias URLs de posts virales de otros creadores
+      (Instagram/TikTok…). Sustituye al antiguo campo único "Referencia viral" (los valores anteriores se migraron
+      como primer ejemplo).
+- [ ] **Validación derivada.** Una idea **con** al menos un ejemplo aparece como **Validada** (badge verde); **sin**
+      ejemplos, **Pendiente de validación** (badge gris). No es editable a mano: depende de los ejemplos.
 - [ ] **Relacionar preguntas** (N:M) → multiselect.
 - [ ] **Visibilidad multi-salto (vital).** Al elegir preguntas en el formulario, el panel derecho muestra **en vivo** los mitos/verdades derivados (sin duplicados) y avisa de **preguntas sin creencias** (⚠️).
-- [ ] **Vista (ojo 👁).** En la vista de la idea, sección de "Mitos y verdades derivados" calculada desde sus preguntas.
+- [ ] **Vista (ojo 👁).** En la vista de la idea: badge de validación, lista de ejemplos (🔗) y "Mitos y verdades derivados" desde sus preguntas.
 - [ ] **Relation manager.** Al editar una idea, pestaña con sus **piezas** (crear/editar).
 - [ ] **Crear pregunta inline** desde el selector de preguntas de la idea.
-- [ ] **Filtros** por mecanismo y "con/sin preguntas". Columna de referencia (🔗) abre el post.
+- [ ] **Filtros** por mecanismo, "con/sin preguntas" y **Validación** (validadas / pendientes).
 
 ## Ideas en lote (Producción → Ideas en lote)
 

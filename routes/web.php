@@ -10,6 +10,7 @@ use App\Livewire\Studio\PieceComposer;
 use App\Livewire\Studio\PieceGenerator;
 use App\Livewire\Studio\StudioHome;
 use App\Livewire\Studio\StudioKanban;
+use App\Livewire\Studio\WinningIdeaManager;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -26,6 +27,7 @@ Route::middleware(['auth', 'membership'])->group(function () {
     Route::get('/studio/{account:slug}/audiencia', AudienceHub::class)->name('studio.audience');
     Route::get('/studio/{account:slug}/kickstart', IdealFollowerKickstart::class)->name('studio.kickstart');
     Route::get('/studio/{account:slug}/kanban', StudioKanban::class)->name('studio.kanban');
+    Route::get('/studio/{account:slug}/ideas-ganadoras', WinningIdeaManager::class)->name('studio.winning-ideas');
     Route::get('/studio/{account:slug}/ideas', IdeaGenerator::class)->name('studio.ideas');
     Route::get('/studio/{account:slug}/generador', PieceGenerator::class)->name('studio.generator');
     Route::get('/studio/{account:slug}/ctas', ContentCtaManager::class)->name('studio.ctas');

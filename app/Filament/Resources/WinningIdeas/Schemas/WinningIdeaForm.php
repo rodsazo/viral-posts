@@ -6,6 +6,7 @@ use App\Enums\ViralMechanism;
 use App\Models\Belief;
 use App\Models\Question;
 use Filament\Facades\Filament;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -37,13 +38,18 @@ class WinningIdeaForm
                             ->options(ViralMechanism::class)
                             ->native(false)
                             ->placeholder('Sin definir'),
-                        TextInput::make('reference_url')
-                            ->label('Referencia viral')
-                            ->url()
-                            ->maxLength(2048)
-                            ->prefixIcon('heroicon-m-link')
-                            ->placeholder('https://instagram.com/p/...')
-                            ->helperText('URL del post viral de referencia (Instagram, TikTok, Facebook, etc.).')
+                        Repeater::make('example_urls')
+                            ->label('Ejemplos reales (URLs)')
+                            ->helperText('Posts virales de otros creadores basados en una idea similar (Instagram, TikTok…). Con al menos uno, la idea queda "Validada".')
+                            ->simple(
+                                TextInput::make('url')
+                                    ->url()
+                                    ->required()
+                                    ->placeholder('https://instagram.com/p/...'),
+                            )
+                            ->addActionLabel('Añadir ejemplo')
+                            ->reorderable(false)
+                            ->defaultItems(0)
                             ->columnSpanFull(),
                         Select::make('heras_template_id')
                             ->label('Plantilla Heras')
