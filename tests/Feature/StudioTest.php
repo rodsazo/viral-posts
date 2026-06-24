@@ -160,6 +160,23 @@ class StudioTest extends TestCase
         $this->assertSame('HISTORIA AUTOGUARDADA', $piece->story);
     }
 
+    public function test_production_fields_autosave_in_the_composer(): void
+    {
+        $account = Account::factory()->create();
+        $piece = ContentPiece::factory()->create(['account_id' => $account->id]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->set('location', 'Estudio casero')
+            ->set('equipment', 'Cámara + micrófono')
+            ->set('people', 'Yo y dos amigos');
+
+        $piece->refresh();
+        $this->assertSame('Estudio casero', $piece->location);
+        $this->assertSame('Cámara + micrófono', $piece->equipment);
+        $this->assertSame('Yo y dos amigos', $piece->people);
+    }
+
     public function test_deleting_a_piece_is_reserved_to_brand_admins(): void
     {
         $account = Account::factory()->create();

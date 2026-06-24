@@ -152,6 +152,22 @@ class ContentPieceForm
                                     ->columnSpanFull(),
                             ]),
 
+                        Section::make('Producción')
+                            ->description('Planificación de la grabación.')
+                            ->columns(2)
+                            ->schema([
+                                TextInput::make('location')
+                                    ->label('Locación')
+                                    ->maxLength(255),
+                                Textarea::make('equipment')
+                                    ->label('Equipo necesario')
+                                    ->rows(3),
+                                Textarea::make('people')
+                                    ->label('Personas y personajes')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
+                            ]),
+
                         Section::make('Publicación')
                             ->columns(2)
                             ->schema([

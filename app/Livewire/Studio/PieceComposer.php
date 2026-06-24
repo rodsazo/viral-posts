@@ -63,6 +63,13 @@ class PieceComposer extends Component
     /** @var array<string, string> */
     public array $rumFactors = [];
 
+    // Producción / planificación de grabación.
+    public ?string $location = null;
+
+    public ?string $equipment = null;
+
+    public ?string $people = null;
+
     public bool $saved = false;
 
     /**
@@ -128,6 +135,7 @@ class PieceComposer extends Component
             $this->reset([
                 'pieceId', 'winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating',
                 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'publishedAt', 'rumFactors', 'saved',
+                'location', 'equipment', 'people',
             ]);
 
             $next = $this->account->contentPieces()->latest('updated_at')->first();
@@ -161,6 +169,9 @@ class PieceComposer extends Component
         $this->previewImageUrl = $piece->preview_image_url;
         $this->publishedAt = $piece->published_at?->format('Y-m-d');
         $this->rumFactors = $piece->rum_factors ?? [];
+        $this->location = $piece->location;
+        $this->equipment = $piece->equipment;
+        $this->people = $piece->people;
         $this->saved = false;
     }
 
@@ -172,7 +183,7 @@ class PieceComposer extends Component
             $this->idealFollowerId = $this->selectedIdea()?->ideal_follower_id;
         }
 
-        $fields = ['winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl'];
+        $fields = ['winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people'];
 
         if (in_array($name, $fields, true) || str_starts_with($name, 'rumFactors')) {
             $this->save();
@@ -206,6 +217,9 @@ class PieceComposer extends Component
             'url' => $this->postUrl ?: null,
             'preview_image_url' => $this->previewImageUrl ?: null,
             'rum_factors' => $this->rumFactors ?: null,
+            'location' => $this->location ?: null,
+            'equipment' => $this->equipment ?: null,
+            'people' => $this->people ?: null,
         ]);
 
         $this->saved = true;

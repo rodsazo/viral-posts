@@ -36,6 +36,9 @@ class ContentPiece extends Model
         'rating',
         'rum_factors',
         'rum',
+        'location',
+        'equipment',
+        'people',
     ];
 
     protected function casts(): array
