@@ -36,7 +36,8 @@ class WinningIdeaManager extends Component
     public ?int $heras_template_id = null;
 
     // El seguidor ideal es el centro: de él salen preguntas y mitos/verdades.
-    public ?int $idealFollowerId = null;
+    // Sin tipar para tolerar el "" que mandan los selects de Flux.
+    public $idealFollowerId = null;
 
     /** @var array<int, int|string> preguntas vinculadas */
     public array $questionIds = [];

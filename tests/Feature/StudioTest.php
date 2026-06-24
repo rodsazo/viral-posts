@@ -143,6 +143,23 @@ class StudioTest extends TestCase
         $this->assertSame(1, ContentPiece::where('account_id', $account->id)->count());
     }
 
+    public function test_script_fields_autosave_even_with_empty_follower_select(): void
+    {
+        $account = Account::factory()->create();
+        $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => null]);
+        $this->actingAs($this->member($account));
+
+        // El selector "Sin seguidor" manda "" (string) desde Flux: no debe romper el autoguardado.
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->set('idealFollowerId', '')
+            ->set('hookText', 'GANCHO AUTOGUARDADO')
+            ->set('story', 'HISTORIA AUTOGUARDADA');
+
+        $piece->refresh();
+        $this->assertSame('GANCHO AUTOGUARDADO', $piece->hook);
+        $this->assertSame('HISTORIA AUTOGUARDADA', $piece->story);
+    }
+
     public function test_deleting_a_piece_is_reserved_to_brand_admins(): void
     {
         $account = Account::factory()->create();

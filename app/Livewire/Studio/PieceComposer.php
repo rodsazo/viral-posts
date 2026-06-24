@@ -31,7 +31,8 @@ class PieceComposer extends Component
     public $winning_idea_id = null;
 
     // El seguidor ideal es el centro: de él salen los mitos/verdades a tratar.
-    public ?int $idealFollowerId = null;
+    // Sin tipar (como winning_idea_id) para tolerar el "" que mandan los selects de Flux.
+    public $idealFollowerId = null;
 
     public string $title = '';
 

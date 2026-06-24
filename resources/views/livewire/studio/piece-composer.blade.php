@@ -44,6 +44,8 @@
                         icon="trash"
                     >Eliminar</flux:button>
                 @endif
+                {{-- Autoguarda al salir de cada campo; este botón guarda todo de una y da confirmación clara. --}}
+                <flux:button wire:click="save" variant="primary" size="sm" icon="check">Guardar</flux:button>
             </div>
 
             <div class="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
