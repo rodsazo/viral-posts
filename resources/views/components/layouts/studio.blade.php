@@ -34,7 +34,7 @@
                         : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'))
                     {{-- Un grupo se marca activo si la ruta actual es cualquiera de sus hijas (incluidas las próximas). --}}
                     @php($audienceActive = request()->routeIs('studio.audience', 'studio.kickstart', 'studio.ctas'))
-                    @php($contentActive = request()->routeIs('studio.ideas', 'studio.generator', 'studio.pieces'))
+                    @php($contentActive = request()->routeIs('studio.winning-ideas', 'studio.ideas', 'studio.generator', 'studio.pieces'))
                     @php($planActive = request()->routeIs('studio.kanban', 'studio.calendar'))
                     @php($analyticsActive = request()->routeIs('studio.performance', 'studio.ai-usage'))
 
@@ -63,9 +63,13 @@
                                 <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
                             </button>
                             <flux:menu>
-                                <flux:menu.item href="{{ route('studio.ideas', $currentAccount) }}" icon="light-bulb">Ideas</flux:menu.item>
-                                <flux:menu.item href="{{ route('studio.generator', $currentAccount) }}" icon="sparkles">Generador</flux:menu.item>
-                                <flux:menu.item href="{{ route('studio.pieces', $currentAccount) }}" icon="document-text">Composer</flux:menu.item>
+                                <flux:menu.heading>Ideas Ganadoras</flux:menu.heading>
+                                <flux:menu.item href="{{ route('studio.winning-ideas', $currentAccount) }}" icon="light-bulb">Ideas ganadoras</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.ideas', $currentAccount) }}" icon="sparkles">Generador de ideas</flux:menu.item>
+                                <flux:menu.separator></flux:menu.separator>
+                                <flux:menu.heading>Contenido</flux:menu.heading>
+                                <flux:menu.item href="{{ route('studio.pieces', $currentAccount) }}" icon="document-text">Contenido</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.generator', $currentAccount) }}" icon="sparkles">Generador de contenido</flux:menu.item>
                             </flux:menu>
                         </flux:dropdown>
 
