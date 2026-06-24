@@ -34,6 +34,16 @@
             <div class="mb-3 flex items-center gap-2">
                 <flux:heading size="lg">Composer</flux:heading>
                 <flux:badge x-show="$wire.saved" x-cloak size="sm" color="green" icon="check">Guardado</flux:badge>
+                <flux:spacer />
+                @if ($this->canDelete())
+                    <flux:button
+                        wire:click="deletePiece({{ $pieceId }})"
+                        wire:confirm="¿Eliminar esta pieza de contenido? Esta acción no se puede deshacer."
+                        variant="subtle"
+                        size="sm"
+                        icon="trash"
+                    >Eliminar</flux:button>
+                @endif
             </div>
 
             <div class="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
@@ -43,6 +53,14 @@
                     <flux:select.option value="">Sin idea (pieza suelta)</flux:select.option>
                     @foreach ($ideas as $idea)
                         <flux:select.option value="{{ $idea->id }}">{{ $idea->title }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+
+                {{-- El seguidor ideal es el centro: de él salen los mitos/verdades a tratar. --}}
+                <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Sin seguidor" description="Suele coincidir con el de la idea; de él salen los mitos/verdades a tratar.">
+                    <flux:select.option value="">Sin seguidor</flux:select.option>
+                    @foreach ($followers as $follower)
+                        <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
                     @endforeach
                 </flux:select>
 

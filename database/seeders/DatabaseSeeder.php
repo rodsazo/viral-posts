@@ -86,33 +86,33 @@ class DatabaseSeeder extends Seeder
             'body' => '¿No es algo solo para frikis muy metidos en el tema?',
         ]);
 
-        // --- Mitos y verdades + relación N:M con preguntas ---
-        $myth1 = Belief::create([
+        // --- Mitos y verdades DIRECTOS del seguidor ideal (el seguidor es el centro) ---
+        Belief::create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'type' => BeliefType::Myth,
             'statement' => 'El rol de mesa es complicadísimo y requiere leer manuales enormes.',
             'stance' => 'Se puede empezar a jugar en 10 minutos con reglas mínimas.',
         ]);
-        $myth2 = Belief::create([
+        Belief::create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'type' => BeliefType::Myth,
             'statement' => 'Necesitas que alguien del grupo sea un máster experto.',
             'stance' => 'Existen GMs profesionales que dirigen para grupos nuevos.',
         ]);
-        $truth1 = Belief::create([
+        Belief::create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'type' => BeliefType::Truth,
             'statement' => 'Cualquiera puede disfrutar del rol con una buena primera partida guiada.',
             'stance' => 'Impulsar la idea de "prueba una partida para principiantes".',
         ]);
 
-        $q1->beliefs()->attach([$myth1->id, $truth1->id]);
-        $q2->beliefs()->attach([$myth2->id]);
-        $q3->beliefs()->attach([$myth1->id, $truth1->id]);
-
         // --- Idea ganadora + relación N:M con preguntas (alimenta el multi-salto) ---
         $idea = WinningIdea::create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'heras_template_id' => HerasTemplate::where('number', 1)->value('id'),
             'title' => 'Tu primera partida en 10 minutos',
             'concept' => 'Desmontar el mito de la dificultad mostrando una partida real arrancando de cero con amigos.',
@@ -123,6 +123,7 @@ class DatabaseSeeder extends Seeder
 
         $idea2 = WinningIdea::create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'title' => 'Solicita un GM y juega esta semana',
             'concept' => 'Para grupos sin máster: cómo conseguir un GM en MesasRoleras y jugar ya.',
             'viral_mechanism' => ViralMechanism::Utilidad,
@@ -132,6 +133,7 @@ class DatabaseSeeder extends Seeder
         // --- Piezas de contenido ---
         ContentPiece::create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'winning_idea_id' => $idea->id,
             'title' => 'Reel: enseñamos a 3 amigos en 10 min',
             'objective' => ContentObjective::Viralidad,
@@ -145,6 +147,7 @@ class DatabaseSeeder extends Seeder
 
         ContentPiece::create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'winning_idea_id' => $idea2->id,
             'title' => 'Vídeo: cómo solicitar un GM',
             'objective' => ContentObjective::Venta,

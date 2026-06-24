@@ -16,5 +16,5 @@
 - [ ] **Totales** por marca: seguidores, preguntas, creencias, ideas, piezas (y cuántas publicadas).
 - [ ] **Gráfico** de piezas por estado.
 - [ ] **Gráfico** (dona) de preguntas por categoría (usa el color de cada categoría).
-- [ ] **Huecos por cubrir** (widget): preguntas sin creencias, ideas sin piezas, preguntas sin idea — en ámbar si hay pendientes, verde si está cubierto.
+- [ ] **Huecos por cubrir** (widget): seguidores sin creencias, ideas sin piezas, preguntas sin idea — en ámbar si hay pendientes, verde si está cubierto.
 - [ ] Todos los conteos respetan la **marca activa** (cambiar de marca cambia los números).

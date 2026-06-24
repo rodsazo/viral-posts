@@ -29,9 +29,9 @@
 
 - [ ] **Crear** una pregunta: elegir seguidor ideal (obligatorio), categoría (opcional), texto. → Se guarda.
 - [ ] **Panel de contexto.** Al elegir el seguidor ideal, a la derecha aparece su descripción y las **preguntas ya existentes** de ese seguidor (evita duplicados).
-- [ ] **Crear creencia inline.** En el selector de "Mitos y verdades" de la pregunta, botón **+ crear** → crea una creencia sin salir. → Queda seleccionada.
-- [ ] **Filtros (B4).** Filtrar la tabla por **seguidor ideal** y por **categoría**; también "con/sin creencias".
+- [ ] **Filtros (B4).** Filtrar la tabla por **seguidor ideal** y por **categoría**.
 - [ ] **Búsqueda** por texto de la pregunta.
+- [ ] **Sin vínculo a creencias.** El form de pregunta **ya no** tiene selector de mitos/verdades (las creencias cuelgan del seguidor, no de la pregunta).
 
 ## Dolores / Problemas / Deseos (Audiencia → Dolores)
 
@@ -41,8 +41,9 @@
 
 ## Creencias por seguidor
 
-- [ ] En el form de **Creencia**, el campo opcional **Seguidor ideal** permite ligar un mito/verdad directamente
-      a un seguidor (además de relacionarlo con preguntas).
+- [ ] En el form de **Creencia**, el campo **Seguidor ideal** es **obligatorio**: el mito/verdad cuelga
+      directamente del seguidor. Ya **no** se relaciona con preguntas.
+- [ ] **Borrar el seguidor** elimina también sus creencias (cascada).
 
 ## Preguntas en lote (Audiencia → Preguntas en lote)
 

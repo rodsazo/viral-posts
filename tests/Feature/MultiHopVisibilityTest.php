@@ -16,9 +16,12 @@ class MultiHopVisibilityTest extends TestCase
     use RefreshDatabase;
 
     /**
-     * @return array{account: Account, idea: WinningIdea, myth: Belief, truth: Belief}
+     * El Seguidor Ideal es el centro: de él salen preguntas (curadas por la idea) y
+     * mitos/verdades (directos del seguidor).
+     *
+     * @return array{account: Account, follower: IdealFollower, idea: WinningIdea, myth: Belief, truth: Belief}
      */
-    private function ideaWithSharedBeliefs(): array
+    private function ideaForFollower(): array
     {
         $account = Account::factory()->create();
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
@@ -26,59 +29,58 @@ class MultiHopVisibilityTest extends TestCase
         $q1 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
         $q2 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
 
-        $myth = Belief::factory()->myth()->create(['account_id' => $account->id]);
-        $truth = Belief::factory()->truth()->create(['account_id' => $account->id]);
+        // Creencias DIRECTAS del seguidor.
+        $myth = Belief::factory()->myth()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
+        $truth = Belief::factory()->truth()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
 
-        // El mito está en ambas preguntas: debe aparecer una sola vez (sin duplicados).
-        $q1->beliefs()->attach([$myth->id, $truth->id]);
-        $q2->beliefs()->attach([$myth->id]);
-
-        $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
         $idea->questions()->attach([$q1->id, $q2->id]);
 
-        return compact('account', 'idea', 'myth', 'truth');
+        return compact('account', 'follower', 'idea', 'myth', 'truth');
     }
 
-    public function test_winning_idea_derives_unique_beliefs_through_questions(): void
+    public function test_winning_idea_derives_beliefs_from_its_follower(): void
     {
-        ['idea' => $idea, 'myth' => $myth, 'truth' => $truth] = $this->ideaWithSharedBeliefs();
+        ['idea' => $idea, 'myth' => $myth, 'truth' => $truth] = $this->ideaForFollower();
 
         $derived = $idea->derivedBeliefs();
 
-        $this->assertCount(2, $derived, 'El mito compartido no debe duplicarse.');
+        $this->assertCount(2, $derived);
         $this->assertEqualsCanonicalizing(
             [$myth->id, $truth->id],
             $derived->pluck('id')->all(),
         );
     }
 
-    public function test_winning_idea_without_questions_has_empty_derived_beliefs(): void
+    public function test_winning_idea_without_follower_has_empty_derived_beliefs(): void
     {
         $account = Account::factory()->create();
-        $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => null]);
 
         $this->assertTrue($idea->derivedBeliefs()->isEmpty());
     }
 
-    public function test_content_piece_cascades_questions_and_beliefs_through_its_idea(): void
+    public function test_content_piece_cascades_questions_via_idea_and_beliefs_via_follower(): void
     {
-        ['account' => $account, 'idea' => $idea] = $this->ideaWithSharedBeliefs();
+        ['account' => $account, 'follower' => $follower, 'idea' => $idea] = $this->ideaForFollower();
 
         $piece = ContentPiece::factory()->create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'winning_idea_id' => $idea->id,
         ]);
 
-        $this->assertCount(2, $piece->derivedQuestions());
-        $this->assertCount(2, $piece->derivedBeliefs());
+        $this->assertCount(2, $piece->derivedQuestions()); // de la idea
+        $this->assertCount(2, $piece->derivedBeliefs());    // del seguidor
     }
 
-    public function test_loose_content_piece_without_idea_has_empty_cascade(): void
+    public function test_loose_content_piece_without_idea_or_follower_has_empty_cascade(): void
     {
         $account = Account::factory()->create();
 
         $piece = ContentPiece::factory()->create([
             'account_id' => $account->id,
+            'ideal_follower_id' => null,
             'winning_idea_id' => null,
         ]);
 

@@ -74,17 +74,22 @@ class AiAssistantTest extends TestCase
             'ideal_follower_id' => $follower->id,
             'body' => 'PREGUNTA CLAVE',
         ]);
-        $belief = Belief::factory()->create([
+        // La creencia cuelga DIRECTAMENTE del seguidor (el seguidor es el centro).
+        Belief::factory()->create([
             'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
             'type' => BeliefType::Truth,
             'statement' => 'VERDAD CLAVE',
         ]);
-        $question->beliefs()->attach($belief->id);
 
-        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA X']);
+        $idea = WinningIdea::factory()->create([
+            'account_id' => $account->id,
+            'ideal_follower_id' => $follower->id,
+            'title' => 'IDEA X',
+        ]);
         $idea->questions()->attach($question->id);
 
-        $context = ScriptContext::fromIdea($idea->load('questions.beliefs'));
+        $context = ScriptContext::fromIdea($idea->load('questions', 'idealFollower'));
         $prompt = $context->toPrompt();
 
         $this->assertStringContainsString('IDEA X', $prompt);
@@ -255,8 +260,8 @@ class AiAssistantTest extends TestCase
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
         $q1 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA ELEGIDA']);
         $q2 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA NO ELEGIDA']);
-        $belief = Belief::factory()->create(['account_id' => $account->id, 'type' => BeliefType::Myth, 'statement' => 'MITO ELEGIDO']);
-        $q1->beliefs()->attach($belief->id);
+        // La creencia cuelga del seguidor directamente.
+        $belief = Belief::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'type' => BeliefType::Myth, 'statement' => 'MITO ELEGIDO']);
 
         Queue::fake();
         config(['services.anthropic.key' => 'sk-ant-test']);
@@ -420,8 +425,8 @@ class AiAssistantTest extends TestCase
 
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
         $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA X']);
-        $belief = Belief::factory()->create(['account_id' => $account->id, 'type' => BeliefType::Myth, 'statement' => 'CREENCIA X']);
-        $question->beliefs()->attach($belief->id);
+        // La creencia cuelga del seguidor directamente.
+        $belief = Belief::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'type' => BeliefType::Myth, 'statement' => 'CREENCIA X']);
 
         Livewire::test(IdeaGenerator::class, ['account' => $account])
             ->set('idealFollowerId', $follower->id)

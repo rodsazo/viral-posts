@@ -47,11 +47,13 @@ class CaptureInbox extends Component
 
     public function toBelief(int $id, string $type): void
     {
-        if (($capture = $this->findCapture($id)) === null) {
+        // Toda creencia cuelga de un seguidor ideal: requiere uno elegido (igual que "a pregunta").
+        if (! $this->followerId || ($capture = $this->findCapture($id)) === null) {
             return;
         }
 
         $this->account->beliefs()->create([
+            'ideal_follower_id' => $this->followerId,
             'type' => BeliefType::from($type),
             'statement' => $capture->body,
         ]);

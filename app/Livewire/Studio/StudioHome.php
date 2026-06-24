@@ -42,7 +42,7 @@ class StudioHome extends Component
             ],
             'pipeline' => $pipeline,
             'gaps' => [
-                'Preguntas sin mitos/verdades' => $account->questions()->doesntHave('beliefs')->count(),
+                'Seguidores sin creencias' => $account->idealFollowers()->doesntHave('beliefs')->count(),
                 'Ideas sin piezas' => $account->winningIdeas()->doesntHave('contentPieces')->count(),
                 'Preguntas sin idea' => $account->questions()->doesntHave('winningIdeas')->count(),
             ],

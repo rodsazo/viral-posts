@@ -2,8 +2,6 @@
 
 namespace App\Filament\Resources\Questions\Schemas;
 
-use App\Enums\BeliefType;
-use App\Models\Belief;
 use App\Models\IdealFollower;
 use App\Models\Question;
 use Filament\Facades\Filament;
@@ -49,31 +47,6 @@ class QuestionForm
                                     ->label('Pregunta')
                                     ->required()
                                     ->rows(3)
-                                    ->columnSpanFull(),
-                                Select::make('beliefs')
-                                    ->label('Mitos y verdades relacionados')
-                                    ->relationship('beliefs', 'statement', $scopeToTenant)
-                                    ->multiple()
-                                    ->searchable()
-                                    ->preload()
-                                    ->createOptionForm([
-                                        Select::make('type')
-                                            ->label('Tipo')
-                                            ->options(BeliefType::class)
-                                            ->required()
-                                            ->native(false),
-                                        Textarea::make('statement')
-                                            ->label('Afirmación')
-                                            ->required()
-                                            ->rows(2),
-                                        Textarea::make('stance')
-                                            ->label('Postura de la marca')
-                                            ->rows(2),
-                                    ])
-                                    ->createOptionUsing(fn (array $data): int => Belief::create([
-                                        ...$data,
-                                        'account_id' => Filament::getTenant()->getKey(),
-                                    ])->getKey())
                                     ->columnSpanFull(),
                                 Select::make('winningIdeas')
                                     ->label('Ideas ganadoras relacionadas')

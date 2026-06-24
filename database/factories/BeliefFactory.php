@@ -3,8 +3,8 @@
 namespace Database\Factories;
 
 use App\Enums\BeliefType;
-use App\Models\Account;
 use App\Models\Belief;
+use App\Models\IdealFollower;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -16,8 +16,12 @@ class BeliefFactory extends Factory
 
     public function definition(): array
     {
+        // Toda creencia cuelga de un seguidor ideal; por defecto, su misma marca.
+        $follower = IdealFollower::factory()->create();
+
         return [
-            'account_id' => Account::factory(),
+            'account_id' => $follower->account_id,
+            'ideal_follower_id' => $follower->id,
             'type' => fake()->randomElement(BeliefType::cases()),
             'statement' => fake()->sentence(),
             'stance' => fake()->optional()->paragraph(),

@@ -85,13 +85,12 @@ class IdeaGenerator extends Component
 
         return $this->account->questions()
             ->where('ideal_follower_id', $this->idealFollowerId)
-            ->with('beliefs')
             ->orderBy('body')
             ->get();
     }
 
     /**
-     * Creencias del seguidor: las ligadas DIRECTAMENTE a él más las que llegan vía sus preguntas.
+     * Creencias (mitos/verdades) del seguidor: directas, ahora que el seguidor es el centro.
      *
      * @return Collection<int, Belief>
      */
@@ -102,15 +101,10 @@ class IdeaGenerator extends Component
             return collect();
         }
 
-        $direct = $this->account->beliefs()
+        return $this->account->beliefs()
             ->where('ideal_follower_id', $this->idealFollowerId)
+            ->orderBy('statement')
             ->get();
-
-        return $direct
-            ->merge($this->followerQuestions->flatMap->beliefs)
-            ->unique('id')
-            ->sortBy('statement')
-            ->values();
     }
 
     /**
@@ -252,6 +246,7 @@ class IdeaGenerator extends Component
             $fields = $this->suggestions[$i]['fields'];
 
             $idea = $this->account->winningIdeas()->create([
+                'ideal_follower_id' => $this->idealFollowerId,
                 'title' => $fields['title'] ?? 'Idea generada',
                 'concept' => $fields['concept'] ?? '',
                 'viral_mechanism' => $fields['viral_mechanism'] ?? null,

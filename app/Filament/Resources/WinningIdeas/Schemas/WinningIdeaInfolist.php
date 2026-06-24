@@ -22,6 +22,11 @@ class WinningIdeaInfolist
                             ->label('Mecanismo de viralidad')
                             ->badge()
                             ->placeholder('—'),
+                        TextEntry::make('idealFollower.name')
+                            ->label('Seguidor ideal')
+                            ->badge()
+                            ->color('info')
+                            ->placeholder('Sin seguidor'),
                         TextEntry::make('herasTemplate.display_name')
                             ->label('Plantilla Heras')
                             ->placeholder('Sin plantilla'),
@@ -53,9 +58,9 @@ class WinningIdeaInfolist
                             ->placeholder('Esta idea aún no tiene preguntas relacionadas.'),
                     ]),
 
-                // VISIBILIDAD MULTI-SALTO: WinningIdea → Questions → Beliefs.
-                Section::make('Mitos y verdades (derivados de las preguntas)')
-                    ->description('Se calculan automáticamente a partir de las preguntas relacionadas, sin duplicados.')
+                // El seguidor ideal es el centro: sus mitos/verdades.
+                Section::make('Mitos y verdades del seguidor')
+                    ->description('Mitos y verdades del seguidor ideal de la idea.')
                     ->schema([
                         TextEntry::make('derived_beliefs')
                             ->hiddenLabel()
@@ -64,7 +69,7 @@ class WinningIdeaInfolist
                                 ->all())
                             ->listWithLineBreaks()
                             ->bulleted()
-                            ->placeholder('Sin mitos/verdades: la idea no tiene preguntas, o sus preguntas no tienen mitos/verdades asociados.'),
+                            ->placeholder('Sin mitos/verdades: la idea no tiene seguidor, o el seguidor no tiene creencias.'),
                     ]),
             ]);
     }

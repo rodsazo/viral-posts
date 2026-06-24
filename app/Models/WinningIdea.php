@@ -19,6 +19,7 @@ class WinningIdea extends Model
 
     protected $fillable = [
         'account_id',
+        'ideal_follower_id',
         'heras_template_id',
         'title',
         'concept',
@@ -53,6 +54,11 @@ class WinningIdea extends Model
         return $this->belongsTo(Account::class);
     }
 
+    public function idealFollower(): BelongsTo
+    {
+        return $this->belongsTo(IdealFollower::class);
+    }
+
     public function herasTemplate(): BelongsTo
     {
         return $this->belongsTo(HerasTemplate::class);
@@ -69,17 +75,23 @@ class WinningIdea extends Model
     }
 
     /**
-     * VISIBILIDAD MULTI-SALTO: mitos y verdades derivados a través de las
-     * preguntas relacionadas (WinningIdea → Questions → Beliefs), sin duplicados.
+     * Mitos y verdades a tratar: ahora salen del SEGUIDOR IDEAL de la idea
+     * (el seguidor es el centro), no de las preguntas.
      *
      * @return Collection<int, Belief>
      */
     public function derivedBeliefs(): Collection
     {
-        return $this->questions
-            ->loadMissing('beliefs')
-            ->flatMap->beliefs
-            ->unique('id')
-            ->values();
+        return $this->idealFollower?->beliefs()->orderBy('statement')->get() ?? collect();
+    }
+
+    /**
+     * Dolores / problemas / deseos del seguidor ideal de la idea.
+     *
+     * @return Collection<int, Pain>
+     */
+    public function derivedPains(): Collection
+    {
+        return $this->idealFollower?->pains()->orderBy('type')->orderBy('body')->get() ?? collect();
     }
 }

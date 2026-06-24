@@ -67,6 +67,15 @@ class ContentPieceForm
                                     ])->getKey())
                                     ->placeholder('Sin idea (pieza suelta)')
                                     ->helperText('Al elegirla verás a la derecha qué responde y refuerza.'),
+                                Select::make('ideal_follower_id')
+                                    ->label('Seguidor ideal')
+                                    ->relationship('idealFollower', 'name', $scopeToTenant)
+                                    ->searchable()
+                                    ->preload()
+                                    ->live()
+                                    ->placeholder('Sin seguidor')
+                                    ->helperText('De él salen los mitos/verdades a tratar (suele coincidir con el de la idea).')
+                                    ->columnSpanFull(),
                                 Select::make('objective')
                                     ->label('Objetivo')
                                     ->options(ContentObjective::class)
@@ -95,10 +104,10 @@ class ContentPieceForm
                                 // Guión asistido: recordatorio de las creencias que la pieza debería tratar.
                                 TextEntry::make('script_beliefs_reminder')
                                     ->label('💡 Mitos/verdades a tratar en el guión')
-                                    ->state(fn (Get $get): array => static::ideaBeliefs($get))
+                                    ->state(fn (Get $get): array => static::followerBeliefs($get))
                                     ->listWithLineBreaks()
                                     ->bulleted()
-                                    ->placeholder('Elige una idea ganadora para ver qué reforzar/desmentir.')
+                                    ->placeholder('Elige un seguidor ideal para ver qué reforzar/desmentir.')
                                     ->columnSpanFull(),
                                 Textarea::make('hook')
                                     ->label('Gancho')
@@ -206,7 +215,7 @@ class ContentPieceForm
                             ->placeholder('—'),
                         TextEntry::make('context_beliefs')
                             ->label('Mitos y verdades a tratar')
-                            ->state(fn (Get $get): array => static::ideaBeliefs($get))
+                            ->state(fn (Get $get): array => static::followerBeliefs($get))
                             ->listWithLineBreaks()
                             ->bulleted()
                             ->placeholder('—'),
@@ -224,23 +233,30 @@ class ContentPieceForm
 
         return WinningIdea::query()
             ->whereBelongsTo(Filament::getTenant())
-            ->with('questions.beliefs')
+            ->with('questions')
             ->whereKey($id)
             ->first();
     }
 
     /**
+     * Mitos/verdades a tratar: del seguidor elegido (o, en su defecto, del seguidor
+     * de la idea). El seguidor es el centro.
+     *
      * @return array<int, string>
      */
-    private static function ideaBeliefs(Get $get): array
+    private static function followerBeliefs(Get $get): array
     {
-        $idea = static::selectedIdea($get);
+        $followerId = $get('ideal_follower_id') ?: static::selectedIdea($get)?->ideal_follower_id;
 
-        if ($idea === null) {
+        if (blank($followerId)) {
             return [];
         }
 
-        return $idea->derivedBeliefs()
+        return Belief::query()
+            ->whereBelongsTo(Filament::getTenant())
+            ->where('ideal_follower_id', $followerId)
+            ->orderBy('statement')
+            ->get()
             ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
             ->all();
     }

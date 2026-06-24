@@ -30,6 +30,9 @@ class PieceComposer extends Component
     // Campos del formulario. (sin tipar para tolerar "" desde los selects de Flux)
     public $winning_idea_id = null;
 
+    // El seguidor ideal es el centro: de él salen los mitos/verdades a tratar.
+    public ?int $idealFollowerId = null;
+
     public string $title = '';
 
     public ?string $objective = null;
@@ -111,10 +114,39 @@ class PieceComposer extends Component
         }
     }
 
+    /** Borra una pieza (reservado a administradores de la marca, igual que en el admin). */
+    public function deletePiece(int $id): void
+    {
+        if (! $this->canDelete()) {
+            return;
+        }
+
+        $this->account->contentPieces()->whereKey($id)->delete();
+
+        if ($this->pieceId === $id) {
+            $this->reset([
+                'pieceId', 'winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating',
+                'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'publishedAt', 'rumFactors', 'saved',
+            ]);
+
+            $next = $this->account->contentPieces()->latest('updated_at')->first();
+
+            if ($next !== null) {
+                $this->loadPiece($next);
+            }
+        }
+    }
+
+    public function canDelete(): bool
+    {
+        return auth()->user()->isAdminOf($this->account);
+    }
+
     private function loadPiece(ContentPiece $piece): void
     {
         $this->pieceId = $piece->id;
         $this->winning_idea_id = $piece->winning_idea_id;
+        $this->idealFollowerId = $piece->ideal_follower_id;
         $this->title = $piece->title;
         $this->objective = $piece->objective?->value;
         $this->format = $piece->format?->value;
@@ -134,7 +166,12 @@ class PieceComposer extends Component
     /** Autoguardado: cualquier campo enlazado dispara save(). */
     public function updated(string $name): void
     {
-        $fields = ['winning_idea_id', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl'];
+        // Al elegir idea, si no hay seguidor aún, hereda el de la idea.
+        if ($name === 'winning_idea_id' && blank($this->idealFollowerId)) {
+            $this->idealFollowerId = $this->selectedIdea()?->ideal_follower_id;
+        }
+
+        $fields = ['winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl'];
 
         if (in_array($name, $fields, true) || str_starts_with($name, 'rumFactors')) {
             $this->save();
@@ -155,6 +192,7 @@ class PieceComposer extends Component
 
         $piece->update([
             'winning_idea_id' => $this->winning_idea_id ?: null,
+            'ideal_follower_id' => $this->idealFollowerId ?: null,
             'title' => trim((string) $this->title) ?: 'Sin título',
             'objective' => $this->objective ?: null,
             'format' => $this->format ?: null,
@@ -319,7 +357,7 @@ class PieceComposer extends Component
         }
 
         return $this->account->winningIdeas()
-            ->with('questions.beliefs')
+            ->with('questions')
             ->find($this->winning_idea_id);
     }
 
@@ -330,17 +368,21 @@ class PieceComposer extends Component
         return $this->selectedIdea()?->questions->pluck('body')->all() ?? [];
     }
 
+    /** Mitos/verdades a tratar: del seguidor de la pieza (o, en su defecto, del de la idea). */
     /** @return array<int, string> */
     #[Computed]
     public function contextBeliefs(): array
     {
-        $idea = $this->selectedIdea();
+        $followerId = $this->idealFollowerId ?: $this->selectedIdea()?->ideal_follower_id;
 
-        if ($idea === null) {
+        if (! $followerId) {
             return [];
         }
 
-        return $idea->derivedBeliefs()
+        return $this->account->beliefs()
+            ->where('ideal_follower_id', $followerId)
+            ->orderBy('statement')
+            ->get()
             ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
             ->all();
     }
@@ -350,6 +392,7 @@ class PieceComposer extends Component
         return view('livewire.studio.piece-composer', [
             'pieces' => $this->account->contentPieces()->latest('updated_at')->get(),
             'ideas' => $this->account->winningIdeas()->orderBy('title')->get(),
+            'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
         ]);
     }
 }

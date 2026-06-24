@@ -29,6 +29,15 @@ class WinningIdeaForm
                 Section::make()
                     ->columnSpan(2)
                     ->schema([
+                        // El Seguidor Ideal es el centro: la idea se dirige a un seguidor.
+                        Select::make('ideal_follower_id')
+                            ->label('Seguidor ideal')
+                            ->relationship('idealFollower', 'name', $scopeToTenant)
+                            ->searchable()
+                            ->preload()
+                            ->required()
+                            ->live()
+                            ->helperText('De este seguidor salen sus preguntas, mitos/verdades y dolores.'),
                         TextInput::make('title')
                             ->label('Título')
                             ->required()
@@ -66,39 +75,22 @@ class WinningIdeaForm
                             ->columnSpanFull(),
                         Select::make('questions')
                             ->label('Preguntas que resuelve')
-                            ->relationship('questions', 'body', $scopeToTenant)
+                            // Preguntas acotadas al seguidor elegido.
+                            ->relationship('questions', 'body', fn (Builder $query, Get $get) => $query
+                                ->whereBelongsTo(Filament::getTenant())
+                                ->when($get('ideal_follower_id'), fn (Builder $q, $fid) => $q->where('ideal_follower_id', $fid)))
                             ->multiple()
                             ->searchable()
                             ->preload()
                             ->live()
-                            ->createOptionForm([
-                                Select::make('ideal_follower_id')
-                                    ->label('Seguidor ideal')
-                                    ->relationship('idealFollower', 'name', $scopeToTenant)
-                                    ->searchable()
-                                    ->preload()
-                                    ->required(),
-                                Select::make('category_id')
-                                    ->label('Categoría')
-                                    ->relationship('category', 'name', $scopeToTenant)
-                                    ->searchable()
-                                    ->preload(),
-                                Textarea::make('body')
-                                    ->label('Pregunta')
-                                    ->required()
-                                    ->rows(2),
-                            ])
-                            ->createOptionUsing(fn (array $data): int => Question::create([
-                                ...$data,
-                                'account_id' => Filament::getTenant()->getKey(),
-                            ])->getKey())
-                            ->helperText('Elige preguntas y mira a la derecha los mitos y verdades en juego.')
+                            ->disabled(fn (Get $get): bool => blank($get('ideal_follower_id')))
+                            ->helperText('Solo se listan las preguntas del seguidor elegido.')
                             ->columnSpanFull(),
                     ]),
 
-                // Panel lateral reactivo: contexto de las preguntas elegidas.
-                Section::make('Contexto')
-                    ->description('Se actualiza según las preguntas que elijas.')
+                // Panel lateral reactivo: contexto del seguidor.
+                Section::make('Contexto del seguidor')
+                    ->description('Mitos/verdades y dolores del seguidor elegido.')
                     ->columnSpan(1)
                     ->schema([
                         TextEntry::make('context_questions')
@@ -108,19 +100,11 @@ class WinningIdeaForm
                             ->bulleted()
                             ->placeholder('Aún no has elegido preguntas.'),
                         TextEntry::make('context_beliefs')
-                            ->label('Mitos y verdades relacionados')
-                            ->state(fn (Get $get): array => static::relatedBeliefs($get))
+                            ->label('Mitos y verdades del seguidor')
+                            ->state(fn (Get $get): array => static::followerBeliefs($get))
                             ->listWithLineBreaks()
                             ->bulleted()
-                            ->placeholder('Las preguntas elegidas aún no tienen mitos/verdades asociados.'),
-                        // Detección de huecos: preguntas elegidas sin ninguna creencia.
-                        TextEntry::make('context_gap')
-                            ->label('⚠️ Preguntas sin mitos/verdades')
-                            ->color('warning')
-                            ->state(fn (Get $get): array => static::questionsWithoutBeliefs($get))
-                            ->listWithLineBreaks()
-                            ->bulleted()
-                            ->placeholder('Todas las preguntas elegidas tienen al menos un mito/verdad.'),
+                            ->placeholder('El seguidor aún no tiene mitos/verdades.'),
                     ]),
             ]);
     }
@@ -138,36 +122,29 @@ class WinningIdeaForm
 
         return Question::query()
             ->whereBelongsTo(Filament::getTenant())
-            ->with('beliefs')
             ->whereKey($ids)
             ->get();
     }
 
     /**
-     * Mitos/verdades únicos de las preguntas elegidas (VISIBILIDAD MULTI-SALTO en vivo).
+     * Mitos/verdades del seguidor elegido (el seguidor es el centro).
      *
      * @return array<int, string>
      */
-    private static function relatedBeliefs(Get $get): array
+    private static function followerBeliefs(Get $get): array
     {
-        return static::selectedQuestions($get)
-            ->flatMap->beliefs
-            ->unique('id')
-            ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
-            ->values()
-            ->all();
-    }
+        $followerId = $get('ideal_follower_id');
 
-    /**
-     * Detección de huecos: preguntas elegidas que aún no tienen ninguna creencia.
-     *
-     * @return array<int, string>
-     */
-    private static function questionsWithoutBeliefs(Get $get): array
-    {
-        return static::selectedQuestions($get)
-            ->filter(fn (Question $question): bool => $question->beliefs->isEmpty())
-            ->pluck('body')
+        if (blank($followerId)) {
+            return [];
+        }
+
+        return Belief::query()
+            ->whereBelongsTo(Filament::getTenant())
+            ->where('ideal_follower_id', $followerId)
+            ->orderBy('statement')
+            ->get()
+            ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
             ->all();
     }
 }

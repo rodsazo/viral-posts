@@ -20,6 +20,7 @@ class ContentPiece extends Model
 
     protected $fillable = [
         'account_id',
+        'ideal_follower_id',
         'winning_idea_id',
         'title',
         'objective',
@@ -68,9 +69,14 @@ class ContentPiece extends Model
         return $this->belongsTo(WinningIdea::class);
     }
 
+    public function idealFollower(): BelongsTo
+    {
+        return $this->belongsTo(IdealFollower::class);
+    }
+
     /**
-     * VISIBILIDAD MULTI-SALTO: preguntas que responde la pieza, a través de su
-     * idea ganadora. Colección vacía si la pieza no tiene idea (decisión #5).
+     * Preguntas que responde la pieza, a través de su idea ganadora (la idea cura
+     * las preguntas). Colección vacía si la pieza no tiene idea.
      *
      * @return Collection<int, Question>
      */
@@ -80,13 +86,23 @@ class ContentPiece extends Model
     }
 
     /**
-     * VISIBILIDAD MULTI-SALTO: mitos y verdades derivados, a través de la idea
-     * y sus preguntas (ContentPiece → WinningIdea → Questions → Beliefs).
+     * Mitos y verdades a tratar: ahora salen del SEGUIDOR IDEAL de la pieza
+     * (el seguidor es el centro), no de las preguntas.
      *
      * @return Collection<int, Belief>
      */
     public function derivedBeliefs(): Collection
     {
-        return $this->winningIdea?->derivedBeliefs() ?? collect();
+        return $this->idealFollower?->beliefs()->orderBy('statement')->get() ?? collect();
+    }
+
+    /**
+     * Dolores / problemas / deseos del seguidor ideal de la pieza.
+     *
+     * @return Collection<int, Pain>
+     */
+    public function derivedPains(): Collection
+    {
+        return $this->idealFollower?->pains()->orderBy('type')->orderBy('body')->get() ?? collect();
     }
 }

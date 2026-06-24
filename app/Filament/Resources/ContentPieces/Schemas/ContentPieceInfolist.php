@@ -89,7 +89,7 @@ class ContentPieceInfolist
                             ->placeholder('Sin preguntas: la pieza no tiene idea, o la idea no tiene preguntas.'),
                     ]),
 
-                Section::make('Mitos y verdades (vía la idea)')
+                Section::make('Mitos y verdades (del seguidor ideal)')
                     ->schema([
                         TextEntry::make('derived_beliefs')
                             ->hiddenLabel()
@@ -98,7 +98,7 @@ class ContentPieceInfolist
                                 ->all())
                             ->listWithLineBreaks()
                             ->bulleted()
-                            ->placeholder('Sin mitos/verdades derivados.'),
+                            ->placeholder('Sin mitos/verdades: la pieza no tiene seguidor, o el seguidor no tiene creencias.'),
                     ]),
             ]);
     }

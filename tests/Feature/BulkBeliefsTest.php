@@ -7,7 +7,6 @@ use App\Filament\Pages\BulkBeliefs;
 use App\Models\Account;
 use App\Models\Belief;
 use App\Models\IdealFollower;
-use App\Models\Question;
 use App\Models\User;
 use Filament\Facades\Filament;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -32,14 +31,15 @@ class BulkBeliefsTest extends TestCase
     {
         $account = Account::factory()->create();
         $this->actInTenant($account);
+        $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
 
         Livewire::test(BulkBeliefs::class)
             ->fillForm([
+                'ideal_follower_id' => $follower->id,
                 'batches' => [
                     [
                         'myths' => "El rol es dificilísimo\n\nNecesitas un experto",
                         'truths' => "Se aprende jugando\nHay GMs profesionales\n  ",
-                        'question_ids' => [],
                     ],
                 ],
             ])
@@ -51,40 +51,55 @@ class BulkBeliefsTest extends TestCase
         $this->assertSame(4, Belief::where('account_id', $account->id)->count());
     }
 
-    public function test_each_group_links_to_its_own_questions(): void
+    public function test_all_beliefs_belong_to_the_chosen_follower(): void
     {
         $account = Account::factory()->create();
         $this->actInTenant($account);
-
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
-        $q1 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
-        $q2 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
 
         Livewire::test(BulkBeliefs::class)
             ->fillForm([
+                'ideal_follower_id' => $follower->id,
                 'batches' => [
-                    ['myths' => 'Mito A', 'truths' => 'Verdad A', 'question_ids' => [$q1->id]],
-                    ['myths' => 'Mito B', 'truths' => '', 'question_ids' => [$q2->id]],
+                    ['myths' => 'Mito A', 'truths' => 'Verdad A'],
+                    ['myths' => 'Mito B', 'truths' => ''],
                 ],
             ])
             ->call('save')
             ->assertHasNoErrors();
 
-        // Grupo 1: 2 creencias → q1; Grupo 2: 1 creencia → q2.
         $this->assertSame(3, Belief::count());
-        $this->assertSame(2, $q1->beliefs()->count());
-        $this->assertSame(1, $q2->beliefs()->count());
+        $this->assertSame(3, $follower->beliefs()->count());
+    }
+
+    public function test_follower_is_required(): void
+    {
+        $account = Account::factory()->create();
+        $this->actInTenant($account);
+
+        Livewire::test(BulkBeliefs::class)
+            ->fillForm([
+                'batches' => [
+                    ['myths' => 'Mito sin seguidor', 'truths' => ''],
+                ],
+            ])
+            ->call('save')
+            ->assertHasErrors('data.ideal_follower_id');
+
+        $this->assertSame(0, Belief::count());
     }
 
     public function test_nothing_is_created_when_groups_are_empty(): void
     {
         $account = Account::factory()->create();
         $this->actInTenant($account);
+        $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
 
         Livewire::test(BulkBeliefs::class)
             ->fillForm([
+                'ideal_follower_id' => $follower->id,
                 'batches' => [
-                    ['myths' => "  \n ", 'truths' => '', 'question_ids' => []],
+                    ['myths' => "  \n ", 'truths' => ''],
                 ],
             ])
             ->call('save');

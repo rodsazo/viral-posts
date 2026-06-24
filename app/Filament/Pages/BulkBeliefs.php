@@ -5,7 +5,6 @@ namespace App\Filament\Pages;
 use App\Enums\BeliefType;
 use App\Models\Belief;
 use App\Models\IdealFollower;
-use App\Models\Question;
 use BackedEnum;
 use Filament\Facades\Filament;
 use Filament\Forms\Components\Repeater;
@@ -14,7 +13,6 @@ use Filament\Forms\Components\Textarea;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use UnitEnum;
@@ -45,8 +43,9 @@ class BulkBeliefs extends Page
     {
         return $schema
             ->components([
+                // El seguidor es el centro: todas las creencias de este lote se crean para él.
                 Select::make('ideal_follower_id')
-                    ->label('Seguidor ideal (filtro)')
+                    ->label('Seguidor ideal')
                     ->options(fn (): array => IdealFollower::query()
                         ->whereBelongsTo(Filament::getTenant())
                         ->orderBy('name')
@@ -54,9 +53,8 @@ class BulkBeliefs extends Page
                         ->all())
                     ->searchable()
                     ->native(false)
-                    ->live()
-                    ->placeholder('Todos los seguidores')
-                    ->helperText('Opcional: filtra las preguntas que aparecen en cada grupo.'),
+                    ->required()
+                    ->helperText('Las creencias creadas pertenecerán a este seguidor.'),
 
                 Repeater::make('batches')
                     ->label('Grupos de creencias')
@@ -76,21 +74,6 @@ class BulkBeliefs extends Page
                                     ->rows(8)
                                     ->helperText('Una afirmación por línea.'),
                             ]),
-                        Select::make('question_ids')
-                            ->label('Relacionar este grupo con estas preguntas (opcional)')
-                            ->options(function (Get $get): array {
-                                $followerId = $get('../../ideal_follower_id');
-
-                                return Question::query()
-                                    ->whereBelongsTo(Filament::getTenant())
-                                    ->when($followerId, fn ($query) => $query->where('ideal_follower_id', $followerId))
-                                    ->orderByDesc('created_at')
-                                    ->pluck('body', 'id')
-                                    ->all();
-                            })
-                            ->multiple()
-                            ->searchable()
-                            ->preload(),
                     ]),
             ])
             ->statePath('data');
@@ -101,11 +84,10 @@ class BulkBeliefs extends Page
         $state = $this->form->getState();
 
         $accountId = Filament::getTenant()->getKey();
+        $followerId = $state['ideal_follower_id'] ?? null;
         $created = 0;
 
         foreach ($state['batches'] ?? [] as $batch) {
-            $questionIds = $batch['question_ids'] ?? [];
-
             $byType = [
                 BeliefType::Myth->value => $batch['myths'] ?? '',
                 BeliefType::Truth->value => $batch['truths'] ?? '',
@@ -119,15 +101,12 @@ class BulkBeliefs extends Page
                         continue;
                     }
 
-                    $belief = Belief::create([
+                    Belief::create([
                         'account_id' => $accountId,
+                        'ideal_follower_id' => $followerId,
                         'type' => BeliefType::from($type),
                         'statement' => $statement,
                     ]);
-
-                    if (! empty($questionIds)) {
-                        $belief->questions()->attach($questionIds);
-                    }
 
                     $created++;
                 }

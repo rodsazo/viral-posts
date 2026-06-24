@@ -21,8 +21,10 @@
       con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
 - [ ] **Confirmación en acciones destructivas.** Cualquier borrado pide confirmación antes de ejecutarse:
       seguidor (avisa del borrado en cascada de sus preguntas/creencias/dolores), pregunta, creencia, dolor,
-      idea ganadora, ejemplo de idea, CTA y captura del Inbox. *Convertir* una captura (→ idea/pregunta/creencia)
-      no pide confirmación (no destruye datos; los traslada).
+      idea ganadora, ejemplo de idea, CTA, **pieza de contenido** y captura del Inbox. *Convertir* una captura
+      (→ idea/pregunta/creencia) no pide confirmación (no destruye datos; los traslada).
+- [ ] **Borrar pieza (Composer).** En el **Composer**, el botón **Eliminar** (cabecera) solo aparece para **Admin**
+      de la marca; pide confirmación y, tras borrar, selecciona la pieza más reciente (o vacía si no quedan).
 
 ## Ideas ganadoras (`/studio/{marca}/ideas-ganadoras`)
 
@@ -32,7 +34,8 @@
 - [ ] **Lista + nueva.** Columna izquierda con las ideas de la marca (cada una con badge de validación); **"Nueva idea"** crea y selecciona una.
 - [ ] **Autoguardado.** Editar título, concepto, mecanismo o plantilla Heras persiste solo (badge **Guardado**).
 - [ ] **Ejemplos reales.** Añadir/quitar URLs (Enter o botón **Añadir**). Con ≥1 ejemplo el badge de cabecera pasa a **Validada** (verde); sin ejemplos, **Pendiente de validación** (gris) — **en vivo**.
-- [ ] **Preguntas.** Buscador + casillas para vincular preguntas de la marca; al marcar, debajo aparecen sus **mitos/verdades** derivados.
+- [ ] **Seguidor ideal.** Selector de seguidor (el centro): al elegirlo, las preguntas se **acotan** a él y aparece su contexto.
+- [ ] **Preguntas.** Buscador + casillas para vincular preguntas **del seguidor**; debajo aparecen los **mitos/verdades del seguidor**.
 - [ ] **Borrado solo Admin.** El botón 🗑 solo aparece para **Admin** de la marca; un **Editor** no lo ve.
 - [ ] **Aislamiento por marca.** Solo se listan ideas de la marca activa.
 

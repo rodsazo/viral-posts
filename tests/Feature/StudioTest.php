@@ -96,10 +96,10 @@ class StudioTest extends TestCase
 
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
         $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA DEL ESTUDIO']);
-        $belief = Belief::factory()->create(['account_id' => $account->id, 'type' => BeliefType::Truth, 'statement' => 'CREENCIA DEL ESTUDIO']);
-        $question->beliefs()->attach($belief->id);
+        // La creencia cuelga del seguidor directamente; la pieza la hereda al elegir la idea.
+        Belief::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'type' => BeliefType::Truth, 'statement' => 'CREENCIA DEL ESTUDIO']);
 
-        $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
         $idea->questions()->attach($question->id);
 
         $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'winning_idea_id' => null]);
@@ -141,6 +141,26 @@ class StudioTest extends TestCase
             ->call('newPiece');
 
         $this->assertSame(1, ContentPiece::where('account_id', $account->id)->count());
+    }
+
+    public function test_deleting_a_piece_is_reserved_to_brand_admins(): void
+    {
+        $account = Account::factory()->create();
+        $piece = ContentPiece::factory()->create(['account_id' => $account->id]);
+
+        // Editor: no puede borrar.
+        $this->actingAs($this->member($account));
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('deletePiece', $piece->id);
+        $this->assertDatabaseHas('content_pieces', ['id' => $piece->id]);
+
+        // Admin: sí.
+        $admin = User::factory()->create();
+        $account->users()->attach($admin->id, ['role' => TeamRole::Admin->value]);
+        $this->actingAs($admin);
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('deletePiece', $piece->id);
+        $this->assertDatabaseMissing('content_pieces', ['id' => $piece->id]);
     }
 
     public function test_mark_published_sets_status_and_date(): void

@@ -19,7 +19,7 @@
     {{-- Seguidor por defecto para convertir a pregunta --}}
     @if ($followers->isNotEmpty())
         <div class="flex items-center gap-2">
-            <flux:text class="text-zinc-500">Convertir preguntas para:</flux:text>
+            <flux:text class="text-zinc-500">Convertir preguntas/creencias para:</flux:text>
             <flux:select wire:model.live="followerId" class="max-w-xs">
                 @foreach ($followers as $follower)
                     <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
@@ -35,8 +35,8 @@
                 <p class="text-sm">{{ $capture->body }}</p>
                 <div class="mt-2 flex flex-wrap items-center gap-1.5">
                     <flux:button wire:click="toQuestion({{ $capture->id }})" size="xs" variant="subtle" :disabled="$followers->isEmpty()">→ Pregunta</flux:button>
-                    <flux:button wire:click="toBelief({{ $capture->id }}, 'myth')" size="xs" variant="subtle">→ Mito</flux:button>
-                    <flux:button wire:click="toBelief({{ $capture->id }}, 'truth')" size="xs" variant="subtle">→ Verdad</flux:button>
+                    <flux:button wire:click="toBelief({{ $capture->id }}, 'myth')" size="xs" variant="subtle" :disabled="$followers->isEmpty()">→ Mito</flux:button>
+                    <flux:button wire:click="toBelief({{ $capture->id }}, 'truth')" size="xs" variant="subtle" :disabled="$followers->isEmpty()">→ Verdad</flux:button>
                     <flux:button wire:click="toIdea({{ $capture->id }})" size="xs" variant="subtle">→ Idea</flux:button>
                     <flux:spacer />
                     <flux:button wire:click="discard({{ $capture->id }})" size="xs" variant="ghost" icon="trash" wire:confirm="¿Descartar esta captura?" />

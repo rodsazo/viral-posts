@@ -3,7 +3,7 @@
 ## Pieza de contenido (formulario)
 
 - [ ] **Crear** una pieza. La idea ganadora es **opcional** (puede ser "pieza suelta").
-- [ ] **Cascada multi-salto.** Al elegir una idea, el panel derecho muestra **idea → preguntas → mitos/verdades** en vivo. Con idea vacía, la cascada queda vacía.
+- [ ] **Cascada multi-salto.** Al elegir una idea o un **seguidor**, el panel muestra las preguntas (vía idea) y los **mitos/verdades del seguidor** en vivo.
 - [ ] **Guión** en 4 campos: gancho, historia, moraleja, CTA. Recordatorio de creencias dentro del guión.
 - [ ] **Meta**: objetivo (Viralidad/Venta), formato, estado, calificación.
 - [ ] **Crear idea inline** desde el selector de idea.
@@ -27,7 +27,7 @@
 - [ ] **Columnas**: estado, objetivo, formato, idea, calificación, enlace (🔗), fecha publicada.
 - [ ] **Filtros**: estado, objetivo, formato, calificación, "con idea / sueltas".
 - [ ] **Badge de navegación**: el menú "Piezas de contenido" muestra en ámbar el nº de piezas **sin publicar**.
-- [ ] **Vista (👁)** de una pieza: muestra toda la info + la cascada de idea/preguntas/creencias (solo lectura).
+- [ ] **Vista (👁)** de una pieza: muestra toda la info + preguntas (vía idea) y mitos/verdades (del seguidor ideal) (solo lectura).
 - [ ] **Permisos.** Como **Editor** (login `editor@elrodyelrol.test`), el botón de **eliminar no aparece**; como **Admin** sí.
 
 ## CTAs (Producción → CTAs)

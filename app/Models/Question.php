@@ -36,11 +36,6 @@ class Question extends Model
         return $this->belongsTo(Category::class);
     }
 
-    public function beliefs(): BelongsToMany
-    {
-        return $this->belongsToMany(Belief::class);
-    }
-
     public function winningIdeas(): BelongsToMany
     {
         return $this->belongsToMany(WinningIdea::class);

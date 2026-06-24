@@ -35,6 +35,9 @@ class WinningIdeaManager extends Component
 
     public ?int $heras_template_id = null;
 
+    // El seguidor ideal es el centro: de él salen preguntas y mitos/verdades.
+    public ?int $idealFollowerId = null;
+
     /** @var array<int, int|string> preguntas vinculadas */
     public array $questionIds = [];
 
@@ -87,7 +90,7 @@ class WinningIdeaManager extends Component
         $this->account->winningIdeas()->whereKey($id)->delete();
 
         if ($this->selectedId === $id) {
-            $this->reset(['selectedId', 'title', 'concept', 'viral_mechanism', 'heras_template_id', 'questionIds', 'exampleUrls']);
+            $this->reset(['selectedId', 'title', 'concept', 'viral_mechanism', 'heras_template_id', 'idealFollowerId', 'questionIds', 'exampleUrls']);
             $next = $this->account->winningIdeas()->orderBy('title')->first();
 
             if ($next !== null) {
@@ -105,6 +108,7 @@ class WinningIdeaManager extends Component
         $this->concept = $idea->concept;
         $this->viral_mechanism = $idea->viral_mechanism?->value;
         $this->heras_template_id = $idea->heras_template_id;
+        $this->idealFollowerId = $idea->ideal_follower_id;
         $this->questionIds = $idea->questions->pluck('id')->all();
         $this->exampleUrls = array_values($idea->example_urls ?? []);
         $this->newExampleUrl = '';
@@ -117,7 +121,7 @@ class WinningIdeaManager extends Component
             return;
         }
 
-        if (in_array($name, ['title', 'concept', 'viral_mechanism', 'heras_template_id'], true)) {
+        if (in_array($name, ['title', 'concept', 'viral_mechanism', 'heras_template_id', 'idealFollowerId'], true)) {
             $this->saveIdea();
 
             return;
@@ -141,6 +145,7 @@ class WinningIdeaManager extends Component
             'concept' => (string) $this->concept,
             'viral_mechanism' => $this->viral_mechanism ?: null,
             'heras_template_id' => $this->heras_template_id ?: null,
+            'ideal_follower_id' => $this->idealFollowerId ?: null,
         ]);
 
         $this->saved = true;
@@ -154,8 +159,9 @@ class WinningIdeaManager extends Component
             return;
         }
 
-        // Solo preguntas de la marca activa.
+        // Solo preguntas de la marca activa y del seguidor elegido.
         $ids = $this->account->questions()
+            ->when($this->idealFollowerId, fn ($q, $fid) => $q->where('ideal_follower_id', $fid))
             ->whereKey(array_map('intval', $this->questionIds))
             ->pluck('id')
             ->all();
@@ -216,16 +222,14 @@ class WinningIdeaManager extends Component
     #[Computed]
     public function contextBeliefs(): array
     {
-        if (empty($this->questionIds)) {
+        if (! $this->idealFollowerId) {
             return [];
         }
 
-        return $this->account->questions()
-            ->whereKey(array_map('intval', $this->questionIds))
-            ->with('beliefs')
+        return $this->account->beliefs()
+            ->where('ideal_follower_id', $this->idealFollowerId)
+            ->orderBy('statement')
             ->get()
-            ->flatMap->beliefs
-            ->unique('id')
             ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
             ->values()
             ->all();
@@ -242,7 +246,10 @@ class WinningIdeaManager extends Component
             'ideas' => $this->account->winningIdeas()->orderBy('title')->get(),
             'mechanisms' => ViralMechanism::cases(),
             'herasTemplates' => HerasTemplate::query()->orderBy('number')->get(),
+            'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
+            // Preguntas acotadas al seguidor elegido.
             'questions' => $this->account->questions()
+                ->when($this->idealFollowerId, fn ($q, $fid) => $q->where('ideal_follower_id', $fid))
                 ->when(filled($this->questionSearch), fn ($q) => $q->where('body', 'like', '%'.$this->questionSearch.'%'))
                 ->orderBy('body')
                 ->get(),

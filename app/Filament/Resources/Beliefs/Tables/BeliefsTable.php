@@ -6,9 +6,9 @@ use App\Enums\BeliefType;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
+use Filament\Facades\Filament;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
-use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -28,11 +28,11 @@ class BeliefsTable
                     ->wrap()
                     ->limit(90)
                     ->searchable(),
-                TextColumn::make('questions_count')
-                    ->label('Preguntas')
-                    ->counts('questions')
+                TextColumn::make('idealFollower.name')
+                    ->label('Seguidor ideal')
                     ->badge()
-                    ->toggleable(),
+                    ->color('info')
+                    ->sortable(),
                 TextColumn::make('created_at')
                     ->label('Creada')
                     ->dateTime()
@@ -46,15 +46,11 @@ class BeliefsTable
                 SelectFilter::make('type')
                     ->label('Tipo')
                     ->options(BeliefType::class),
-                TernaryFilter::make('questions')
-                    ->label('Preguntas')
-                    ->placeholder('Todas')
-                    ->trueLabel('Con preguntas')
-                    ->falseLabel('Sin preguntas')
-                    ->queries(
-                        true: fn (Builder $query) => $query->has('questions'),
-                        false: fn (Builder $query) => $query->doesntHave('questions'),
-                    ),
+                SelectFilter::make('ideal_follower_id')
+                    ->label('Seguidor ideal')
+                    ->relationship('idealFollower', 'name', fn (Builder $query) => $query->whereBelongsTo(Filament::getTenant()))
+                    ->searchable()
+                    ->preload(),
             ])
             ->recordActions([
                 EditAction::make(),

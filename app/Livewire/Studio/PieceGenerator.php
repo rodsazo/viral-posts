@@ -116,24 +116,26 @@ class PieceGenerator extends Component
 
         return $this->account->questions()
             ->where('ideal_follower_id', $this->idealFollowerId)
-            ->with('beliefs')
             ->orderBy('body')
             ->get();
     }
 
     /**
-     * Creencias (mitos/verdades) ligadas a las preguntas de ese seguidor.
+     * Creencias (mitos/verdades) del seguidor: directas, ahora que el seguidor es el centro.
      *
      * @return Collection<int, Belief>
      */
     #[Computed]
     public function followerBeliefs(): Collection
     {
-        return $this->followerQuestions
-            ->flatMap->beliefs
-            ->unique('id')
-            ->sortBy('statement')
-            ->values();
+        if (! $this->idealFollowerId) {
+            return collect();
+        }
+
+        return $this->account->beliefs()
+            ->where('ideal_follower_id', $this->idealFollowerId)
+            ->orderBy('statement')
+            ->get();
     }
 
     /** ¿Hay una generación en curso (encolada)? La vista la usa para hacer polling. */
@@ -222,6 +224,7 @@ class PieceGenerator extends Component
 
             $this->account->contentPieces()->create([
                 'winning_idea_id' => $this->winning_idea_id ?: null,
+                'ideal_follower_id' => $this->idealFollowerId ?: $idea?->ideal_follower_id,
                 'title' => count($indices) > 1 ? "{$base} — variante {$position}" : $base,
                 'objective' => $this->objective ?: null,
                 'format' => $this->format ?: null,
@@ -247,7 +250,7 @@ class PieceGenerator extends Component
         }
 
         return $this->account->winningIdeas()
-            ->with(['questions.beliefs', 'herasTemplate'])
+            ->with(['questions', 'herasTemplate'])
             ->find($this->winning_idea_id);
     }
 

@@ -53,6 +53,14 @@
 
                     <flux:input wire:model.blur="title" label="Título" />
 
+                    {{-- El seguidor ideal es el centro: de él salen preguntas y mitos/verdades. --}}
+                    <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Elige un seguidor" description="De este seguidor salen sus preguntas y sus mitos/verdades.">
+                        <flux:select.option value="">Sin seguidor</flux:select.option>
+                        @foreach ($followers as $follower)
+                            <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <flux:select wire:model.live="viral_mechanism" label="Mecanismo de viralidad" placeholder="Sin definir">
                             <flux:select.option value="">Sin definir</flux:select.option>

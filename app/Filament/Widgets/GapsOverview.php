@@ -20,12 +20,12 @@ class GapsOverview extends StatsOverviewWidget
         /** @var Account $account */
         $account = Filament::getTenant();
 
-        $questionsWithoutBeliefs = $account->questions()->doesntHave('beliefs')->count();
+        $followersWithoutBeliefs = $account->idealFollowers()->doesntHave('beliefs')->count();
         $ideasWithoutPieces = $account->winningIdeas()->doesntHave('contentPieces')->count();
         $questionsWithoutIdea = $account->questions()->doesntHave('winningIdeas')->count();
 
         return [
-            $this->gapStat('Preguntas sin mitos/verdades', $questionsWithoutBeliefs, 'heroicon-m-scale'),
+            $this->gapStat('Seguidores sin creencias', $followersWithoutBeliefs, 'heroicon-m-scale'),
             $this->gapStat('Ideas sin piezas', $ideasWithoutPieces, 'heroicon-m-film'),
             $this->gapStat('Preguntas sin idea', $questionsWithoutIdea, 'heroicon-m-light-bulb'),
         ];
