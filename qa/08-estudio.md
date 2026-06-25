@@ -1,6 +1,6 @@
 # 08 — Estudio (frontend a medida, Livewire + Flux)
 
-> Acceso: panel → *Producción → ✨ Abrir Estudio*, o `/studio/el-rod-y-el-rol`.
+> Acceso: en el admin, botón **"Abrir Estudio"** en la **barra superior** (a la izquierda del buscador), o `/studio/el-rod-y-el-rol`.
 > Requiere `npm run build` (Node ≥ 22.12) para verse con estilos.
 
 ## General

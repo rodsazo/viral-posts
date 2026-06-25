@@ -30,9 +30,17 @@ class Account extends Model implements HasAvatar
     /** URL pública del logo de la marca, o null si no tiene. */
     public function logoUrl(): ?string
     {
-        return filled($this->logo_path)
-            ? Storage::disk('public')->url($this->logo_path)
-            : null;
+        if (blank($this->logo_path)) {
+            return null;
+        }
+
+        // Devolvemos una URL relativa a la raíz (p. ej. "/storage/brand-logos/x.png"):
+        // así se sirve desde el mismo host:puerto que la app y evitamos el desajuste de
+        // origen cuando APP_URL no coincide con el puerto real (p. ej. localhost vs :8000).
+        // (Los logos viven en el disco público local, mismo origen que la app.)
+        $url = Storage::disk('public')->url($this->logo_path);
+
+        return preg_replace('#^https?://[^/]+#', '', $url) ?: $url;
     }
 
     /** Avatar de la marca para el selector de marca de Filament (admin). */

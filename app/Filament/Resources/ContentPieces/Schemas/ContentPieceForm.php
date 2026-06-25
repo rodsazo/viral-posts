@@ -88,7 +88,7 @@ class ContentPieceForm
                                 Select::make('status')
                                     ->label('Estado')
                                     ->options(ContentStatus::class)
-                                    ->default(ContentStatus::Planificacion->value)
+                                    ->default(ContentStatus::Borrador->value)
                                     ->required()
                                     ->native(false),
                                 Select::make('rating')

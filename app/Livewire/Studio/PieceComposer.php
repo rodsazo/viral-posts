@@ -40,7 +40,7 @@ class PieceComposer extends Component
 
     public ?string $format = null;
 
-    public string $status = 'planificacion';
+    public string $status = 'borrador';
 
     public ?string $rating = null;
 
@@ -107,7 +107,7 @@ class PieceComposer extends Component
     {
         $piece = $this->account->contentPieces()->create([
             'title' => 'Nueva pieza',
-            'status' => ContentStatus::Planificacion,
+            'status' => ContentStatus::Borrador,
         ]);
 
         $this->loadPiece($piece);
@@ -208,7 +208,7 @@ class PieceComposer extends Component
             'title' => trim((string) $this->title) ?: 'Sin título',
             'objective' => $this->objective ?: null,
             'format' => $this->format ?: null,
-            'status' => $this->status ?: ContentStatus::Planificacion->value,
+            'status' => $this->status ?: ContentStatus::Borrador->value,
             'rating' => $this->rating ?: null,
             'hook' => $this->hookText,
             'story' => $this->story,
@@ -344,6 +344,7 @@ class PieceComposer extends Component
         }
 
         $this->scriptGenerationId = null;
+        $this->dispatch('ai-generation-done');
     }
 
     /** Aplica la sugerencia elegida (afecta varios campos del guión) y guarda. */

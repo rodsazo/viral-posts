@@ -39,7 +39,7 @@ los tests automáticos (`php artisan test`), no los sustituye: aquí se prueba l
   | `editor@elrodyelrol.test` | `password` | Editor |
 - **Marca demo**: *El Rod y El Rol* (con datos de ejemplo).
 - **Correos** (invitaciones): en dev el mailer es `log` → revisa **`storage/logs/laravel.log`** para ver el email y su enlace de aceptación. (También puedes copiar el enlace desde la tabla de Invitaciones.)
-- **Estudio**: http://127.0.0.1:8000/admin → *Producción → ✨ Abrir Estudio*, o `/studio/el-rod-y-el-rol`.
+- **Estudio**: http://127.0.0.1:8000/admin → botón **"Abrir Estudio"** en la barra superior (izquierda del buscador), o `/studio/el-rod-y-el-rol`.
 
 ## Notas / comportamientos por diseño (no son bugs)
 

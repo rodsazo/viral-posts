@@ -58,7 +58,10 @@ class StudioTest extends TestCase
         $this->assertNull($account->logoUrl());
 
         $account->update(['logo_path' => 'brand-logos/foo.png']);
-        $this->assertStringContainsString('brand-logos/foo.png', (string) $account->logoUrl());
+        // Relativa a la raíz (sin esquema/host) para evitar el desajuste de origen con APP_URL.
+        $this->assertSame('/storage/brand-logos/foo.png', $account->logoUrl());
+        $this->assertStringStartsWith('/', (string) $account->logoUrl());
+        $this->assertStringNotContainsString('http', (string) $account->logoUrl());
         $this->assertSame($account->logoUrl(), $account->getFilamentAvatarUrl());
     }
 
@@ -141,6 +144,8 @@ class StudioTest extends TestCase
             ->call('newPiece');
 
         $this->assertSame(1, ContentPiece::where('account_id', $account->id)->count());
+        // Toda pieza nueva arranca en "Borrador".
+        $this->assertSame(ContentStatus::Borrador, ContentPiece::where('account_id', $account->id)->first()->status);
     }
 
     public function test_script_fields_autosave_even_with_empty_follower_select(): void

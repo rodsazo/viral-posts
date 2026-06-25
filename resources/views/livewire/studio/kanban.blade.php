@@ -8,6 +8,7 @@
     >
         {{-- Franja superior por estado: pinta el tablero como una progresión de color. --}}
         @php($columnAccent = [
+            'borrador' => 'bg-zinc-400',
             'planificacion' => 'bg-violet-400',
             'guion_listo' => 'bg-blue-400',
             'lista_para_grabacion' => 'bg-cyan-400',

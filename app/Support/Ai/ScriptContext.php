@@ -5,6 +5,7 @@ namespace App\Support\Ai;
 use App\Models\Belief;
 use App\Models\ContentPiece;
 use App\Models\HerasTemplate;
+use App\Models\Pain;
 use App\Models\WinningIdea;
 
 /**
@@ -17,6 +18,7 @@ class ScriptContext
     /**
      * @param  array<int, string>  $questions  preguntas que responde la pieza
      * @param  array<int, string>  $beliefs  mitos/verdades a tratar ("[Tipo] enunciado")
+     * @param  array<int, string>  $pains  dolores/problemas/deseos a tocar ("[Tipo] enunciado")
      * @param  array<int, string>  $templates  fórmulas Heras de referencia (texto ya formateado)
      * @param  array<int, string>  $hooks  plantillas de gancho a usar (texto ya formateado)
      * @param  array<int, string>  $ctas  CTAs hacia las que debe fluir cada variante (texto ya formateado)
@@ -29,6 +31,7 @@ class ScriptContext
         public ?string $format = null,
         public array $questions = [],
         public array $beliefs = [],
+        public array $pains = [],
         public ?string $currentHook = null,
         public ?string $currentStory = null,
         public ?string $currentMoral = null,
@@ -51,6 +54,7 @@ class ScriptContext
             format: $piece->format?->getLabel(),
             questions: $piece->derivedQuestions()->pluck('body')->all(),
             beliefs: static::beliefLabels($piece->derivedBeliefs()->all()),
+            pains: static::painLabels($piece->derivedPains()->all()),
             currentHook: $piece->hook,
             currentStory: $piece->story,
             currentMoral: $piece->moral,
@@ -70,6 +74,7 @@ class ScriptContext
             ideaConcept: $idea->concept,
             questions: $idea->questions->pluck('body')->all(),
             beliefs: static::beliefLabels($idea->derivedBeliefs()->all()),
+            pains: static::painLabels($idea->derivedPains()->all()),
             templates: $idea->herasTemplate ? static::templateLines([$idea->herasTemplate]) : [],
         );
     }
@@ -114,11 +119,23 @@ class ScriptContext
     }
 
     /**
+     * @param  array<int, Pain>  $pains
+     * @return array<int, string>
+     */
+    private static function painLabels(array $pains): array
+    {
+        return array_map(
+            fn (Pain $pain): string => '['.$pain->type->getLabel().'] '.$pain->body,
+            $pains,
+        );
+    }
+
+    /**
      * Indica si hay material suficiente para pedir un guión con sentido.
      */
     public function hasMaterial(): bool
     {
-        return filled($this->ideaConcept) || filled($this->questions) || filled($this->beliefs);
+        return filled($this->ideaConcept) || filled($this->questions) || filled($this->beliefs) || filled($this->pains);
     }
 
     /**
@@ -160,6 +177,14 @@ class ScriptContext
             $lines[] = 'Mitos a desmentir y verdades a reforzar:';
             foreach ($this->beliefs as $b) {
                 $lines[] = "- {$b}";
+            }
+        }
+
+        if (filled($this->pains)) {
+            $lines[] = '';
+            $lines[] = 'Dolores, problemas y deseos del seguidor que el guión debe tocar (conecta con ellos):';
+            foreach ($this->pains as $p) {
+                $lines[] = "- {$p}";
             }
         }
 

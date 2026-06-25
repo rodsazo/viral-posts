@@ -7,6 +7,7 @@ use Filament\Support\Contracts\HasLabel;
 
 enum ContentStatus: string implements HasColor, HasLabel
 {
+    case Borrador = 'borrador';
     case Planificacion = 'planificacion';
     case GuionListo = 'guion_listo';
     case ListaParaGrabacion = 'lista_para_grabacion';
@@ -17,6 +18,7 @@ enum ContentStatus: string implements HasColor, HasLabel
     public function getLabel(): string
     {
         return match ($this) {
+            self::Borrador => 'Borrador',
             self::Planificacion => 'Planificación',
             self::GuionListo => 'Guión listo',
             self::ListaParaGrabacion => 'Lista para grabación',
@@ -29,6 +31,7 @@ enum ContentStatus: string implements HasColor, HasLabel
     public function getColor(): string|array
     {
         return match ($this) {
+            self::Borrador => 'gray',
             self::Planificacion => 'gray',
             self::GuionListo => 'info',
             self::ListaParaGrabacion => 'warning',
@@ -46,6 +49,7 @@ enum ContentStatus: string implements HasColor, HasLabel
     public function fluxColor(): string
     {
         return match ($this) {
+            self::Borrador => 'zinc',
             self::Planificacion => 'violet',
             self::GuionListo => 'blue',
             self::ListaParaGrabacion => 'cyan',

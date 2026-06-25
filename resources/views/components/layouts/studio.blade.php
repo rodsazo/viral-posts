@@ -154,5 +154,35 @@
     </main>
 
     @fluxScripts
+
+    {{-- Sonido al terminar una generación de IA (los componentes emiten 'ai-generation-done').
+         Se sintetiza con Web Audio: un "ding" agradable, sin necesidad de un archivo de audio. --}}
+    <script>
+        window.playAiDoneSound = function () {
+            try {
+                const Ctx = window.AudioContext || window.webkitAudioContext;
+                if (! Ctx) return;
+                const ctx = new Ctx();
+                if (ctx.state === 'suspended') ctx.resume();
+                const now = ctx.currentTime;
+                // Dos notas ascendentes (La5 → Mi6).
+                [[880, 0], [1318.51, 0.13]].forEach(function ([freq, offset]) {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = freq;
+                    const t = now + offset;
+                    gain.gain.setValueAtTime(0.0001, t);
+                    gain.gain.exponentialRampToValueAtTime(0.2, t + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.35);
+                    osc.connect(gain).connect(ctx.destination);
+                    osc.start(t);
+                    osc.stop(t + 0.4);
+                });
+                setTimeout(function () { ctx.close(); }, 1000);
+            } catch (e) { /* el navegador no permite audio: lo ignoramos */ }
+        };
+        window.addEventListener('ai-generation-done', function () { window.playAiDoneSound(); });
+    </script>
 </body>
 </html>

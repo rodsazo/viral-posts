@@ -41,7 +41,11 @@ return [
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
-            'url' => rtrim(env('APP_URL', 'http://localhost'), '/').'/storage',
+            // URL relativa a la raíz: las imágenes (logos, previsualizaciones) se sirven
+            // desde el mismo host:puerto que la app, sin depender de APP_URL. Evita el
+            // problema de "distinto origen" (p. ej. localhost vs :8000) en el FileUpload
+            // del admin y en las miniaturas del Estudio.
+            'url' => '/storage',
             'visibility' => 'public',
             'throw' => false,
             'report' => false,

@@ -16,12 +16,26 @@
             <div class="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">1 · Parámetros</flux:heading>
 
-                <flux:select wire:model.live="winning_idea_id" label="Idea ganadora" placeholder="Sin idea (pieza suelta)">
-                    <flux:select.option value="">Sin idea (pieza suelta)</flux:select.option>
-                    @foreach ($ideas as $idea)
-                        <flux:select.option value="{{ $idea->id }}">{{ $idea->title }}</flux:select.option>
+                {{-- 1) Seguidor ideal (primero): de él salen las ideas y el contexto. --}}
+                <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Elige un seguidor ideal" description="Empieza por aquí. Las opciones muestran su nivel de conciencia (0-4) y el nombre.">
+                    <flux:select.option value="">Elige un seguidor ideal</flux:select.option>
+                    @foreach ($followers as $follower)
+                        <flux:select.option value="{{ $follower->id }}">@if ($follower->awareness_level) {{ $follower->awareness_level->value }} · @endif{{ $follower->name }}</flux:select.option>
                     @endforeach
                 </flux:select>
+
+                {{-- 2) Idea ganadora del seguidor elegido; entre corchetes, nº de piezas ya creadas. --}}
+                <div class="flex flex-col gap-1">
+                    <flux:select wire:model.live="winning_idea_id" label="Idea ganadora" placeholder="Sin idea (pieza suelta)" :disabled="! $idealFollowerId">
+                        <flux:select.option value="">Sin idea (pieza suelta)</flux:select.option>
+                        @foreach ($ideas as $idea)
+                            <flux:select.option value="{{ $idea->id }}">{{ $idea->title }} [{{ $idea->content_pieces_count }} piezas]</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    @unless ($idealFollowerId)
+                        <flux:text class="text-xs text-zinc-400">Elige primero un seguidor ideal para ver sus ideas.</flux:text>
+                    @endunless
+                </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <flux:select wire:model="objective" label="Objetivo" placeholder="Sin objetivo">
@@ -40,16 +54,9 @@
 
                 <flux:textarea wire:model="instructions" label="Instrucciones adicionales (opcional)" rows="2" placeholder="Ángulo, tono, detalles del post…" />
 
-                {{-- Selección manual de contexto: Seguidor Ideal → preguntas y creencias --}}
-                <div class="flex flex-col gap-2">
-                    <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal (opcional)" placeholder="Usar el contexto de la idea" description="Elígelo para escoger a mano qué preguntas y creencias enviar a la IA.">
-                        <flux:select.option value="">Usar el contexto de la idea</flux:select.option>
-                        @foreach ($followers as $follower)
-                            <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-
-                    @if ($idealFollowerId)
+                {{-- Contexto del seguidor elegido: preguntas / mitos / dolores a enviar --}}
+                @if ($idealFollowerId)
+                    <div class="flex flex-col gap-2">
                         <div>
                             <flux:subheading class="mb-1">Preguntas a enviar</flux:subheading>
                             <div class="max-h-40 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
@@ -67,12 +74,23 @@
                                 @forelse ($this->followerBeliefs as $belief)
                                     <flux:checkbox wire:model="beliefIds" value="{{ $belief->id }}" label="[{{ $belief->type->getLabel() }}] {{ $belief->statement }}" />
                                 @empty
-                                    <flux:text class="text-zinc-500">Las preguntas de este seguidor aún no tienen mitos/verdades.</flux:text>
+                                    <flux:text class="text-zinc-500">Este seguidor aún no tiene mitos/verdades.</flux:text>
                                 @endforelse
                             </div>
                         </div>
-                    @endif
-                </div>
+
+                        <div>
+                            <flux:subheading class="mb-1">Dolores/problemas/deseos a enviar</flux:subheading>
+                            <div class="max-h-40 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
+                                @forelse ($this->followerPains as $pain)
+                                    <flux:checkbox wire:model="painIds" value="{{ $pain->id }}" label="[{{ $pain->type->getLabel() }}] {{ $pain->body }}" />
+                                @empty
+                                    <flux:text class="text-zinc-500">Este seguidor aún no tiene dolores/deseos.</flux:text>
+                                @endforelse
+                            </div>
+                        </div>
+                    </div>
+                @endif
 
                 {{-- Ideas Ganadoras Referenciales (Heras) + filtro por Referente --}}
                 <div class="flex flex-col gap-2">
@@ -140,7 +158,7 @@
                 </div>
 
                 {{-- Contexto en vivo de la idea (cuando no se elige seguidor manualmente) --}}
-                @if (! $idealFollowerId && (count($this->contextQuestions) || count($this->contextBeliefs)))
+                @if (! $idealFollowerId && (count($this->contextQuestions) || count($this->contextBeliefs) || count($this->contextPains)))
                     <flux:separator />
                     <div class="text-sm">
                         @if (count($this->contextQuestions))
@@ -156,6 +174,14 @@
                             <ul class="mt-1 list-disc space-y-1 pl-5 text-zinc-600 dark:text-zinc-300">
                                 @foreach ($this->contextBeliefs as $b)
                                     <li>{{ $b }}</li>
+                                @endforeach
+                            </ul>
+                        @endif
+                        @if (count($this->contextPains))
+                            <flux:subheading class="mt-3">Dolores/deseos a tocar</flux:subheading>
+                            <ul class="mt-1 list-disc space-y-1 pl-5 text-zinc-600 dark:text-zinc-300">
+                                @foreach ($this->contextPains as $p)
+                                    <li>{{ $p }}</li>
                                 @endforeach
                             </ul>
                         @endif

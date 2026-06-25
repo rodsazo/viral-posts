@@ -2,7 +2,7 @@
 
 ## Pieza de contenido (formulario)
 
-- [ ] **Crear** una pieza. La idea ganadora es **opcional** (puede ser "pieza suelta").
+- [ ] **Crear** una pieza. La idea ganadora es **opcional** (puede ser "pieza suelta"). El estado por defecto es **Borrador** (primer estado del flujo: Borrador → Planificación → …).
 - [ ] **Cascada multi-salto.** Al elegir una idea o un **seguidor**, el panel muestra las preguntas (vía idea) y los **mitos/verdades del seguidor** en vivo.
 - [ ] **Guión** en 4 campos: gancho, historia, moraleja, CTA. Recordatorio de creencias dentro del guión.
 - [ ] **Producción.** Sección con **Locación**, **Equipo necesario** y **Personas y personajes**.
@@ -41,6 +41,6 @@
 
 ## Kanban (Producción → Kanban, en el panel Filament)
 
-- [ ] **Columnas por estado** (Planificación → Publicada) con tarjetas.
+- [ ] **Columnas por estado** (Borrador → Planificación → Publicada) con tarjetas. Toda pieza nueva arranca en **Borrador**.
 - [ ] **Arrastrar** una tarjeta a otra columna → el estado **se guarda** (recargar lo confirma) y aparece notificación.
 - [ ] Cada tarjeta muestra título, objetivo, formato e idea (o "Pieza suelta").

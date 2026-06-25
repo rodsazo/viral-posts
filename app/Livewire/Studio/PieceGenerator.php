@@ -11,6 +11,7 @@ use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\HerasTemplate;
 use App\Models\HookTemplate;
+use App\Models\Pain;
 use App\Models\Question;
 use App\Models\ViralReferent;
 use App\Models\WinningIdea;
@@ -50,6 +51,9 @@ class PieceGenerator extends Component
 
     /** @var array<int, int|string> */
     public array $beliefIds = [];
+
+    /** @var array<int, int|string> */
+    public array $painIds = [];
 
     // Ideas Ganadoras Referenciales (HerasTemplate) + filtro por Referente.
     public ?int $referentFilter = null;
@@ -95,11 +99,13 @@ class PieceGenerator extends Component
         return app(ContentAssistant::class)->isConfigured();
     }
 
-    /** Al cambiar de seguidor, reinicia las preguntas/creencias elegidas. */
+    /** Al cambiar de seguidor, reinicia la idea (sus ideas se filtran) y el contexto manual. */
     public function updatedIdealFollowerId(): void
     {
+        $this->winning_idea_id = null;
         $this->questionIds = [];
         $this->beliefIds = [];
+        $this->painIds = [];
     }
 
     /**
@@ -138,6 +144,25 @@ class PieceGenerator extends Component
             ->get();
     }
 
+    /**
+     * Dolores / problemas / deseos del seguidor elegido.
+     *
+     * @return Collection<int, Pain>
+     */
+    #[Computed]
+    public function followerPains(): Collection
+    {
+        if (! $this->idealFollowerId) {
+            return collect();
+        }
+
+        return $this->account->pains()
+            ->where('ideal_follower_id', $this->idealFollowerId)
+            ->orderBy('type')
+            ->orderBy('body')
+            ->get();
+    }
+
     /** ¿Hay una generación en curso (encolada)? La vista la usa para hacer polling. */
     #[Computed]
     public function generating(): bool
@@ -160,9 +185,10 @@ class PieceGenerator extends Component
         $context->objective = $this->objective ? ContentObjective::tryFrom($this->objective)?->getLabel() : null;
         $context->format = $this->format ? ContentFormat::tryFrom($this->format)?->getLabel() : null;
         $context->extra = $this->instructions;
-        // Si el usuario eligió seguidor + preguntas/creencias manualmente, manda esas.
+        // Si el usuario eligió seguidor + preguntas/creencias/dolores manualmente, manda esos.
         $context->questions = $this->contextQuestions;
         $context->beliefs = $this->contextBeliefs;
+        $context->pains = $this->contextPains;
         $context->templates = collect($context->templates)
             ->merge(ScriptContext::templateLines($this->selectedTemplates()))
             ->unique()
@@ -203,6 +229,7 @@ class PieceGenerator extends Component
         }
 
         $this->generationId = null;
+        $this->dispatch('ai-generation-done');
     }
 
     /** Crea una pieza por cada variante seleccionada (paso 3) y lleva al composer. */
@@ -228,7 +255,7 @@ class PieceGenerator extends Component
                 'title' => count($indices) > 1 ? "{$base} — variante {$position}" : $base,
                 'objective' => $this->objective ?: null,
                 'format' => $this->format ?: null,
-                'status' => ContentStatus::Planificacion->value,
+                'status' => ContentStatus::Borrador->value,
                 'hook' => $fields['hook'] ?? null,
                 'story' => $fields['story'] ?? null,
                 'moral' => $fields['moral'] ?? null,
@@ -401,10 +428,43 @@ class PieceGenerator extends Component
         return $idea ? $idea->derivedBeliefs()->map($label)->all() : [];
     }
 
+    /**
+     * Dolores/problemas/deseos que se enviarán: los marcados manualmente si hay
+     * seguidor elegido; en caso contrario, los del seguidor de la idea ganadora.
+     *
+     * @return array<int, string>
+     */
+    #[Computed]
+    public function contextPains(): array
+    {
+        $label = fn (Pain $pain): string => '['.$pain->type->getLabel().'] '.$pain->body;
+
+        if ($this->idealFollowerId) {
+            $ids = array_map('intval', $this->painIds);
+
+            return $this->followerPains
+                ->whereIn('id', $ids)
+                ->map($label)
+                ->values()
+                ->all();
+        }
+
+        $idea = $this->selectedIdea();
+
+        return $idea ? $idea->derivedPains()->map($label)->all() : [];
+    }
+
     public function render(): View
     {
         return view('livewire.studio.piece-generator', [
-            'ideas' => $this->account->winningIdeas()->orderBy('title')->get(),
+            // Solo las ideas del seguidor elegido, con el nº de piezas ya creadas por idea.
+            'ideas' => $this->idealFollowerId
+                ? $this->account->winningIdeas()
+                    ->where('ideal_follower_id', $this->idealFollowerId)
+                    ->withCount('contentPieces')
+                    ->orderBy('title')
+                    ->get()
+                : collect(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
             'referents' => ViralReferent::query()->orderBy('name')->get(),
             'templates' => HerasTemplate::query()

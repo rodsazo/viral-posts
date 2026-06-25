@@ -229,6 +229,7 @@ class IdeaGenerator extends Component
         }
 
         $this->generationId = null;
+        $this->dispatch('ai-generation-done');
     }
 
     /** Crea una WinningIdea por cada sugerencia elegida y la enlaza a las preguntas. */

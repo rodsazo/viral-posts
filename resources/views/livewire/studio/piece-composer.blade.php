@@ -18,8 +18,13 @@
                     ])
                 >
                     <div class="truncate text-sm font-medium">{{ $piece->title }}</div>
-                    <div class="mt-1">
+                    <div class="mt-1 flex flex-wrap items-center gap-1">
                         <flux:badge size="sm" color="zinc">{{ $piece->status->getLabel() }}</flux:badge>
+                        @if ($piece->rum !== null)
+                            <flux:badge size="sm" :color="\App\Support\Rum::fluxColor($piece->rum)">RUM {{ number_format($piece->rum, 1) }}</flux:badge>
+                        @else
+                            <flux:badge size="sm" color="zinc">RUM —</flux:badge>
+                        @endif
                     </div>
                 </button>
             @empty

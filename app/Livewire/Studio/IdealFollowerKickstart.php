@@ -102,6 +102,7 @@ class IdealFollowerKickstart extends Component
         }
 
         $this->generationId = null;
+        $this->dispatch('ai-generation-done');
     }
 
     /** Crea un seguidor ideal (con sus preguntas/creencias/dolores) por cada hipótesis elegida. */

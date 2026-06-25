@@ -75,7 +75,7 @@ return [
     'idea' => [
 
         // Nº de ideas ganadoras que devuelve el asistente.
-        'suggestions' => 3,
+        'suggestions' => 5,
 
         'system' => [
             'role' => 'Eres un estratega de contenido viral para redes sociales, formado en la metodología de Víctor Heras.',

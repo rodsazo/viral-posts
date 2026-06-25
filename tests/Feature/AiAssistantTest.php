@@ -159,7 +159,9 @@ class AiAssistantTest extends TestCase
             ->set('scriptGenerationId', $generation->id)
             ->call('pollScript')
             ->assertCount('scriptSuggestions', 1)
-            ->assertSet('scriptGenerationId', null);
+            ->assertSet('scriptGenerationId', null)
+            // Avisa al navegador para reproducir el sonido de "generación terminada".
+            ->assertDispatched('ai-generation-done');
     }
 
     public function test_job_runs_assistant_and_stores_result(): void
@@ -252,7 +254,7 @@ class AiAssistantTest extends TestCase
         $this->assertSame(0, ContentPiece::where('account_id', $account->id)->count());
     }
 
-    public function test_generator_sends_manually_chosen_questions_and_beliefs(): void
+    public function test_generator_sends_manually_chosen_questions_beliefs_and_pains(): void
     {
         $account = Account::factory()->create();
         $this->actingAs($this->member($account));
@@ -260,8 +262,9 @@ class AiAssistantTest extends TestCase
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
         $q1 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA ELEGIDA']);
         $q2 = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA NO ELEGIDA']);
-        // La creencia cuelga del seguidor directamente.
+        // La creencia y el dolor cuelgan del seguidor directamente.
         $belief = Belief::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'type' => BeliefType::Myth, 'statement' => 'MITO ELEGIDO']);
+        $pain = Pain::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'type' => PainType::Desire, 'body' => 'DESEO ELEGIDO']);
 
         Queue::fake();
         config(['services.anthropic.key' => 'sk-ant-test']);
@@ -270,14 +273,50 @@ class AiAssistantTest extends TestCase
             ->set('idealFollowerId', $follower->id)
             ->set('questionIds', [$q1->id])
             ->set('beliefIds', [$belief->id])
+            ->set('painIds', [$pain->id])
             ->call('generate');
 
-        // El contexto que se encola lleva solo lo elegido manualmente.
+        // El contexto que se encola lleva solo lo elegido manualmente, incluidos los dolores.
         Queue::assertPushed(GenerateSuggestionsJob::class, function (GenerateSuggestionsJob $job): bool {
             return $job->context instanceof ScriptContext
                 && $job->context->questions === ['PREGUNTA ELEGIDA']
-                && $job->context->beliefs === ['[Mito] MITO ELEGIDO'];
+                && $job->context->beliefs === ['[Mito] MITO ELEGIDO']
+                && $job->context->pains === ['[Deseo] DESEO ELEGIDO'];
         });
+    }
+
+    public function test_generator_lists_only_the_chosen_followers_ideas_with_piece_counts(): void
+    {
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+
+        $followerA = IdealFollower::factory()->create(['account_id' => $account->id]);
+        $followerB = IdealFollower::factory()->create(['account_id' => $account->id]);
+
+        $ideaA = WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $followerA->id, 'title' => 'IDEA DEL SEGUIDOR A']);
+        WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $followerB->id, 'title' => 'IDEA DEL SEGUIDOR B']);
+        ContentPiece::factory()->count(2)->create(['account_id' => $account->id, 'winning_idea_id' => $ideaA->id]);
+
+        Livewire::test(PieceGenerator::class, ['account' => $account])
+            ->set('idealFollowerId', $followerA->id)
+            ->assertSee('IDEA DEL SEGUIDOR A')
+            ->assertSee('[2 piezas]')
+            ->assertDontSee('IDEA DEL SEGUIDOR B');
+    }
+
+    public function test_generated_pieces_start_as_borrador(): void
+    {
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+
+        Livewire::test(PieceGenerator::class, ['account' => $account])
+            ->set('suggestions', [
+                ['label' => 'Variante 1', 'fields' => ['hook' => 'H', 'story' => 'S', 'moral' => 'M', 'cta' => 'C'], 'preview' => 'p'],
+            ])
+            ->set('selected', [0])
+            ->call('createPieces');
+
+        $this->assertDatabaseHas('content_pieces', ['account_id' => $account->id, 'status' => 'borrador']);
     }
 
     public function test_script_context_prompt_includes_cta_instruction(): void
