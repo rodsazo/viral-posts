@@ -55,6 +55,18 @@
 - [ ] **Borrado.** El botón 🗑 (con confirmación) elimina la CTA.
 - [ ] **Aislamiento por marca.** Solo aparecen las CTAs de la marca activa.
 
+## Ganchos (`/studio/{marca}/ganchos`)
+
+> Menú **Contenido → Ganchos**. CRUD de los ganchos **propios de la marca** (autoguardado, maestro-detalle).
+> Los ganchos **globales de referencia** se gestionan en el admin (*Referencia → Ganchos*) y aquí **no** se listan,
+> pero **sí** están disponibles en el Generador de piezas junto a los de la marca.
+
+- [ ] **Lista + nuevo.** Columna izquierda con los ganchos de la marca (icono + nombre); **"Nuevo gancho"** crea y selecciona uno.
+- [ ] **Editor con autoguardado.** Nombre, **Referente viral (opcional)**, **Ícono** (desplegable FontAwesome con vista previa), **Objetivo**, **Ejemplo**, **Notas** y **Ejemplos reales (URLs)**; editar persiste solo (badge **Guardado**).
+- [ ] **Borrado solo Admin.** El botón 🗑 (con confirmación) solo aparece para **Admin** de la marca.
+- [ ] **Aislamiento.** Solo aparecen los ganchos de la marca activa (ni globales ni de otras marcas).
+- [ ] **Sin selección al abrir** (estado vacío hasta elegir uno).
+
 ## Audiencia (`/studio/{marca}/audiencia`)
 
 > Hub para editar la audiencia desde el Estudio (también editable en el admin).

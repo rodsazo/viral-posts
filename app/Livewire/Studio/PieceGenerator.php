@@ -471,8 +471,10 @@ class PieceGenerator extends Component
                 ->when($this->referentFilter, fn ($q) => $q->where('viral_referent_id', $this->referentFilter))
                 ->orderBy('number')
                 ->get(),
+            // Ganchos de la marca + los globales de referencia (account_id nulo).
             'hooks' => HookTemplate::query()
                 ->with('viralReferent')
+                ->where(fn ($q) => $q->whereNull('account_id')->orWhere('account_id', $this->account->id))
                 ->when($this->hookReferentFilter, fn ($q) => $q->where('viral_referent_id', $this->hookReferentFilter))
                 ->when(filled($this->hookSearch), fn ($q) => $q->where(fn ($w) => $w
                     ->where('name', 'like', '%'.$this->hookSearch.'%')

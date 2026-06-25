@@ -27,7 +27,9 @@
 
 ## Plantillas de gancho (menú: Referencia → "Ganchos (plantillas)")
 
-> Catálogo **global**, solo admin. Plantillas para el **gancho** (primera parte de una pieza).
+> Catálogo **global de referencia** (compartido por todas las marcas), solo super admin. Plantillas para el
+> **gancho** (primera parte de una pieza). Los ganchos **propios de cada marca** se gestionan en el Estudio
+> (**Contenido → Ganchos**, ver [08-estudio.md](08-estudio.md)) y **no** aparecen en este listado del admin.
 
 - [ ] **Crear** una plantilla de gancho: **Nombre**, **Referente** (obligatorio), **Ícono** (FontAwesome), **Objetivo**, **Notas**.
 - [ ] **Ejemplos por nicho:** genérico + Salud + Sexo + Dinero + Desarrollo Personal (textos).

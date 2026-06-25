@@ -133,4 +133,10 @@ class Account extends Model implements HasAvatar
     {
         return $this->hasMany(ContentCta::class);
     }
+
+    /** Ganchos propios de la marca (los globales tienen account_id nulo). */
+    public function hookTemplates(): HasMany
+    {
+        return $this->hasMany(HookTemplate::class);
+    }
 }

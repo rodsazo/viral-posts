@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * Plantilla de gancho (hook): la primera parte de una pieza de contenido.
- * Catálogo GLOBAL (no escopado a la marca), como HerasTemplate.
+ * `account_id` nulo = gancho GLOBAL de referencia (admin/super admin); con marca =
+ * gancho propio de esa marca (editable en el Estudio por su equipo).
  */
 class HookTemplate extends Model
 {
@@ -17,6 +18,7 @@ class HookTemplate extends Model
     use HasFactory;
 
     protected $fillable = [
+        'account_id',
         'viral_referent_id',
         'name',
         'objective',
@@ -38,8 +40,19 @@ class HookTemplate extends Model
         ];
     }
 
+    public function account(): BelongsTo
+    {
+        return $this->belongsTo(Account::class);
+    }
+
     public function viralReferent(): BelongsTo
     {
         return $this->belongsTo(ViralReferent::class);
+    }
+
+    /** ¿Es un gancho global de referencia (sin marca)? */
+    public function isGlobal(): bool
+    {
+        return $this->account_id === null;
     }
 }

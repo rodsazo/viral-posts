@@ -14,6 +14,7 @@ use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use UnitEnum;
 
@@ -39,6 +40,12 @@ class HookTemplateResource extends Resource
     protected static ?string $pluralModelLabel = 'plantillas de gancho';
 
     protected static ?string $recordTitleAttribute = 'name';
+
+    /** El admin gestiona solo el catálogo GLOBAL de referencia; los de marca van en el Estudio. */
+    public static function getEloquentQuery(): Builder
+    {
+        return parent::getEloquentQuery()->whereNull('account_id');
+    }
 
     public static function getGloballySearchableAttributes(): array
     {
