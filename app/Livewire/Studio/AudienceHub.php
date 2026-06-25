@@ -52,13 +52,8 @@ class AudienceHub extends Component
 
     public function mount(Account $account): void
     {
+        // Sin selección por defecto: el usuario elige un seguidor (evita confusión al abrir).
         $this->account = $account;
-
-        $first = $this->account->idealFollowers()->orderBy('name')->first();
-
-        if ($first !== null) {
-            $this->loadFollower($first);
-        }
     }
 
     public function newFollower(): void

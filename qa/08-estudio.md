@@ -19,6 +19,9 @@
       y **Volver al admin**. Cambiar de marca mantiene la misma sección.
 - [ ] **Próximamente.** *Calendario*, *Rendimiento* y *Uso de IA* aparecen como filas **deshabilitadas**
       con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
+- [ ] **Sin selección al abrir.** Las pantallas maestro-detalle (**Audiencia**, **Ideas ganadoras**, **Composer**)
+      abren **sin ningún elemento seleccionado** (estado vacío con su mensaje). El usuario elige uno de la lista.
+      *(El Composer sí preselecciona si llega por deep-link `?piece={id}`, p. ej. desde el Kanban.)*
 - [ ] **Confirmación en acciones destructivas.** Cualquier borrado pide confirmación antes de ejecutarse:
       seguidor (avisa del borrado en cascada de sus preguntas/creencias/dolores), pregunta, creencia, dolor,
       idea ganadora, ejemplo de idea, CTA, **pieza de contenido** y captura del Inbox. *Convertir* una captura
@@ -31,7 +34,11 @@
 > Menú **Contenido → Ideas ganadoras**. CRUD completo de ideas ganadoras en el Estudio (paridad con el admin),
 > con autoguardado. No confundir con **Generador de ideas** (flujo IA) ni con **Generador de piezas**.
 
-- [ ] **Lista + nueva.** Columna izquierda con las ideas de la marca (cada una con badge de validación); **"Nueva idea"** crea y selecciona una.
+- [ ] **Lista + nueva.** Columna izquierda con las ideas de la marca. Cada tarjeta muestra el **título** y, debajo,
+      un tag con el **Seguidor ideal** (nombre) y el tag de **validación** (icono verde validada / gris pendiente).
+      **"Nueva idea"** crea y selecciona una.
+- [ ] **Filtro por seguidor.** Justo debajo de "Nueva idea", un desplegable **"Todos los seguidores"** filtra la
+      lista por seguidor ideal. Si no hay ideas para el elegido, muestra "No hay ideas para este seguidor".
 - [ ] **Autoguardado.** Editar título, concepto, mecanismo o plantilla Heras persiste solo (badge **Guardado**).
 - [ ] **Ejemplos reales.** Añadir/quitar URLs (Enter o botón **Añadir**). Con ≥1 ejemplo el badge de cabecera pasa a **Validada** (verde); sin ejemplos, **Pendiente de validación** (gris) — **en vivo**.
 - [ ] **Seguidor ideal.** Selector de seguidor (el centro): al elegirlo, las preguntas se **acotan** a él y aparece su contexto.

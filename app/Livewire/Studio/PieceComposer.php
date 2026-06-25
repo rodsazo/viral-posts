@@ -91,12 +91,13 @@ class PieceComposer extends Component
     {
         $this->account = $account;
 
-        // Deep-link opcional desde el kanban: ?piece={id}
+        // Sin selección por defecto: solo se carga una pieza si llega por deep-link
+        // (?piece={id}, p. ej. desde el kanban). Al abrir la sección no hay nada elegido.
         $requested = request()->integer('piece');
 
         $piece = $requested
             ? $this->account->contentPieces()->find($requested)
-            : $this->account->contentPieces()->latest('updated_at')->first();
+            : null;
 
         if ($piece !== null) {
             $this->loadPiece($piece);

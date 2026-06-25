@@ -110,6 +110,7 @@ class StudioTest extends TestCase
         $this->actingAs($user);
 
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->set('winning_idea_id', $idea->id)
             ->assertSee('PREGUNTA DEL ESTUDIO')
             ->assertSee('CREENCIA DEL ESTUDIO')
@@ -156,6 +157,7 @@ class StudioTest extends TestCase
 
         // El selector "Sin seguidor" manda "" (string) desde Flux: no debe romper el autoguardado.
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->set('idealFollowerId', '')
             ->set('hookText', 'GANCHO AUTOGUARDADO')
             ->set('story', 'HISTORIA AUTOGUARDADA');
@@ -172,6 +174,7 @@ class StudioTest extends TestCase
         $this->actingAs($this->member($account));
 
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->set('location', 'Estudio casero')
             ->set('equipment', 'Cámara + micrófono')
             ->set('people', 'Yo y dos amigos');
@@ -213,6 +216,7 @@ class StudioTest extends TestCase
         ]);
 
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->call('markPublished');
 
         $piece->refresh();
@@ -227,6 +231,7 @@ class StudioTest extends TestCase
         $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'rum_factors' => null]);
 
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->set('rumFactors.amplitud', '1.5848')
             ->set('rumFactors.intensidad', '1.5848')
             ->set('rumFactors.universalidad', '1.5848')
@@ -247,6 +252,7 @@ class StudioTest extends TestCase
         $piece = ContentPiece::factory()->create(['account_id' => $account->id]);
 
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->set('postUrl', 'https://example.com/post/1')
             ->call('fetchPreview')
             ->assertSet('previewImageUrl', 'https://example.com/og.jpg');

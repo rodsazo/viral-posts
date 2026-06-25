@@ -10,6 +10,14 @@
             <div class="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:button wire:click="newIdea" variant="primary" icon="plus" size="sm" class="w-full">Nueva idea</flux:button>
 
+                {{-- Filtro de la lista por seguidor ideal --}}
+                <flux:select wire:model.live="filterFollowerId" size="sm" placeholder="Todos los seguidores">
+                    <flux:select.option value="">Todos los seguidores</flux:select.option>
+                    @foreach ($followers as $follower)
+                        <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
+                    @endforeach
+                </flux:select>
+
                 <div class="mt-1 flex max-h-[32rem] flex-col gap-1 overflow-y-auto">
                     @forelse ($ideas as $idea)
                         <button
@@ -17,16 +25,25 @@
                             wire:key="idea-{{ $idea->id }}"
                             wire:click="selectIdea({{ $idea->id }})"
                             @class([
-                                'flex items-center justify-between gap-2 rounded-lg px-3 py-2 text-left text-sm transition',
-                                'bg-zinc-100 dark:bg-zinc-800' => $selectedId === $idea->id,
-                                'hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => $selectedId !== $idea->id,
+                                'flex flex-col gap-1.5 rounded-lg border px-3 py-2 text-left transition',
+                                'border-violet-300 bg-violet-50 dark:border-violet-500/40 dark:bg-violet-500/10' => $selectedId === $idea->id,
+                                'border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => $selectedId !== $idea->id,
                             ])
                         >
-                            <span class="min-w-0 flex-1 truncate">{{ $idea->title }}</span>
-                            <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" />
+                            <span class="truncate text-sm font-medium">{{ $idea->title }}</span>
+                            <div class="flex flex-wrap items-center gap-1.5">
+                                @if ($idea->idealFollower)
+                                    <flux:badge size="sm" color="zinc" icon="user">{{ $idea->idealFollower->name }}</flux:badge>
+                                @else
+                                    <flux:badge size="sm" color="zinc" variant="subtle">Sin seguidor</flux:badge>
+                                @endif
+                                <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" :title="$idea->validationStatus()->getLabel()" />
+                            </div>
                         </button>
                     @empty
-                        <flux:text class="px-3 py-6 text-center text-zinc-500">Aún no hay ideas. Crea la primera.</flux:text>
+                        <flux:text class="px-3 py-6 text-center text-zinc-500">
+                            {{ $filterFollowerId ? 'No hay ideas para este seguidor.' : 'Aún no hay ideas. Crea la primera.' }}
+                        </flux:text>
                     @endforelse
                 </div>
             </div>

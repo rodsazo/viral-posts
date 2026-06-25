@@ -49,17 +49,15 @@ class WinningIdeaManager extends Component
 
     public string $questionSearch = '';
 
+    // Filtro de la lista por seguidor ideal (sin tipar para tolerar el "" de Flux).
+    public $filterFollowerId = null;
+
     public bool $saved = false;
 
     public function mount(Account $account): void
     {
+        // Sin selección por defecto: el usuario elige una idea (evita confusión al abrir).
         $this->account = $account;
-
-        $first = $this->account->winningIdeas()->orderBy('title')->first();
-
-        if ($first !== null) {
-            $this->loadIdea($first);
-        }
     }
 
     public function newIdea(): void
@@ -244,7 +242,11 @@ class WinningIdeaManager extends Component
     public function render(): View
     {
         return view('livewire.studio.winning-idea-manager', [
-            'ideas' => $this->account->winningIdeas()->orderBy('title')->get(),
+            'ideas' => $this->account->winningIdeas()
+                ->with('idealFollower')
+                ->when($this->filterFollowerId, fn ($q, $fid) => $q->where('ideal_follower_id', $fid))
+                ->orderBy('title')
+                ->get(),
             'mechanisms' => ViralMechanism::cases(),
             'herasTemplates' => HerasTemplate::query()->orderBy('number')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),

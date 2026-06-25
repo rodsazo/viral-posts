@@ -125,6 +125,7 @@ class AiAssistantTest extends TestCase
         $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'hook' => 'GANCHO ORIGINAL']);
 
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->set('aiBrief', 'Tono cercano')
             ->call('generateScriptSuggestions')
             ->assertSet('scriptSuggestions', []);
@@ -211,6 +212,7 @@ class AiAssistantTest extends TestCase
         $piece = ContentPiece::factory()->create(['account_id' => $account->id]);
 
         Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
             ->set('scriptSuggestions', [
                 ['label' => 'Variante 1', 'fields' => ['hook' => 'NUEVO GANCHO', 'story' => 'NUEVA HISTORIA', 'moral' => 'NUEVA MORAL', 'cta' => 'NUEVO CTA'], 'preview' => 'p'],
             ])

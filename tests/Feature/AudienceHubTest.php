@@ -60,6 +60,7 @@ class AudienceHubTest extends TestCase
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
 
         $component = Livewire::test(AudienceHub::class, ['account' => $account])
+            ->call('selectFollower', $follower->id)
             ->set('newQuestion', '¿Cómo duermo mejor?')
             ->call('addQuestion')
             ->set('newBelief.type', 'myth')
@@ -89,6 +90,7 @@ class AudienceHubTest extends TestCase
         $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'VIEJA']);
 
         Livewire::test(AudienceHub::class, ['account' => $account])
+            ->call('selectFollower', $follower->id)
             ->set("questions.{$question->id}.body", 'NUEVA REDACCIÓN');
 
         $this->assertSame('NUEVA REDACCIÓN', $question->refresh()->body);
