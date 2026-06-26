@@ -103,9 +103,26 @@
 - [ ] **Lista** de piezas a la izquierda; **"Nueva"** crea un borrador.
 - [ ] **Título y Estado siempre visibles.** El **Título de trabajo** y el **Estado** están arriba, fuera de las pestañas (visibles en todo momento).
 - [ ] **Pestañas.** El resto se agrupa en 4 pestañas: **Datos básicos** (idea, seguidor, objetivo/formato/calificación), **Guión** (4 campos + botón IA), **RUM** (los 5 factores con sus textos guía + badge), **Producción**. La pestaña activa se resalta; cambiar de pestaña **no** pierde lo escrito.
-- [ ] **Producción.** Pestaña con **Locación**, **Equipo necesario**, **Personas y personajes**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
+- [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
+- [ ] **Enlace para el cliente.** En la pestaña **Producción**, un bloque violeta muestra la **URL pública** de la pieza con botones **Copiar** (cambia a "¡Copiado!") y **Abrir** (nueva pestaña). Solo aparece con una pieza seleccionada.
 - [ ] **Seleccionar idea** → panel de **contexto en vivo** (preguntas + mitos/verdades a tratar).
 - [ ] **Autoguardado.** Escribir en cualquier campo (de cualquier pestaña) → se guarda solo (recargar confirma). Indicador "Guardado"; botón **Guardar** guarda todo de una.
 - [ ] **Publicación.** Pegar URL → botón **"Vista previa"** muestra la miniatura. Botón **"Marcar publicada"** pone estado Publicada + fecha; luego desaparece.
 - [ ] **Evaluación RUM.** En la pestaña RUM, 5 selectores; al elegirlos, el **badge RUM** se actualiza en vivo (rojo ≤5 / amarillo 5–7 / verde >7) y se autoguarda.
 - [ ] **Deep-link.** Entrar con `?piece={id}` (o desde el kanban) preselecciona esa pieza.
+
+## Vista pública del cliente (`/p/{token}`)
+
+> Página **sin login** para compartir una pieza con un cliente externo: que **entienda** la propuesta y
+> **valide el guión**. Diseño amable (tipografía grande, tarjetas), no parece un panel de admin. El enlace se
+> copia desde el **Composer → pestaña Producción → "Enlace para el cliente"**.
+
+- [ ] **Acceso público.** Abrir `/p/{token}` **sin sesión** muestra la pieza (no redirige a login). Un **token
+      inexistente** da **404** (los tokens son inadivinables, ~40 caracteres).
+- [ ] **Contenido completo.** Se ven, con fuentes grandes: la **marca** (logo + nombre), el **título**, los chips
+      de **objetivo/formato**, **la idea** (título + concepto), **ejemplos reales** de la idea (si tiene, como
+      enlaces "ya funcionó en la vida real"), **¿a quién le hablamos?** (seguidor + nivel + descripción) y **el
+      guión** en 4 tarjetas de colores (gancho/historia/moraleja/CTA). Los campos vacíos **no** muestran tarjeta.
+- [ ] **Pieza vacía.** Si la pieza aún no tiene idea ni guión, aparece un **estado amable** ("se está cocinando")
+      en vez de tarjetas vacías.
+- [ ] **No indexable.** La página lleva `noindex,nofollow` (no pensada para buscadores).

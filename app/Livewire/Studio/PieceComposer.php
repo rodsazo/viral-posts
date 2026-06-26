@@ -404,6 +404,19 @@ class PieceComposer extends Component
             ->all();
     }
 
+    /** Enlace público (sin login) de la pieza seleccionada, para compartir con el cliente. */
+    #[Computed]
+    public function publicUrl(): ?string
+    {
+        if (! $this->pieceId) {
+            return null;
+        }
+
+        $token = $this->account->contentPieces()->whereKey($this->pieceId)->value('public_token');
+
+        return $token ? route('piece.public', $token) : null;
+    }
+
     public function render(): View
     {
         return view('livewire.studio.piece-composer', [

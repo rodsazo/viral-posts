@@ -160,6 +160,28 @@
 
                     {{-- Pestaña: Producción --}}
                     <div x-show="tab==='produccion'" x-cloak class="flex flex-col gap-4">
+                        {{-- Enlace público para que el cliente vea y valide la pieza (sin login). --}}
+                        @if ($this->publicUrl)
+                            <div class="rounded-xl border border-violet-200 bg-violet-50 p-4 dark:border-violet-500/30 dark:bg-violet-500/10"
+                                 x-data="{ url: @js($this->publicUrl), copied: false }">
+                                <div class="flex items-center gap-2">
+                                    <flux:icon.share variant="micro" class="size-4 text-violet-500" />
+                                    <flux:heading size="sm">Enlace para el cliente</flux:heading>
+                                </div>
+                                <flux:text class="mt-1 text-zinc-500">Vista pública (sin login) para que la revise y valide el guión.</flux:text>
+                                <div class="mt-3 flex items-center gap-2">
+                                    <input type="text" readonly :value="url"
+                                           class="flex-1 truncate rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300" />
+                                    <flux:button size="sm" variant="primary" icon="clipboard-document"
+                                                 x-on:click="navigator.clipboard.writeText(url); copied = true; setTimeout(() => copied = false, 1500)">
+                                        <span x-show="!copied">Copiar</span>
+                                        <span x-show="copied" x-cloak>¡Copiado!</span>
+                                    </flux:button>
+                                    <flux:button size="sm" variant="ghost" icon="arrow-top-right-on-square" :href="$this->publicUrl" target="_blank">Abrir</flux:button>
+                                </div>
+                            </div>
+                        @endif
+
                         <flux:input wire:model.blur="location" label="Locación" placeholder="¿Dónde se graba?" />
                         <flux:textarea wire:model.blur="equipment" label="Equipo necesario" rows="3" placeholder="Cámara, micro, trípode, luces…" />
                         <flux:textarea wire:model.blur="people" label="Personas y personajes" rows="3" placeholder="Quién aparece / qué personajes hacen falta" />

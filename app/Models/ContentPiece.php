@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Str;
 
 class ContentPiece extends Model
 {
@@ -56,10 +57,23 @@ class ContentPiece extends Model
 
     protected static function booted(): void
     {
+        // Toda pieza nace con un token público inadivinable para su vista de cliente.
+        static::creating(function (ContentPiece $piece): void {
+            $piece->public_token ??= Str::random(40);
+        });
+
         // El RUM siempre se recalcula a partir de sus factores al guardar.
         static::saving(function (ContentPiece $piece): void {
             $piece->rum = Rum::compute($piece->rum_factors);
         });
+    }
+
+    /**
+     * URL pública (sin login) para que un cliente externo previsualice y valide la pieza.
+     */
+    public function publicUrl(): string
+    {
+        return route('piece.public', $this->public_token);
     }
 
     public function account(): BelongsTo

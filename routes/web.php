@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\PublicPieceController;
 use App\Livewire\Studio\AudienceHub;
 use App\Livewire\Studio\CaptureInbox;
 use App\Livewire\Studio\ContentCtaManager;
@@ -20,6 +21,9 @@ Route::get('/', function () {
 
 Route::get('/invitations/{token}', [InvitationController::class, 'show'])->name('invitations.show');
 Route::post('/invitations/{token}', [InvitationController::class, 'accept'])->name('invitations.accept');
+
+// Vista pública (sin login) de una pieza para que el cliente la entienda y valide el guión.
+Route::get('/p/{piece:public_token}', PublicPieceController::class)->name('piece.public');
 
 // Estudio de creación a medida (Livewire + Flux), escopado a la marca.
 Route::middleware(['auth', 'membership'])->group(function () {
