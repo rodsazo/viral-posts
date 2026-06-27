@@ -100,11 +100,16 @@
 
 ## Composer (`/studio/{marca}/piezas`)
 
-- [ ] **Lista** de piezas a la izquierda; **"Nueva"** crea un borrador.
+- [ ] **Lista** de piezas a la izquierda; **"Nueva"** crea un borrador. El **tag de estado** de cada pieza usa el
+      **mismo color que su columna en el Kanban** (Borrador=plomo, Planificación=violeta, Guión listo=azul, Lista
+      para grabación=cian, Grabada=ámbar, Editada=rosa, Publicada=verde) para escanear de un vistazo.
+- [ ] **Filtro por estado.** Sobre la lista, un desplegable **"Todos los estados"** filtra las piezas por estado
+      (Borrador, Planificación, …). Sin piezas en ese estado: "No hay piezas en este estado".
 - [ ] **Título y Estado siempre visibles.** El **Título de trabajo** y el **Estado** están arriba, fuera de las pestañas (visibles en todo momento).
 - [ ] **Pestañas.** El resto se agrupa en 4 pestañas: **Datos básicos** (idea, seguidor, objetivo/formato/calificación), **Guión** (4 campos + botón IA), **RUM** (los 5 factores con sus textos guía + badge), **Producción**. La pestaña activa se resalta; cambiar de pestaña **no** pierde lo escrito.
 - [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
 - [ ] **Enlace para el cliente.** En la pestaña **Producción**, un bloque violeta muestra la **URL pública** de la pieza con botones **Copiar** (cambia a "¡Copiado!") y **Abrir** (nueva pestaña). Solo aparece con una pieza seleccionada.
+- [ ] **Botón Compartir (cabecera).** En la cabecera del Composer, entre **Eliminar** y **Guardar**, un botón **Compartir** copia la URL pública al portapapeles (cambia a "¡Copiado!" ~1,5 s). Solo aparece con una pieza seleccionada.
 - [ ] **Seleccionar idea** → panel de **contexto en vivo** (preguntas + mitos/verdades a tratar).
 - [ ] **Autoguardado.** Escribir en cualquier campo (de cualquier pestaña) → se guarda solo (recargar confirma). Indicador "Guardado"; botón **Guardar** guarda todo de una.
 - [ ] **Publicación.** Pegar URL → botón **"Vista previa"** muestra la miniatura. Botón **"Marcar publicada"** pone estado Publicada + fecha; luego desaparece.

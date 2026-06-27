@@ -149,6 +149,21 @@ class StudioTest extends TestCase
         $this->assertSame(ContentStatus::Borrador, ContentPiece::where('account_id', $account->id)->first()->status);
     }
 
+    public function test_pieces_list_can_be_filtered_by_status(): void
+    {
+        $account = Account::factory()->create();
+        ContentPiece::factory()->create(['account_id' => $account->id, 'title' => 'PIEZA BORRADOR', 'status' => ContentStatus::Borrador]);
+        ContentPiece::factory()->create(['account_id' => $account->id, 'title' => 'PIEZA PLANIFICADA', 'status' => ContentStatus::Planificacion]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->assertSee('PIEZA BORRADOR')
+            ->assertSee('PIEZA PLANIFICADA')
+            ->set('statusFilter', ContentStatus::Borrador->value)
+            ->assertSee('PIEZA BORRADOR')
+            ->assertDontSee('PIEZA PLANIFICADA');
+    }
+
     public function test_script_fields_autosave_even_with_empty_follower_select(): void
     {
         $account = Account::factory()->create();

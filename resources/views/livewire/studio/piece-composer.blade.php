@@ -6,6 +6,14 @@
             <flux:button wire:click="newPiece" size="sm" variant="primary" icon="plus">Nueva</flux:button>
         </div>
 
+        {{-- Filtro por estado: concentrarse en borradores, planificación, etc. --}}
+        <flux:select wire:model.live="statusFilter" size="sm" class="mb-3">
+            <flux:select.option value="">Todos los estados</flux:select.option>
+            @foreach (\App\Enums\ContentStatus::cases() as $case)
+                <flux:select.option value="{{ $case->value }}">{{ $case->getLabel() }}</flux:select.option>
+            @endforeach
+        </flux:select>
+
         <div class="flex flex-col gap-1">
             @forelse ($pieces as $piece)
                 <button
@@ -19,7 +27,7 @@
                 >
                     <div class="truncate text-sm font-medium">{{ $piece->title }}</div>
                     <div class="mt-1 flex flex-wrap items-center gap-1">
-                        <flux:badge size="sm" color="zinc">{{ $piece->status->getLabel() }}</flux:badge>
+                        <flux:badge size="sm" :color="$piece->status->fluxColor()">{{ $piece->status->getLabel() }}</flux:badge>
                         @if ($piece->rum !== null)
                             <flux:badge size="sm" :color="\App\Support\Rum::fluxColor($piece->rum)">RUM {{ number_format($piece->rum, 1) }}</flux:badge>
                         @else
@@ -28,7 +36,11 @@
                     </div>
                 </button>
             @empty
-                <flux:text class="text-zinc-500">Aún no hay piezas. Crea la primera.</flux:text>
+                @if (filled($statusFilter))
+                    <flux:text class="text-zinc-500">No hay piezas en este estado.</flux:text>
+                @else
+                    <flux:text class="text-zinc-500">Aún no hay piezas. Crea la primera.</flux:text>
+                @endif
             @endforelse
         </div>
     </aside>
@@ -48,6 +60,19 @@
                         size="sm"
                         icon="trash"
                     >Eliminar</flux:button>
+                @endif
+                {{-- Compartir: copia el enlace público (vista de cliente) al portapapeles. --}}
+                @if ($this->publicUrl)
+                    <span x-data="{ url: @js($this->publicUrl), copied: false }">
+                        <flux:button
+                            size="sm"
+                            icon="share"
+                            x-on:click="navigator.clipboard.writeText(url); copied = true; setTimeout(() => copied = false, 1500)"
+                        >
+                            <span x-show="!copied">Compartir</span>
+                            <span x-show="copied" x-cloak>¡Copiado!</span>
+                        </flux:button>
+                    </span>
                 @endif
                 {{-- Autoguarda al salir de cada campo; este botón guarda todo de una y da confirmación clara. --}}
                 <flux:button wire:click="save" variant="primary" size="sm" icon="check">Guardar</flux:button>

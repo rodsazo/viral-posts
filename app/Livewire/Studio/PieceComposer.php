@@ -72,6 +72,9 @@ class PieceComposer extends Component
 
     public bool $saved = false;
 
+    // Filtro de la lista de piezas por estado ('' = todos). Sin tipar por los selects de Flux.
+    public $statusFilter = '';
+
     /**
      * Sugerencias de guión de la IA, en forma serializable. Solo se aplican si el
      * usuario elige una (ver applyScriptSuggestion); la IA no reescribe por su cuenta.
@@ -420,7 +423,9 @@ class PieceComposer extends Component
     public function render(): View
     {
         return view('livewire.studio.piece-composer', [
-            'pieces' => $this->account->contentPieces()->latest('updated_at')->get(),
+            'pieces' => $this->account->contentPieces()
+                ->when(filled($this->statusFilter), fn ($q) => $q->where('status', $this->statusFilter))
+                ->latest('updated_at')->get(),
             'ideas' => $this->account->winningIdeas()->orderBy('title')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
         ]);
