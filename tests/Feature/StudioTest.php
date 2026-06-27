@@ -192,12 +192,14 @@ class StudioTest extends TestCase
             ->call('selectPiece', $piece->id)
             ->set('location', 'Estudio casero')
             ->set('equipment', 'Cámara + micrófono')
-            ->set('people', 'Yo y dos amigos');
+            ->set('people', 'Yo y dos amigos')
+            ->set('clientNotes', 'Grabamos el sábado');
 
         $piece->refresh();
         $this->assertSame('Estudio casero', $piece->location);
         $this->assertSame('Cámara + micrófono', $piece->equipment);
         $this->assertSame('Yo y dos amigos', $piece->people);
+        $this->assertSame('Grabamos el sábado', $piece->client_notes);
     }
 
     public function test_deleting_a_piece_is_reserved_to_brand_admins(): void

@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ContentStatus;
 use App\Models\Account;
 use App\Models\ContentPiece;
 use App\Models\WinningIdea;
@@ -34,18 +35,28 @@ class PublicPieceTest extends TestCase
             'account_id' => $account->id,
             'winning_idea_id' => $idea->id,
             'title' => 'MI PIEZA PÚBLICA',
+            'status' => ContentStatus::Planificacion,
             'hook' => 'GANCHO DE PRUEBA',
             'story' => 'HISTORIA DE PRUEBA',
+            'location' => 'AZOTEA DEL EDIFICIO',
+            'equipment' => 'CÁMARA Y TRÍPODE',
+            'people' => 'EL ROD Y UN INVITADO',
+            'client_notes' => 'GRABAMOS EL SÁBADO POR LA MAÑANA',
         ]);
 
         // Sin sesión (invitado): la página pública es accesible.
         $this->get("/p/{$piece->public_token}")
             ->assertOk()
             ->assertSee('MI PIEZA PÚBLICA')
+            ->assertSee('Planificación')                            // pastilla de estado
             ->assertSee('EL GIRO INESPERADO')
             ->assertSee('GANCHO DE PRUEBA')
             ->assertSee('HISTORIA DE PRUEBA')
             ->assertSee('https://www.tiktok.com/@alguien/video/123')
+            ->assertSee('AZOTEA DEL EDIFICIO')                      // producción
+            ->assertSee('CÁMARA Y TRÍPODE')
+            ->assertSee('EL ROD Y UN INVITADO')
+            ->assertSee('GRABAMOS EL SÁBADO POR LA MAÑANA')         // notas para el cliente
             ->assertSee('El Rod');
     }
 

@@ -166,6 +166,11 @@ class ContentPieceForm
                                     ->label('Personas y personajes')
                                     ->rows(3)
                                     ->columnSpanFull(),
+                                Textarea::make('client_notes')
+                                    ->label('Notas para el cliente')
+                                    ->helperText('Se muestran en la vista pública de la pieza, para explicarle cómo se realizará.')
+                                    ->rows(3)
+                                    ->columnSpanFull(),
                             ]),
 
                         Section::make('Publicación')

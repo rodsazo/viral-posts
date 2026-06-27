@@ -5,7 +5,7 @@
 - [ ] **Crear** una pieza. La idea ganadora es **opcional** (puede ser "pieza suelta"). El estado por defecto es **Borrador** (primer estado del flujo: Borrador → Planificación → …).
 - [ ] **Cascada multi-salto.** Al elegir una idea o un **seguidor**, el panel muestra las preguntas (vía idea) y los **mitos/verdades del seguidor** en vivo.
 - [ ] **Guión** en 4 campos: gancho, historia, moraleja, CTA. Recordatorio de creencias dentro del guión.
-- [ ] **Producción.** Sección con **Locación**, **Equipo necesario** y **Personas y personajes**.
+- [ ] **Producción.** Sección con **Locación**, **Equipo necesario**, **Personas y personajes** y **Notas para el cliente** (estas últimas se muestran en la vista pública de la pieza).
 - [ ] **Meta**: objetivo (Viralidad/Venta), formato, estado, calificación.
 - [ ] **Crear idea inline** desde el selector de idea.
 - [ ] **Publicación.** Rellenar URL; botón **vista previa** intenta traer la miniatura del post. Fecha de publicación.

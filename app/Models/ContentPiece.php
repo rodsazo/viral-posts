@@ -40,6 +40,7 @@ class ContentPiece extends Model
         'location',
         'equipment',
         'people',
+        'client_notes',
     ];
 
     protected function casts(): array

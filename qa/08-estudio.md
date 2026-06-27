@@ -107,7 +107,7 @@
       (Borrador, Planificación, …). Sin piezas en ese estado: "No hay piezas en este estado".
 - [ ] **Título y Estado siempre visibles.** El **Título de trabajo** y el **Estado** están arriba, fuera de las pestañas (visibles en todo momento).
 - [ ] **Pestañas.** El resto se agrupa en 4 pestañas: **Datos básicos** (idea, seguidor, objetivo/formato/calificación), **Guión** (4 campos + botón IA), **RUM** (los 5 factores con sus textos guía + badge), **Producción**. La pestaña activa se resalta; cambiar de pestaña **no** pierde lo escrito.
-- [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
+- [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, **Notas para el cliente**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
 - [ ] **Enlace para el cliente.** En la pestaña **Producción**, un bloque violeta muestra la **URL pública** de la pieza con botones **Copiar** (cambia a "¡Copiado!") y **Abrir** (nueva pestaña). Solo aparece con una pieza seleccionada.
 - [ ] **Botón Compartir (cabecera).** En la cabecera del Composer, entre **Eliminar** y **Guardar**, un botón **Compartir** copia la URL pública al portapapeles (cambia a "¡Copiado!" ~1,5 s). Solo aparece con una pieza seleccionada.
 - [ ] **Seleccionar idea** → panel de **contexto en vivo** (preguntas + mitos/verdades a tratar).
@@ -125,9 +125,11 @@
 - [ ] **Acceso público.** Abrir `/p/{token}` **sin sesión** muestra la pieza (no redirige a login). Un **token
       inexistente** da **404** (los tokens son inadivinables, ~40 caracteres).
 - [ ] **Contenido completo.** Se ven, con fuentes grandes: la **marca** (logo + nombre), el **título**, los chips
-      de **objetivo/formato**, **la idea** (título + concepto), **ejemplos reales** de la idea (si tiene, como
-      enlaces "ya funcionó en la vida real"), **¿a quién le hablamos?** (seguidor + nivel + descripción) y **el
-      guión** en 4 tarjetas de colores (gancho/historia/moraleja/CTA). Los campos vacíos **no** muestran tarjeta.
+      de **estado/objetivo/formato** (la **pastilla de estado** usa el mismo color que el Kanban), **la idea**
+      (título + concepto), **ejemplos reales** de la idea (si tiene, como enlaces "ya funcionó en la vida real"),
+      **¿a quién le hablamos?** (seguidor + nivel + descripción), **el guión** en 4 tarjetas de colores
+      (gancho/historia/moraleja/CTA), las **notas para el cliente** y **cómo se grabará** (locación/equipo/personas).
+      Los campos vacíos **no** muestran tarjeta.
 - [ ] **Pieza vacía.** Si la pieza aún no tiene idea ni guión, aparece un **estado amable** ("se está cocinando")
       en vez de tarjetas vacías.
 - [ ] **No indexable.** La página lleva `noindex,nofollow` (no pensada para buscadores).

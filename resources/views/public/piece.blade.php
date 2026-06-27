@@ -33,21 +33,31 @@
             {{ $piece->title ?: 'Pieza sin título todavía' }}
         </h1>
 
-        {{-- Chips de objetivo / formato --}}
-        @if ($piece->objective || $piece->format)
-            <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
-                @if ($piece->objective)
-                    <span class="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-violet-700 shadow-sm ring-1 ring-violet-100">
-                        🎯 {{ $piece->objective->getLabel() }}
-                    </span>
-                @endif
-                @if ($piece->format)
-                    <span class="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-rose-700 shadow-sm ring-1 ring-rose-100">
-                        🎬 {{ $piece->format->getLabel() }}
-                    </span>
-                @endif
-            </div>
-        @endif
+        {{-- Chips de estado / objetivo / formato --}}
+        @php($statusPill = [
+            'borrador' => 'bg-zinc-100 text-zinc-700 ring-zinc-200',
+            'planificacion' => 'bg-violet-100 text-violet-700 ring-violet-200',
+            'guion_listo' => 'bg-blue-100 text-blue-700 ring-blue-200',
+            'lista_para_grabacion' => 'bg-cyan-100 text-cyan-700 ring-cyan-200',
+            'grabada' => 'bg-amber-100 text-amber-700 ring-amber-200',
+            'editada' => 'bg-pink-100 text-pink-700 ring-pink-200',
+            'publicada' => 'bg-green-100 text-green-700 ring-green-200',
+        ])
+        <div class="mt-5 flex flex-wrap items-center justify-center gap-2">
+            <span class="rounded-full px-4 py-1.5 text-sm font-semibold shadow-sm ring-1 {{ $statusPill[$piece->status->value] ?? 'bg-zinc-100 text-zinc-700 ring-zinc-200' }}">
+                📍 {{ $piece->status->getLabel() }}
+            </span>
+            @if ($piece->objective)
+                <span class="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-violet-700 shadow-sm ring-1 ring-violet-100">
+                    🎯 {{ $piece->objective->getLabel() }}
+                </span>
+            @endif
+            @if ($piece->format)
+                <span class="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-rose-700 shadow-sm ring-1 ring-rose-100">
+                    🎬 {{ $piece->format->getLabel() }}
+                </span>
+            @endif
+        </div>
 
         <div class="mt-10 space-y-6">
 
@@ -134,6 +144,42 @@
                             @endif
                         @endforeach
                     </div>
+                </section>
+            @endif
+
+            {{-- Notas para el cliente --}}
+            @if (filled($piece->client_notes))
+                <section class="rounded-3xl bg-amber-50 p-7 shadow-sm ring-1 ring-amber-100 sm:p-9">
+                    <h2 class="flex items-center gap-3 text-2xl font-extrabold text-amber-900">
+                        <span class="text-3xl">📝</span> Notas para ti
+                    </h2>
+                    <p class="script-body mt-4 text-lg leading-relaxed text-amber-900/90">{{ $piece->client_notes }}</p>
+                </section>
+            @endif
+
+            {{-- Cómo se grabará (detalles de producción) --}}
+            @if (filled($piece->location) || filled($piece->equipment) || filled($piece->people))
+                <section class="rounded-3xl bg-white p-7 shadow-sm ring-1 ring-black/5 sm:p-9">
+                    <h2 class="flex items-center gap-3 text-2xl font-extrabold text-zinc-900">
+                        <span class="text-3xl">🎥</span> Cómo se grabará
+                    </h2>
+                    <dl class="mt-5 space-y-5">
+                        @php($prod = [
+                            ['📍', 'Locación', $piece->location],
+                            ['🎒', 'Equipo necesario', $piece->equipment],
+                            ['🧑‍🤝‍🧑', 'Personas y personajes', $piece->people],
+                        ])
+                        @foreach ($prod as [$emoji, $label, $value])
+                            @if (filled($value))
+                                <div>
+                                    <dt class="flex items-center gap-2 text-base font-bold text-zinc-500">
+                                        <span class="text-lg">{{ $emoji }}</span> {{ $label }}
+                                    </dt>
+                                    <dd class="script-body mt-1 text-lg leading-relaxed text-zinc-800">{{ $value }}</dd>
+                                </div>
+                            @endif
+                        @endforeach
+                    </dl>
                 </section>
             @endif
 

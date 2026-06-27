@@ -210,6 +210,7 @@
                         <flux:input wire:model.blur="location" label="Locación" placeholder="¿Dónde se graba?" />
                         <flux:textarea wire:model.blur="equipment" label="Equipo necesario" rows="3" placeholder="Cámara, micro, trípode, luces…" />
                         <flux:textarea wire:model.blur="people" label="Personas y personajes" rows="3" placeholder="Quién aparece / qué personajes hacen falta" />
+                        <flux:textarea wire:model.blur="clientNotes" label="Notas para el cliente" rows="3" placeholder="Explica al cliente cómo se realizará la pieza (se ve en la vista pública)." />
 
                         <flux:separator text="Publicación" />
 

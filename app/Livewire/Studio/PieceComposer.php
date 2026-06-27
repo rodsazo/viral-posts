@@ -70,6 +70,8 @@ class PieceComposer extends Component
 
     public ?string $people = null;
 
+    public ?string $clientNotes = null;
+
     public bool $saved = false;
 
     // Filtro de la lista de piezas por estado ('' = todos). Sin tipar por los selects de Flux.
@@ -139,7 +141,7 @@ class PieceComposer extends Component
             $this->reset([
                 'pieceId', 'winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating',
                 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'publishedAt', 'rumFactors', 'saved',
-                'location', 'equipment', 'people',
+                'location', 'equipment', 'people', 'clientNotes',
             ]);
 
             $next = $this->account->contentPieces()->latest('updated_at')->first();
@@ -176,6 +178,7 @@ class PieceComposer extends Component
         $this->location = $piece->location;
         $this->equipment = $piece->equipment;
         $this->people = $piece->people;
+        $this->clientNotes = $piece->client_notes;
         $this->saved = false;
     }
 
@@ -187,7 +190,7 @@ class PieceComposer extends Component
             $this->idealFollowerId = $this->selectedIdea()?->ideal_follower_id;
         }
 
-        $fields = ['winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people'];
+        $fields = ['winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
 
         if (in_array($name, $fields, true) || str_starts_with($name, 'rumFactors')) {
             $this->save();
@@ -224,6 +227,7 @@ class PieceComposer extends Component
             'location' => $this->location ?: null,
             'equipment' => $this->equipment ?: null,
             'people' => $this->people ?: null,
+            'client_notes' => $this->clientNotes ?: null,
         ]);
 
         $this->saved = true;
