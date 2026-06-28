@@ -23,10 +23,18 @@
     <header class="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
         <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
             <div class="flex items-center gap-3 text-sm">
-                <span class="flex items-center gap-1.5 font-semibold">
-                    <flux:icon.film variant="micro" class="size-4 text-violet-400" />
-                    <span class="bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">Estudio</span>
-                </span>
+                @isset($currentAccount)
+                    {{-- El rótulo "Estudio" es el enlace a la portada (ya no hay item "Inicio"). --}}
+                    <a href="{{ route('studio.home', $currentAccount) }}" class="flex items-center gap-1.5 font-semibold transition hover:opacity-80">
+                        <flux:icon.film variant="micro" class="size-4 text-violet-400" />
+                        <span class="bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">Estudio</span>
+                    </a>
+                @else
+                    <span class="flex items-center gap-1.5 font-semibold">
+                        <flux:icon.film variant="micro" class="size-4 text-violet-400" />
+                        <span class="bg-gradient-to-r from-violet-300 to-pink-300 bg-clip-text text-transparent">Estudio</span>
+                    </span>
+                @endisset
                 @isset($currentAccount)
                     {{-- Estilo de píldora compartido por enlaces y disparadores de grupo (activo-aware). --}}
                     @php($navLink = fn (bool $active) => 'inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 '.($active
@@ -39,9 +47,6 @@
                     @php($analyticsActive = request()->routeIs('studio.performance', 'studio.ai-usage'))
 
                     <nav class="flex items-center gap-1">
-                        <a href="{{ route('studio.home', $currentAccount) }}" class="{{ $navLink(request()->routeIs('studio.home')) }}">
-                            <flux:icon.home variant="micro" class="size-4 text-violet-300" /> Inicio
-                        </a>
 
                         {{-- Audiencia --}}
                         <flux:dropdown position="bottom" align="start">
@@ -87,7 +92,7 @@
                             </flux:menu>
                         </flux:dropdown>
 
-                        {{-- Análisis --}}
+                        {{-- Análisis — oculto temporalmente (restaurar cuando esté listo).
                         <flux:dropdown position="bottom" align="start">
                             <button type="button" class="{{ $navLink($analyticsActive) }}">
                                 <flux:icon.chart-bar variant="micro" class="size-4 text-emerald-300" /> Análisis
@@ -98,6 +103,7 @@
                                 <x-studio.menu-soon icon="banknotes" label="Uso de IA" />
                             </flux:menu>
                         </flux:dropdown>
+                        --}}
                     </nav>
                 @endisset
             </div>

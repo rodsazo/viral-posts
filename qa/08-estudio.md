@@ -9,10 +9,12 @@
       claro/oscuro). Cards/header apenas más claros que el fondo, texto claro, primarios violeta. El **admin**
       (Filament) conserva su propio tema y **no** se ve afectado.
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
-- [ ] **Navegación** agrupada (sin emojis, iconos consistentes): **Inicio** + 4 desplegables —
+- [ ] **Navegación** agrupada (sin emojis, iconos consistentes): el rótulo **"Estudio"** (arriba a la izquierda)
+      es el **enlace a la portada** (ya **no** hay item "Inicio") + 3 desplegables —
       **Audiencia** (Seguidores ideales · CTAs · Kickstart),
       **Contenido** (Ideas ganadoras · Generador de ideas · Generador de piezas · Composer),
-      **Planificación** (Kanban · *Calendario, próx.*), **Análisis** (*Rendimiento* · *Uso de IA*, próx.).
+      **Planificación** (Kanban · Periodos · *Calendario, próx.*).
+      *(El grupo **Análisis** está **oculto temporalmente**.)*
       El **grupo** de la sección actual se **resalta**; al abrir un menú se ve su lista. (**Generador de ideas**,
       **Generador de piezas** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
 - [ ] **Lado derecho:** botón de **captura rápida (Inbox)** (icono), **selector de periodo** (planificación),
@@ -21,8 +23,9 @@
       (verde Publicado / gris Borrador). El desplegable lista los periodos de la marca, permite **crear uno nuevo**
       (campo + Enter/+) que queda activo al instante, y enlaza a **Gestionar periodos**. El periodo activo se
       recuerda **por marca** y al cambiarlo **refiltran** el Composer y el Kanban (y las piezas nuevas se le asignan).
-- [ ] **Próximamente.** *Calendario*, *Rendimiento* y *Uso de IA* aparecen como filas **deshabilitadas**
-      con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
+- [ ] **Próximamente.** *Calendario* (en Planificación) aparece como fila **deshabilitada** con etiqueta "próx."
+      (aún no navegable; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)). *(Rendimiento/Uso de IA viven
+      en el grupo Análisis, hoy oculto.)*
 - [ ] **Sin selección al abrir.** Las pantallas maestro-detalle (**Audiencia**, **Ideas ganadoras**, **Composer**)
       abren **sin ningún elemento seleccionado** (estado vacío con su mensaje). El usuario elige uno de la lista.
       *(El Composer sí preselecciona si llega por deep-link `?piece={id}`, p. ej. desde el Kanban.)*
