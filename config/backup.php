@@ -242,7 +242,9 @@ return [
         'notifiable' => Notifiable::class,
 
         'mail' => [
-            'to' => env('BACKUP_NOTIFICATION_EMAIL', env('MAIL_FROM_ADDRESS')),
+            // spatie exige un string (no null): durante el build de producción las env aún
+            // no están inyectadas, así que damos un placeholder. En runtime gana la real.
+            'to' => env('BACKUP_NOTIFICATION_EMAIL') ?: (env('MAIL_FROM_ADDRESS') ?: 'no-reply@example.com'),
 
             'from' => [
                 'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
