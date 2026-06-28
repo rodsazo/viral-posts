@@ -34,7 +34,9 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
    *(No hace falta `storage:link`: los logos van a S3.)*
 7. **Worker de cola:** activar un proceso **`php artisan queue:work`** (la IA del Estudio lo necesita; sin él se
    queda en "Generando…"). Ver [IA.md](IA.md).
-8. **Scheduler:** activarlo (para los backups programados, punto #1).
+8. **Scheduler + backups:** activar el scheduler. Crear un **bucket aparte** para backups y definir
+   `BACKUP_DISK=backups`, `BACKUP_AWS_*` y `BACKUP_NOTIFICATION_EMAIL` (ver punto #1). El scheduler corre
+   `backup:run` a diario.
 9. **Primer arranque:** ejecutar `php artisan app:create-admin` (consola/command runner de Cloud) y entrar a `/admin`.
    **No** ejecutar el seeder demo.
 
@@ -47,18 +49,26 @@ Los datos actuales viven en SQLite (`database/database.sqlite`). Para llevarlos 
 
 ---
 
-## 1. 🟢 Backups automáticos de base de datos *(acordado: a futuro)*
+## 1. ✅ Backups automáticos off-site *(implementado)*
 
-**Qué:** copias de seguridad programadas de la BD (y archivos subidos, si los hubiera), guardadas **fuera del servidor** y con política de retención.
+**Qué:** copias de seguridad **diarias** de la BD, guardadas en un bucket **separado** del almacenamiento
+principal (off-site real), con retención y aviso por correo si fallan.
 
-**Por qué:** evitar pérdida de datos. Hoy, en desarrollo, ya tuvimos un borrado por `migrate:fresh`; en producción una pérdida es mucho más grave (datos reales de la marca/cliente).
+**Por qué:** evitar pérdida de datos. Los snapshots del Postgres gestionado de Cloud cubren el "se cayó el
+servidor"; esto añade copias **portables y fuera del proveedor** (restaurables en otro sitio, o si se pierde
+acceso a la cuenta).
 
-**Cómo (propuesta):**
-- Paquete `spatie/laravel-backup`: dump de la BD + zip, subida a almacenamiento remoto (S3 / Backblaze / similar).
-- Programar diario vía `schedule` (`app/Console`/`routes/console.php`) + un cron real (o el scheduler del hosting).
-- **Retención** (p. ej. 7 diarios, 4 semanales) y **notificación** si un backup falla.
-- En el flujo de **deploy**, hacer un backup *antes* de correr migraciones.
-- Mientras tanto, en dev ya existe la salvaguarda manual: copia a `storage/db-backups/` antes de cualquier cambio de esquema.
+**Cómo (ya hecho con `spatie/laravel-backup`):**
+- **Destino:** disco `backups` (S3-compatible, bucket/proveedor aparte; credenciales `BACKUP_AWS_*`).
+  Config en `config/filesystems.php` y `config/backup.php`.
+- **Programación:** `routes/console.php` corre `backup:clean` (01:30) y `backup:run` (02:00) a diario.
+  Requiere el **scheduler de Cloud** activo.
+- **Notificación:** solo si **falla** (a `BACKUP_NOTIFICATION_EMAIL`); los éxitos no spamean.
+- **Qué respalda:** el **dump de la BD** (lo crítico). Los **logos** viven en S3 y su durabilidad la da el
+  bucket — activa **versioning** en él para tener punto-en-el-tiempo.
+- **Probar:** `php artisan backup:run` (o `--only-db`); ver estado con `php artisan backup:list`.
+- **Pendiente opcional:** lanzar un backup *antes* de migrar en el deploy; cifrar el zip con `BACKUP_ARCHIVE_PASSWORD`.
+- En dev sigue la salvaguarda manual: copia a `storage/db-backups/` antes de cualquier cambio de esquema.
 
 ---
 

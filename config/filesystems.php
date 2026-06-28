@@ -77,6 +77,21 @@ return [
             'report' => false,
         ],
 
+        // Destino off-site de los backups (spatie/laravel-backup): un bucket/proveedor
+        // SEPARADO del principal, para que un fallo o compromiso del almacenamiento de la
+        // app no se lleve también las copias de seguridad. Credenciales propias BACKUP_AWS_*.
+        'backups' => [
+            'driver' => 's3',
+            'key' => env('BACKUP_AWS_ACCESS_KEY_ID'),
+            'secret' => env('BACKUP_AWS_SECRET_ACCESS_KEY'),
+            'region' => env('BACKUP_AWS_DEFAULT_REGION'),
+            'bucket' => env('BACKUP_AWS_BUCKET'),
+            'endpoint' => env('BACKUP_AWS_ENDPOINT'),
+            'use_path_style_endpoint' => env('BACKUP_AWS_USE_PATH_STYLE_ENDPOINT', false),
+            'throw' => false,
+            'report' => false,
+        ],
+
     ],
 
     /*
