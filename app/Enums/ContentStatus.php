@@ -66,4 +66,19 @@ enum ContentStatus: string implements HasColor, HasLabel
     {
         return self::cases();
     }
+
+    /**
+     * ¿La pieza está lo bastante avanzada para mostrarse al cliente? De "Lista para
+     * grabación" en adelante (incluye Grabada, Editada y Publicada). Condición de la
+     * URL pública (junto con que su periodo esté "Publicado").
+     */
+    public function isReadyForClient(): bool
+    {
+        return in_array($this, [
+            self::ListaParaGrabacion,
+            self::Grabada,
+            self::Editada,
+            self::Publicada,
+        ], true);
+    }
 }

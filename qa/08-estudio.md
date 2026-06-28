@@ -15,8 +15,12 @@
       **Planificación** (Kanban · *Calendario, próx.*), **Análisis** (*Rendimiento* · *Uso de IA*, próx.).
       El **grupo** de la sección actual se **resalta**; al abrir un menú se ve su lista. (**Generador de ideas**,
       **Generador de piezas** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
-- [ ] **Lado derecho:** botón de **captura rápida (Inbox)** (icono), **selector de marca** (con miniatura)
-      y **Volver al admin**. Cambiar de marca mantiene la misma sección.
+- [ ] **Lado derecho:** botón de **captura rápida (Inbox)** (icono), **selector de periodo** (planificación),
+      **selector de marca** (con miniatura) y **Volver al admin**. Cambiar de marca mantiene la misma sección.
+- [ ] **Selector de periodo (cabecera).** Muestra el **periodo activo** + un punto de color por su estado
+      (verde Publicado / gris Borrador). El desplegable lista los periodos de la marca, permite **crear uno nuevo**
+      (campo + Enter/+) que queda activo al instante, y enlaza a **Gestionar periodos**. El periodo activo se
+      recuerda **por marca** y al cambiarlo **refiltran** el Composer y el Kanban (y las piezas nuevas se le asignan).
 - [ ] **Próximamente.** *Calendario*, *Rendimiento* y *Uso de IA* aparecen como filas **deshabilitadas**
       con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
 - [ ] **Sin selección al abrir.** Las pantallas maestro-detalle (**Audiencia**, **Ideas ganadoras**, **Composer**)
@@ -93,8 +97,23 @@
 - [ ] **Seguidor para preguntas.** El selector de seguidor aplica al convertir a Pregunta. Sin seguidores, el botón "→ Pregunta" está deshabilitado.
 - [ ] **Descartar** elimina la captura (con confirmación).
 
+## Periodos (`/studio/{marca}/periodos`)
+
+> Menú **Planificación → Periodos**. Ventanas de planificación de contenido (p. ej. «Julio 2026»). El **periodo
+> activo** se elige en el selector de la cabecera; aquí se gestionan (renombrar, estado, borrar).
+
+- [ ] **Alta.** Campo "Nuevo periodo" + **Añadir periodo** crea uno (nace en **Borrador**).
+- [ ] **Autoguardado.** Editar el **nombre** o el **estado** (Borrador/Publicado) de un periodo persiste solo (badge **Guardado**).
+- [ ] **Estado y URL pública.** Solo con el periodo en **Publicado** sus piezas (que estén «Lista para grabación»
+      en adelante) son accesibles por la **URL pública** (ver *Vista pública del cliente*).
+- [ ] **Conteo.** Cada periodo muestra cuántas **piezas** tiene asignadas.
+- [ ] **Borrado solo Admin.** El botón 🗑 (con confirmación) solo aparece para **Admin**; al borrar, sus piezas
+      **quedan sin periodo** (no se borran).
+
 ## Kanban (`/studio/{marca}/kanban`)
 
+- [ ] **Solo el periodo activo.** El tablero muestra **únicamente las piezas del periodo seleccionado** en la
+      cabecera (al cambiar de periodo, se refiltra). Sin periodos, muestra las piezas "sin periodo".
 - [ ] **Arrastrar** tarjetas entre columnas → el estado **se persiste** (recargar lo confirma). Contadores por columna se actualizan.
 - [ ] Tarjeta → **"Abrir en composer →"** abre esa pieza concreta en el composer (deep-link).
 
@@ -103,6 +122,8 @@
 - [ ] **Lista** de piezas a la izquierda; **"Nueva"** crea un borrador. El **tag de estado** de cada pieza usa el
       **mismo color que su columna en el Kanban** (Borrador=plomo, Planificación=violeta, Guión listo=azul, Lista
       para grabación=cian, Grabada=ámbar, Editada=rosa, Publicada=verde) para escanear de un vistazo.
+- [ ] **Solo el periodo activo.** Bajo "Piezas" se ve el **periodo activo**; la lista muestra **solo las piezas de
+      ese periodo** y **"Nueva"** las crea **dentro** de él. Sin periodos, muestra las "sin periodo" y enlaza a crear uno.
 - [ ] **Filtro por estado.** Sobre la lista, un desplegable **"Todos los estados"** filtra las piezas por estado
       (Borrador, Planificación, …). Sin piezas en ese estado: "No hay piezas en este estado".
 - [ ] **Título y Estado siempre visibles.** El **Título de trabajo** y el **Estado** están arriba, fuera de las pestañas (visibles en todo momento).
@@ -122,8 +143,10 @@
 > **valide el guión**. Diseño amable (tipografía grande, tarjetas), no parece un panel de admin. El enlace se
 > copia desde el **Composer → pestaña Producción → "Enlace para el cliente"**.
 
-- [ ] **Acceso público.** Abrir `/p/{token}` **sin sesión** muestra la pieza (no redirige a login). Un **token
-      inexistente** da **404** (los tokens son inadivinables, ~40 caracteres).
+- [ ] **Acceso público condicionado.** `/p/{token}` solo es accesible si la pieza está **«Lista para grabación»
+      en adelante** (incluye Grabada/Editada/Publicada) **Y** su **periodo está «Publicado»**. En cualquier otro
+      caso (estado anterior, periodo en Borrador o pieza sin periodo) o **token inexistente** → **404**. Los tokens
+      son inadivinables (~40 caracteres).
 - [ ] **Contenido completo.** Se ven, con fuentes grandes: la **marca** (logo + nombre), el **título**, los chips
       de **estado/objetivo/formato** (la **pastilla de estado** usa el mismo color que el Kanban), **la idea**
       (título + concepto), **ejemplos reales** de la idea (si tiene, como enlaces "ya funcionó en la vida real"),

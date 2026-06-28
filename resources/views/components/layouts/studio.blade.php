@@ -35,7 +35,7 @@
                     {{-- Un grupo se marca activo si la ruta actual es cualquiera de sus hijas (incluidas las próximas). --}}
                     @php($audienceActive = request()->routeIs('studio.audience', 'studio.kickstart', 'studio.ctas'))
                     @php($contentActive = request()->routeIs('studio.winning-ideas', 'studio.ideas', 'studio.generator', 'studio.pieces', 'studio.hooks'))
-                    @php($planActive = request()->routeIs('studio.kanban', 'studio.calendar'))
+                    @php($planActive = request()->routeIs('studio.kanban', 'studio.periods', 'studio.calendar'))
                     @php($analyticsActive = request()->routeIs('studio.performance', 'studio.ai-usage'))
 
                     <nav class="flex items-center gap-1">
@@ -82,6 +82,7 @@
                             </button>
                             <flux:menu>
                                 <flux:menu.item href="{{ route('studio.kanban', $currentAccount) }}" icon="view-columns">Kanban</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.periods', $currentAccount) }}" icon="calendar-days">Periodos</flux:menu.item>
                                 <x-studio.menu-soon icon="calendar" label="Calendario" />
                             </flux:menu>
                         </flux:dropdown>
@@ -111,6 +112,9 @@
                         icon="inbox-arrow-down"
                         aria-label="Captura rápida (Inbox)"
                     />
+
+                    {{-- Selector de periodo activo (planificación): filtra Composer/Kanban y asigna piezas nuevas. --}}
+                    <livewire:studio.period-switcher :account="$currentAccount" :key="'period-switcher-'.$currentAccount->id" />
 
                     <flux:dropdown position="bottom" align="end">
                         <flux:button variant="ghost" size="sm" icon:trailing="chevron-down">
@@ -184,6 +188,10 @@
             } catch (e) { /* el navegador no permite audio: lo ignoramos */ }
         };
         window.addEventListener('ai-generation-done', function () { window.playAiDoneSound(); });
+
+        // Cambio de periodo activo: recargamos para refiltrar Composer/Kanban de forma
+        // consistente (incluye los contadores del Kanban, que viven en estado de Alpine).
+        window.addEventListener('period-changed', function () { window.location.reload(); });
     </script>
 </body>
 </html>

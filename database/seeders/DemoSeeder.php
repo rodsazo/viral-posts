@@ -7,6 +7,7 @@ use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
+use App\Enums\PeriodStatus;
 use App\Enums\TeamRole;
 use App\Enums\ViralMechanism;
 use App\Models\Account;
@@ -15,6 +16,7 @@ use App\Models\Category;
 use App\Models\ContentPiece;
 use App\Models\HerasTemplate;
 use App\Models\IdealFollower;
+use App\Models\Period;
 use App\Models\Question;
 use App\Models\User;
 use App\Models\WinningIdea;
@@ -59,6 +61,13 @@ class DemoSeeder extends Seeder
         $miedos = Category::create(['account_id' => $account->id, 'name' => 'Miedos e inseguridades', 'color' => '#ef4444']);
         $grupo = Category::create(['account_id' => $account->id, 'name' => 'Encontrar grupo', 'color' => '#3b82f6']);
         Category::create(['account_id' => $account->id, 'name' => 'Cómo empezar', 'color' => '#22c55e']);
+
+        // --- Periodo de planificación (Publicado) ---
+        $period = Period::create([
+            'account_id' => $account->id,
+            'name' => 'Julio 2026',
+            'status' => PeriodStatus::Publicado,
+        ]);
 
         // --- Seguidor ideal ---
         $follower = IdealFollower::create([
@@ -134,6 +143,7 @@ class DemoSeeder extends Seeder
         // --- Piezas de contenido ---
         ContentPiece::create([
             'account_id' => $account->id,
+            'period_id' => $period->id,
             'ideal_follower_id' => $follower->id,
             'winning_idea_id' => $idea->id,
             'title' => 'Reel: enseñamos a 3 amigos en 10 min',
@@ -148,6 +158,7 @@ class DemoSeeder extends Seeder
 
         ContentPiece::create([
             'account_id' => $account->id,
+            'period_id' => $period->id,
             'ideal_follower_id' => $follower->id,
             'winning_idea_id' => $idea2->id,
             'title' => 'Vídeo: cómo solicitar un GM',
@@ -164,6 +175,7 @@ class DemoSeeder extends Seeder
         // Pieza "suelta" sin idea ganadora (decisión #5).
         ContentPiece::create([
             'account_id' => $account->id,
+            'period_id' => $period->id,
             'winning_idea_id' => null,
             'title' => 'Idea suelta: bloopers de partidas',
             'format' => ContentFormat::Vlog,

@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Enums\ContentStatus;
 use App\Models\Account;
 use App\Models\ContentPiece;
+use App\Models\Period;
 use App\Models\WinningIdea;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
@@ -31,11 +32,14 @@ class PublicPieceTest extends TestCase
             'concept' => 'Empezar por el final.',
             'example_urls' => ['https://www.tiktok.com/@alguien/video/123'],
         ]);
+        // Visible: estado "de Lista para grabación en adelante" + periodo Publicado.
+        $period = Period::factory()->published()->create(['account_id' => $account->id]);
         $piece = ContentPiece::factory()->create([
             'account_id' => $account->id,
+            'period_id' => $period->id,
             'winning_idea_id' => $idea->id,
             'title' => 'MI PIEZA PÚBLICA',
-            'status' => ContentStatus::Planificacion,
+            'status' => ContentStatus::ListaParaGrabacion,
             'hook' => 'GANCHO DE PRUEBA',
             'story' => 'HISTORIA DE PRUEBA',
             'location' => 'AZOTEA DEL EDIFICIO',
@@ -48,7 +52,7 @@ class PublicPieceTest extends TestCase
         $this->get("/p/{$piece->public_token}")
             ->assertOk()
             ->assertSee('MI PIEZA PÚBLICA')
-            ->assertSee('Planificación')                            // pastilla de estado
+            ->assertSee('Lista para grabación')                     // pastilla de estado
             ->assertSee('EL GIRO INESPERADO')
             ->assertSee('GANCHO DE PRUEBA')
             ->assertSee('HISTORIA DE PRUEBA')
@@ -58,6 +62,42 @@ class PublicPieceTest extends TestCase
             ->assertSee('EL ROD Y UN INVITADO')
             ->assertSee('GRABAMOS EL SÁBADO POR LA MAÑANA')         // notas para el cliente
             ->assertSee('El Rod');
+    }
+
+    public function test_a_piece_below_ready_to_record_is_not_public(): void
+    {
+        $account = Account::factory()->create();
+        $period = Period::factory()->published()->create(['account_id' => $account->id]);
+        $piece = ContentPiece::factory()->create([
+            'account_id' => $account->id,
+            'period_id' => $period->id,
+            'status' => ContentStatus::Planificacion, // anterior a "Lista para grabación"
+        ]);
+
+        $this->get("/p/{$piece->public_token}")->assertNotFound();
+    }
+
+    public function test_a_piece_in_a_draft_period_is_not_public(): void
+    {
+        $account = Account::factory()->create();
+        $period = Period::factory()->create(['account_id' => $account->id]); // borrador por defecto
+        $piece = ContentPiece::factory()->create([
+            'account_id' => $account->id,
+            'period_id' => $period->id,
+            'status' => ContentStatus::Publicada,
+        ]);
+
+        $this->get("/p/{$piece->public_token}")->assertNotFound();
+    }
+
+    public function test_a_piece_without_a_period_is_not_public(): void
+    {
+        $piece = ContentPiece::factory()->create([
+            'period_id' => null,
+            'status' => ContentStatus::Publicada,
+        ]);
+
+        $this->get("/p/{$piece->public_token}")->assertNotFound();
     }
 
     public function test_an_unknown_token_returns_404(): void

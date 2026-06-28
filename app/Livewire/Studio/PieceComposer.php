@@ -15,6 +15,7 @@ use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\ScriptContext;
 use App\Support\LinkPreview;
 use App\Support\Rum;
+use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -111,9 +112,11 @@ class PieceComposer extends Component
 
     public function newPiece(): void
     {
+        // Toda pieza nueva se asocia al periodo activo del Estudio (si hay).
         $piece = $this->account->contentPieces()->create([
             'title' => 'Nueva pieza',
             'status' => ContentStatus::Borrador,
+            'period_id' => StudioPeriod::id($this->account),
         ]);
 
         $this->loadPiece($piece);
@@ -428,8 +431,10 @@ class PieceComposer extends Component
     {
         return view('livewire.studio.piece-composer', [
             'pieces' => $this->account->contentPieces()
+                ->tap(fn ($q) => StudioPeriod::scopeQuery($q, $this->account))
                 ->when(filled($this->statusFilter), fn ($q) => $q->where('status', $this->statusFilter))
                 ->latest('updated_at')->get(),
+            'activePeriod' => StudioPeriod::get($this->account),
             'ideas' => $this->account->winningIdeas()->orderBy('title')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
         ]);

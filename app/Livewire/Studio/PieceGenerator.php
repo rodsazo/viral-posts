@@ -17,6 +17,7 @@ use App\Models\ViralReferent;
 use App\Models\WinningIdea;
 use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\ScriptContext;
+use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -243,6 +244,7 @@ class PieceGenerator extends Component
 
         $idea = $this->selectedIdea();
         $base = $idea?->title ?: 'Pieza generada';
+        $periodId = StudioPeriod::id($this->account);
         $position = 0;
 
         foreach ($indices as $i) {
@@ -250,6 +252,7 @@ class PieceGenerator extends Component
             $position++;
 
             $this->account->contentPieces()->create([
+                'period_id' => $periodId,
                 'winning_idea_id' => $this->winning_idea_id ?: null,
                 'ideal_follower_id' => $this->idealFollowerId ?: $idea?->ideal_follower_id,
                 'title' => count($indices) > 1 ? "{$base} — variante {$position}" : $base,

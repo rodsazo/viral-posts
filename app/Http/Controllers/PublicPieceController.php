@@ -14,7 +14,11 @@ class PublicPieceController extends Controller
      */
     public function __invoke(ContentPiece $piece): View
     {
-        $piece->load(['account', 'idealFollower', 'winningIdea']);
+        $piece->load(['account', 'idealFollower', 'winningIdea', 'period']);
+
+        // Solo visible si la pieza está lista para el cliente (estado >= Lista para
+        // grabación) Y su periodo está Publicado. En cualquier otro caso, 404.
+        abort_unless($piece->isPubliclyVisible(), 404);
 
         return view('public.piece', [
             'piece' => $piece,

@@ -129,6 +129,11 @@ class Account extends Model implements HasAvatar
         return $this->hasMany(ContentPiece::class);
     }
 
+    public function periods(): HasMany
+    {
+        return $this->hasMany(Period::class);
+    }
+
     public function captures(): HasMany
     {
         return $this->hasMany(Capture::class);

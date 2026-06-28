@@ -5,6 +5,7 @@ namespace App\Livewire\Studio;
 use App\Enums\ContentStatus;
 use App\Models\Account;
 use App\Models\ContentPiece;
+use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Layout;
@@ -26,6 +27,7 @@ class StudioKanban extends Component
     public function columns(): array
     {
         $byStatus = $this->account->contentPieces()
+            ->tap(fn ($q) => StudioPeriod::scopeQuery($q, $this->account))
             ->with('winningIdea')
             ->orderByDesc('updated_at')
             ->get()

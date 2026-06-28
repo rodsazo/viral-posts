@@ -1,10 +1,20 @@
 <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
     {{-- Lista de piezas --}}
     <aside class="lg:col-span-3">
-        <div class="mb-3 flex items-center justify-between">
+        <div class="mb-1 flex items-center justify-between">
             <flux:heading size="lg">Piezas</flux:heading>
             <flux:button wire:click="newPiece" size="sm" variant="primary" icon="plus">Nueva</flux:button>
         </div>
+
+        {{-- Periodo activo (se elige en la cabecera). Las piezas nuevas se asignan a él. --}}
+        <p class="mb-3 flex items-center gap-1.5 text-xs text-zinc-500">
+            <flux:icon.calendar-days variant="micro" class="size-3.5 text-amber-400" />
+            @if ($activePeriod)
+                Periodo: <span class="font-medium text-zinc-600 dark:text-zinc-300">{{ $activePeriod->name }}</span>
+            @else
+                Sin periodo — <a href="{{ route('studio.periods', $account) }}" class="font-medium text-violet-500 hover:underline">crea uno</a>
+            @endif
+        </p>
 
         {{-- Filtro por estado: concentrarse en borradores, planificación, etc. --}}
         <flux:select wire:model.live="statusFilter" size="sm" class="mb-3">

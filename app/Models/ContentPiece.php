@@ -21,6 +21,7 @@ class ContentPiece extends Model
 
     protected $fillable = [
         'account_id',
+        'period_id',
         'ideal_follower_id',
         'winning_idea_id',
         'title',
@@ -80,6 +81,22 @@ class ContentPiece extends Model
     public function account(): BelongsTo
     {
         return $this->belongsTo(Account::class);
+    }
+
+    public function period(): BelongsTo
+    {
+        return $this->belongsTo(Period::class);
+    }
+
+    /**
+     * ¿Es accesible desde la URL pública? Dos condiciones: el estado de la pieza está
+     * "de Lista para grabación en adelante" Y su periodo existe y está "Publicado".
+     */
+    public function isPubliclyVisible(): bool
+    {
+        return $this->status->isReadyForClient()
+            && $this->period !== null
+            && $this->period->isPublished();
     }
 
     public function winningIdea(): BelongsTo
