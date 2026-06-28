@@ -11,7 +11,7 @@
     @endif
 </head>
 <body class="min-h-full bg-gradient-to-b from-amber-50 via-rose-50 to-violet-100 text-zinc-800 antialiased">
-    <div class="mx-auto max-w-6xl px-5 py-10 sm:py-14">
+    <div class="mx-auto max-w-7xl px-5 py-10 sm:py-14">
 
         {{-- Marca --}}
         <div class="flex flex-col items-center text-center">
