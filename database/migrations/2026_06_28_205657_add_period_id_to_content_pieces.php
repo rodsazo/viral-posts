@@ -13,6 +13,13 @@ return new class extends Migration
      */
     public function up(): void
     {
+        // Idempotente: en entornos donde ya se aplicó (dev, antes del renombrado),
+        // no volver a añadir la columna. Debe correr DESPUÉS de create_periods_table
+        // (por eso el timestamp es posterior): MySQL valida la tabla referenciada.
+        if (Schema::hasColumn('content_pieces', 'period_id')) {
+            return;
+        }
+
         Schema::table('content_pieces', function (Blueprint $table): void {
             $table->foreignId('period_id')->nullable()->after('account_id')->constrained()->nullOnDelete();
         });
@@ -20,6 +27,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (! Schema::hasColumn('content_pieces', 'period_id')) {
+            return;
+        }
+
         Schema::table('content_pieces', function (Blueprint $table): void {
             $table->dropConstrainedForeignId('period_id');
         });
