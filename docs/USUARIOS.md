@@ -54,5 +54,15 @@ En un entorno nuevo (o en dev), designa tu super admin:
 php artisan super-admin grant tu-correo@ejemplo.com
 ```
 
-En producción es además la vía recomendada para crear el primer administrador real sin contraseñas fijas
-(ver [PRODUCCION.md](PRODUCCION.md)).
+### Primer admin real en producción
+
+En producción **no** corre el seeder demo (no hay usuarios con contraseña fija). El admin real se crea con un
+comando guiado y seguro (contraseña elegida en el momento; opcionalmente crea su primera marca y/o super admin):
+
+```sh
+php artisan app:create-admin
+# o no-interactivo parcial:
+php artisan app:create-admin --email=tu-correo@ejemplo.com --name="Tu Nombre"
+```
+
+Ver el flujo completo de despliegue en [PRODUCCION.md](PRODUCCION.md) (punto #0).

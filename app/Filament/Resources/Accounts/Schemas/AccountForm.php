@@ -27,7 +27,8 @@ class AccountForm
                     ->label('Logo / imagen')
                     ->image()
                     ->avatar()
-                    ->disk('public')
+                    ->disk(config('filesystems.brand_disk'))
+                    ->visibility('public')
                     ->directory('brand-logos')
                     ->imageEditor(),
                 Textarea::make('description')

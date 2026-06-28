@@ -34,13 +34,18 @@ class Account extends Model implements HasAvatar
             return null;
         }
 
-        // Devolvemos una URL relativa a la raíz (p. ej. "/storage/brand-logos/x.png"):
-        // así se sirve desde el mismo host:puerto que la app y evitamos el desajuste de
-        // origen cuando APP_URL no coincide con el puerto real (p. ej. localhost vs :8000).
-        // (Los logos viven en el disco público local, mismo origen que la app.)
-        $url = Storage::disk('public')->url($this->logo_path);
+        $disk = config('filesystems.brand_disk', 'public');
+        $url = Storage::disk($disk)->url($this->logo_path);
 
-        return preg_replace('#^https?://[^/]+#', '', $url) ?: $url;
+        // En el disco público local devolvemos una URL relativa a la raíz (p. ej.
+        // "/storage/brand-logos/x.png"): se sirve desde el mismo host:puerto que la app y
+        // evita el desajuste de origen cuando APP_URL no coincide con el puerto (localhost
+        // vs :8000). En S3 (producción) devolvemos la URL absoluta del bucket tal cual.
+        if ($disk === 'public') {
+            return preg_replace('#^https?://[^/]+#', '', $url) ?: $url;
+        }
+
+        return $url;
     }
 
     /** Avatar de la marca para el selector de marca de Filament (admin). */

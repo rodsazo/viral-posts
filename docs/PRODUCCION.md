@@ -6,6 +6,47 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 
 ---
 
+## 0. 🚀 Despliegue en Laravel Cloud (plan elegido)
+
+> Servicio elegido: **Laravel Cloud** (PaaS oficial). Deploy por `git push` a `main`, sin SSH/SFTP.
+> El repo ya quedó **preparado** para esto (ver "Lo que ya está hecho"). Aquí van los pasos del primer deploy.
+
+### Lo que ya está hecho en el repo
+- **Disco de logos configurable** (`config/filesystems.php` → `brand_disk`, variable `BRAND_FILESYSTEM_DISK`).
+  En local sigue siendo `public`; en prod se pone `s3` para que los logos **persistan entre deploys** (el disco
+  del contenedor es efímero). `Account::logoUrl()` y los dos `FileUpload` del admin ya respetan ese disco.
+- **Seeder seguro:** `DatabaseSeeder` solo siembra el **catálogo global** (Heras) y, **solo en `local`**, el
+  `DemoSeeder` (usuarios `password` + contenido demo). En producción el seeder demo **no** corre.
+- **Admin real por consola:** `php artisan app:create-admin` crea el usuario admin con **contraseña elegida**
+  (nunca fija), opcionalmente su primera marca y/o super admin. Ver [USUARIOS.md](USUARIOS.md).
+- **Plantilla de entorno:** [`.env.production.example`](../.env.production.example) con todas las variables a
+  definir en el panel de Cloud.
+
+### Pasos del primer deploy
+1. **Crear el proyecto** en Laravel Cloud y conectar el repo de GitHub; rama de deploy: `main`.
+2. **Base de datos:** adjuntar un **PostgreSQL** gestionado (Cloud inyecta `DB_*`). Pon `DB_CONNECTION=pgsql`.
+3. **Object storage:** crear un **bucket** (Cloud rellena `AWS_*`) y definir `BRAND_FILESYSTEM_DISK=s3`.
+4. **Variables de entorno:** copiar las de `.env.production.example`; añadir los **secretos** a mano:
+   `ANTHROPIC_API_KEY`, `FONTAWESOME_URL`, credenciales de `MAIL_*`. `APP_KEY` lo genera Cloud.
+5. **Build:** `composer install --no-dev --optimize-autoloader` + `npm ci && npm run build` (Node ≥ 22.12; `.nvmrc`=24.16).
+6. **Comandos de deploy (release):** `php artisan migrate --force` · `php artisan config:cache` ·
+   `php artisan route:cache` · `php artisan view:cache` · `php artisan filament:upgrade`.
+   *(No hace falta `storage:link`: los logos van a S3.)*
+7. **Worker de cola:** activar un proceso **`php artisan queue:work`** (la IA del Estudio lo necesita; sin él se
+   queda en "Generando…"). Ver [IA.md](IA.md).
+8. **Scheduler:** activarlo (para los backups programados, punto #1).
+9. **Primer arranque:** ejecutar `php artisan app:create-admin` (consola/command runner de Cloud) y entrar a `/admin`.
+   **No** ejecutar el seeder demo.
+
+### Migrar los datos reales de dev (SQLite → Postgres)
+Los datos actuales viven en SQLite (`database/database.sqlite`). Para llevarlos a Postgres sin `migrate:fresh`:
+- Opción simple: en prod correr `php artisan migrate --force` (esquema) y **recrear** lo imprescindible a mano
+  (admin con `app:create-admin`; los catálogos Heras los siembra `DatabaseSeeder`).
+- Opción "copiar datos": exportar por tabla desde SQLite e importar a Postgres (script de migración de datos),
+  cuidando los tipos. Dejar esto como tarea aparte si se necesita conservar el contenido demo/real.
+
+---
+
 ## 1. 🟢 Backups automáticos de base de datos *(acordado: a futuro)*
 
 **Qué:** copias de seguridad programadas de la BD (y archivos subidos, si los hubiera), guardadas **fuera del servidor** y con política de retención.
@@ -43,7 +84,8 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 
 **Cómo:**
 - `APP_ENV=production`, `APP_DEBUG=false`, `APP_KEY` propia y secreta, `APP_URL` con **HTTPS**.
-- **No** ejecutar el seeder demo en producción (o separarlo: dejar global/`HerasTemplateSeeder` y crear el admin real con un comando seguro, no con contraseña fija).
+- ✅ **Hecho:** el seeder demo ya está **separado** (`DemoSeeder`, solo en `local`) y el admin real se crea con
+  `php artisan app:create-admin` (contraseña elegida, no fija). En prod corre solo el catálogo global.
 - Cookies de sesión seguras (`SESSION_SECURE_COOKIE=true`), forzar HTTPS.
 - **Rate limiting** en el login y **verificación de email**; revisar políticas de contraseña.
 - Gestión de secretos fuera del repo (variables del hosting / vault). Incluye la **`ANTHROPIC_API_KEY`**
@@ -68,7 +110,8 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 ## Candidatos adicionales (a desarrollar más adelante)
 
 - **Cachés de despliegue + assets:** `config:cache`, `route:cache`, `view:cache`, cache de componentes Filament, `npm run build`, OPcache.
-  - **`php artisan storage:link`** en el deploy (los **logos de marca** se guardan en el disco `public` y se sirven vía ese symlink).
+  - **`php artisan storage:link`** solo si los logos usan el disco `public` (dev). En prod los logos van a **S3**
+    (`BRAND_FILESYSTEM_DISK=s3`), así que el symlink **no** es necesario (ver punto #0).
   - **Node ≥ 22.12** (o ≥ 20.19) para el build de Vite 8/Flux — la 22.0–22.11 falla (`rolldown-binding…node`). Fijado en `.nvmrc` (24.16) y `engines`. Dev en M3 (arm64), prod en **Ubuntu (linux-x64)**: en el deploy correr `npm ci && npm run build` con Node ≥22.12 (npm baja el binario `linux-x64-gnu` automáticamente), **o** construir en CI y enviar `public/build/` (la salida es portable).
 - **Colas y correo reales:** driver de cola (`database`/`redis`) y `mail` real (notificaciones, restablecer contraseña).
   - 🔴 **El asistente de IA del Estudio depende de un worker de cola** (`GenerateSuggestionsJob`). En producción hay que

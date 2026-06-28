@@ -17,6 +17,19 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Brand Logos Disk
+    |--------------------------------------------------------------------------
+    |
+    | Disco donde se guardan los logos de marca subidos en el admin. En local
+    | usamos el disco "public" (mismo host que la app); en producción (PaaS con
+    | disco efímero) conviene "s3" para que los archivos persistan entre deploys.
+    |
+    */
+
+    'brand_disk' => env('BRAND_FILESYSTEM_DISK', 'public'),
+
+    /*
+    |--------------------------------------------------------------------------
     | Filesystem Disks
     |--------------------------------------------------------------------------
     |

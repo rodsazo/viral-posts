@@ -27,7 +27,8 @@ class EditAccountProfile extends EditTenantProfile
                     ->label('Logo / imagen')
                     ->image()
                     ->avatar()
-                    ->disk('public')
+                    ->disk(config('filesystems.brand_disk'))
+                    ->visibility('public')
                     ->directory('brand-logos')
                     ->imageEditor()
                     ->helperText('Se muestra como miniatura en el Estudio y el selector de marca.'),
