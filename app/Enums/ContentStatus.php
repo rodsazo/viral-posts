@@ -74,11 +74,22 @@ enum ContentStatus: string implements HasColor, HasLabel
      */
     public function isReadyForClient(): bool
     {
-        return in_array($this, [
+        return in_array($this, self::readyForClientCases(), true);
+    }
+
+    /**
+     * Estados visibles para el cliente, en orden (columnas del tablero público de marca):
+     * de "Lista para grabación" en adelante.
+     *
+     * @return array<int, self>
+     */
+    public static function readyForClientCases(): array
+    {
+        return [
             self::ListaParaGrabacion,
             self::Grabada,
             self::Editada,
             self::Publicada,
-        ], true);
+        ];
     }
 }

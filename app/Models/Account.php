@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\PeriodStatus;
 use Database\Factories\AccountFactory;
 use Filament\Models\Contracts\HasAvatar;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -67,7 +68,25 @@ class Account extends Model implements HasAvatar
             if (blank($account->slug)) {
                 $account->slug = static::uniqueSlug($account->name);
             }
+
+            // Token inadivinable para el tablero público del cliente (/m/{token}).
+            $account->public_token ??= Str::random(40);
         });
+    }
+
+    /** URL pública (sin login) del tablero del cliente para esta marca. */
+    public function publicBoardUrl(): string
+    {
+        return route('brand.public', $this->public_token);
+    }
+
+    /** Último periodo "Publicado" de la marca (el que ve el cliente), o null. */
+    public function latestPublishedPeriod(): ?Period
+    {
+        return $this->periods()
+            ->where('status', PeriodStatus::Publicado)
+            ->latest('id')
+            ->first();
     }
 
     public static function uniqueSlug(string $name): string

@@ -102,6 +102,8 @@
 > Menú **Planificación → Periodos**. Ventanas de planificación de contenido (p. ej. «Julio 2026»). El **periodo
 > activo** se elige en el selector de la cabecera; aquí se gestionan (renombrar, estado, borrar).
 
+- [ ] **Tablero público de la marca.** Arriba, un bloque violeta muestra el **enlace público de la marca**
+      (`/m/{token}`) con **Copiar**/**Abrir** (ver *Tablero público de la marca*).
 - [ ] **Alta.** Campo "Nuevo periodo" + **Añadir periodo** crea uno (nace en **Borrador**).
 - [ ] **Autoguardado.** Editar el **nombre** o el **estado** (Borrador/Publicado) de un periodo persiste solo (badge **Guardado**).
 - [ ] **Estado y URL pública.** Solo con el periodo en **Publicado** sus piezas (que estén «Lista para grabación»
@@ -156,3 +158,19 @@
 - [ ] **Pieza vacía.** Si la pieza aún no tiene idea ni guión, aparece un **estado amable** ("se está cocinando")
       en vez de tarjetas vacías.
 - [ ] **No indexable.** La página lleva `noindex,nofollow` (no pensada para buscadores).
+
+## Tablero público de la marca (`/m/{token}`)
+
+> Página **sin login** para el cliente: un tablero de solo lectura del **último periodo Publicado** de la marca.
+> Mismos lineamientos visuales que la vista pública de pieza (fuentes grandes, buen contraste, tarjetas). El
+> enlace se copia desde **Planificación → Periodos → "Tablero público de la marca"**.
+
+- [ ] **Sin periodo publicado.** Si la marca no tiene ningún periodo **Publicado**, muestra el mensaje grande
+      **"No hay periodos de trabajo abiertos"**. (Un periodo en Borrador **no** cuenta.)
+- [ ] **Con periodo publicado.** Muestra el **nombre del periodo** y un **kanban de solo 4 columnas**: *Lista para
+      grabación*, *Grabada*, *Editada*, *Publicada* (con su color y emoji). Solo aparecen las piezas de **ese**
+      periodo en **esos** estados (las anteriores a "Lista para grabación" no se ven).
+- [ ] **Último publicado.** Si hay varios periodos Publicados, se muestra **el más reciente**.
+- [ ] **Tarjetas enlazadas.** Cada tarjeta (título + idea + "Ver detalles →") es un **enlace a la vista pública de
+      esa pieza** (`/p/{token}`).
+- [ ] **Token y 404.** El acceso es por token inadivinable; un **token inexistente** da **404**. Lleva `noindex,nofollow`.

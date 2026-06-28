@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\InvitationController;
+use App\Http\Controllers\PublicBrandController;
 use App\Http\Controllers\PublicPieceController;
 use App\Livewire\Studio\AudienceHub;
 use App\Livewire\Studio\CaptureInbox;
@@ -25,6 +26,9 @@ Route::post('/invitations/{token}', [InvitationController::class, 'accept'])->na
 
 // Vista pública (sin login) de una pieza para que el cliente la entienda y valide el guión.
 Route::get('/p/{piece:public_token}', PublicPieceController::class)->name('piece.public');
+
+// Tablero público (sin login) de la marca: último periodo publicado y sus piezas listas.
+Route::get('/m/{account:public_token}', PublicBrandController::class)->name('brand.public');
 
 // Estudio de creación a medida (Livewire + Flux), escopado a la marca.
 Route::middleware(['auth', 'membership'])->group(function () {
