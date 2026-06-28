@@ -24,7 +24,7 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 
 ### Pasos del primer deploy
 1. **Crear el proyecto** en Laravel Cloud y conectar el repo de GitHub; rama de deploy: `main`.
-2. **Base de datos:** adjuntar un **PostgreSQL** gestionado (Cloud inyecta `DB_*`). Pon `DB_CONNECTION=pgsql`.
+2. **Base de datos:** adjuntar un **MySQL** gestionado (Cloud inyecta `DB_*`). Pon `DB_CONNECTION=mysql` (`DB_PORT=3306`).
 3. **Object storage:** crear un **bucket** (Cloud rellena `AWS_*`) y definir `BRAND_FILESYSTEM_DISK=s3`.
 4. **Variables de entorno:** copiar las de `.env.production.example`; añadir los **secretos** a mano:
    `ANTHROPIC_API_KEY`, `FONTAWESOME_URL`, credenciales de `MAIL_*`. `APP_KEY` lo genera Cloud.
@@ -40,11 +40,11 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 9. **Primer arranque:** ejecutar `php artisan app:create-admin` (consola/command runner de Cloud) y entrar a `/admin`.
    **No** ejecutar el seeder demo.
 
-### Migrar los datos reales de dev (SQLite → Postgres)
-Los datos actuales viven en SQLite (`database/database.sqlite`). Para llevarlos a Postgres sin `migrate:fresh`:
+### Migrar los datos reales de dev (SQLite → MySQL)
+Los datos actuales viven en SQLite (`database/database.sqlite`). Para llevarlos a MySQL sin `migrate:fresh`:
 - Opción simple: en prod correr `php artisan migrate --force` (esquema) y **recrear** lo imprescindible a mano
   (admin con `app:create-admin`; los catálogos Heras los siembra `DatabaseSeeder`).
-- Opción "copiar datos": exportar por tabla desde SQLite e importar a Postgres (script de migración de datos),
+- Opción "copiar datos": exportar por tabla desde SQLite e importar a MySQL (script de migración de datos),
   cuidando los tipos. Dejar esto como tarea aparte si se necesita conservar el contenido demo/real.
 
 ---
@@ -54,7 +54,7 @@ Los datos actuales viven en SQLite (`database/database.sqlite`). Para llevarlos 
 **Qué:** copias de seguridad **diarias** de la BD, guardadas en un bucket **separado** del almacenamiento
 principal (off-site real), con retención y aviso por correo si fallan.
 
-**Por qué:** evitar pérdida de datos. Los snapshots del Postgres gestionado de Cloud cubren el "se cayó el
+**Por qué:** evitar pérdida de datos. Los snapshots del MySQL gestionado de Cloud cubren el "se cayó el
 servidor"; esto añade copias **portables y fuera del proveedor** (restaurables en otro sitio, o si se pierde
 acceso a la cuenta).
 
@@ -72,15 +72,15 @@ acceso a la cuenta).
 
 ---
 
-## 2. 🔴 Base de datos de producción (PostgreSQL o MySQL)
+## 2. 🔴 Base de datos de producción (MySQL)
 
-**Qué:** dejar SQLite solo para desarrollo y usar **PostgreSQL** (recomendado en el handoff) o MySQL en producción.
+**Qué:** dejar SQLite solo para desarrollo y usar **MySQL** en producción (elegido para este despliegue).
 
-**Por qué:** SQLite no es ideal con concurrencia (varios usuarios/escrituras simultáneas), ni para backups/replicación/escalado. El esquema actual no usa nada específico de SQLite, así que el cambio es de configuración, no de código.
+**Por qué:** SQLite no es ideal con concurrencia (varios usuarios/escrituras simultáneas), ni para backups/replicación/escalado. El esquema actual no usa nada específico de SQLite ni de MySQL, así que el cambio es de configuración, no de código (Postgres también valdría; ver el chat del despliegue).
 
 **Cómo:**
-- Provisionar Postgres gestionado (del hosting/proveedor).
-- Configurar `DB_CONNECTION=pgsql` y credenciales en `.env` de producción.
+- Provisionar MySQL gestionado (del hosting/proveedor).
+- Configurar `DB_CONNECTION=mysql` (`DB_PORT=3306`) y credenciales en `.env` de producción.
 - `php artisan migrate` (aditivo) y verificación de humo.
 - Validar que los enums (guardados como `string`) y las columnas funcionan igual (lo hacen).
 
