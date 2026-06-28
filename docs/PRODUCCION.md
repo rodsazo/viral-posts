@@ -37,8 +37,10 @@ Leyenda de prioridad: 🔴 Alta · 🟡 Media · 🟢 Baja/Futuro.
 8. **Scheduler + backups:** activar el scheduler. Crear un **bucket aparte** para backups y definir
    `BACKUP_DISK=backups`, `BACKUP_AWS_*` y `BACKUP_NOTIFICATION_EMAIL` (ver punto #1). El scheduler corre
    `backup:run` a diario.
-9. **Primer arranque:** ejecutar `php artisan app:create-admin` (consola/command runner de Cloud) y entrar a `/admin`.
-   **No** ejecutar el seeder demo.
+9. **Primer arranque:** crear el admin con el comando **no interactivo** (el runner de Cloud no tiene TTY):
+   define `ADMIN_PASSWORD` como variable temporal y ejecuta
+   `php artisan app:create-admin --email=… --name="…" --brand="…" --super-admin --no-interaction`;
+   luego **borra** `ADMIN_PASSWORD` y entra a `/admin`. **No** ejecutar el seeder demo. Ver [USUARIOS.md](USUARIOS.md).
 
 ### Migrar los datos reales de dev (SQLite → MySQL)
 Los datos actuales viven en SQLite (`database/database.sqlite`). Para llevarlos a MySQL sin `migrate:fresh`:

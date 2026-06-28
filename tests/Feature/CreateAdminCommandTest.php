@@ -33,6 +33,35 @@ class CreateAdminCommandTest extends TestCase
         $this->assertTrue($user->isAdminOf($account));
     }
 
+    public function test_it_runs_non_interactively_with_options(): void
+    {
+        // Simula el command runner de Laravel Cloud (sin TTY): todo por opciones.
+        $this->artisan('app:create-admin', [
+            '--email' => 'cli@admin.test',
+            '--name' => 'CLI Admin',
+            '--password' => 'Secret123',
+            '--brand' => 'Marca CLI',
+            '--super-admin' => true,
+            '--no-interaction' => true,
+        ])->assertSuccessful();
+
+        $user = User::where('email', 'cli@admin.test')->first();
+        $this->assertNotNull($user);
+        $this->assertTrue($user->is_super_admin);
+        $this->assertTrue(Account::where('name', 'Marca CLI')->exists());
+    }
+
+    public function test_it_fails_non_interactively_without_a_password(): void
+    {
+        $this->artisan('app:create-admin', [
+            '--email' => 'nopass@admin.test',
+            '--name' => 'No Pass',
+            '--no-interaction' => true,
+        ])->assertFailed();
+
+        $this->assertDatabaseMissing('users', ['email' => 'nopass@admin.test']);
+    }
+
     public function test_it_refuses_a_duplicate_email(): void
     {
         User::factory()->create(['email' => 'taken@admin.test']);

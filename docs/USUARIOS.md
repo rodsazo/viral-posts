@@ -60,9 +60,18 @@ En producción **no** corre el seeder demo (no hay usuarios con contraseña fija
 comando guiado y seguro (contraseña elegida en el momento; opcionalmente crea su primera marca y/o super admin):
 
 ```sh
+# Terminal interactiva (pregunta lo que falte):
 php artisan app:create-admin
-# o no-interactivo parcial:
-php artisan app:create-admin --email=tu-correo@ejemplo.com --name="Tu Nombre"
+
+# No interactivo (p. ej. el command runner de Laravel Cloud, SIN TTY): todo por opciones.
+# La contraseña, por seguridad, en la variable ADMIN_PASSWORD (no queda en el registro):
+ADMIN_PASSWORD='TuClaveSegura123' php artisan app:create-admin \
+    --email=tu-correo@ejemplo.com --name="Tu Nombre" \
+    --brand="Mi Marca" --super-admin --no-interaction
 ```
+
+> En Laravel Cloud: define `ADMIN_PASSWORD` como variable de entorno temporal, ejecuta el comando
+> con `--no-interaction`, y luego **borra** esa variable. Sin `--no-interaction` el comando falla en el
+> runner (no hay terminal para responder los prompts: error `Interactivity … Required`).
 
 Ver el flujo completo de despliegue en [PRODUCCION.md](PRODUCCION.md) (punto #0).
