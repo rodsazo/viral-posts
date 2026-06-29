@@ -6,6 +6,14 @@
 
     {{-- Filtros + acción --}}
     <div class="flex flex-wrap items-end gap-3 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+        <flux:input
+            wire:model.live.debounce.300ms="search"
+            label="Buscar"
+            icon="magnifying-glass"
+            placeholder="Título, mecanismo, formato o estructura…"
+            class="w-72"
+        />
+
         <flux:select wire:model.live="referentFilter" label="Referente" placeholder="Todos los referentes" class="w-56">
             <flux:select.option value="">Todos los referentes</flux:select.option>
             @foreach ($referents as $referent)

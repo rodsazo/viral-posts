@@ -68,6 +68,26 @@ class ReferenceIdeaImportTest extends TestCase
         );
     }
 
+    public function test_text_search_matches_name_mechanism_format_and_structure(): void
+    {
+        $account = Account::factory()->create();
+        HerasTemplate::factory()->create(['name' => 'DEBATE EMOCIONAL', 'structure' => 'x', 'viral_mechanism' => 'y', 'suggested_format' => 'z']);
+        HerasTemplate::factory()->create(['name' => 'otra', 'structure' => 'usa una PIZARRA visual', 'viral_mechanism' => 'y', 'suggested_format' => 'z']);
+        HerasTemplate::factory()->create(['name' => 'tercera', 'structure' => 's', 'viral_mechanism' => 'm', 'suggested_format' => 'Entrevista']);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(ReferenceIdeaImporter::class, ['account' => $account])
+            ->set('search', 'debate')
+            ->assertSee('DEBATE EMOCIONAL')
+            ->assertDontSee('tercera')
+            ->set('search', 'pizarra')          // busca también en estructura
+            ->assertSee('otra')
+            ->assertDontSee('DEBATE EMOCIONAL')
+            ->set('search', 'entrevista')        // y en formato
+            ->assertSee('tercera')
+            ->assertDontSee('otra');
+    }
+
     public function test_filter_by_niche_limits_the_catalog(): void
     {
         $account = Account::factory()->create();

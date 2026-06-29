@@ -69,7 +69,8 @@
 
 - [ ] **Catálogo en tarjetas.** Cada idea referencial se muestra como tarjeta con nombre, **referente** y **nicho**,
       formato sugerido, estructura, mecanismo y el nº de **URLs de referencia**.
-- [ ] **Filtros.** Por **Referente** y por **Nicho** del referente (combinables).
+- [ ] **Filtros.** **Buscador de texto** (busca en título, mecanismo, formato y estructura), filtro por **Referente**
+      y por **Nicho** del referente (combinables).
 - [ ] **Selección múltiple → Importar.** Marcar varias y pulsar **"Importar N ideas"** (pide confirmación) crea una
       Idea Ganadora por cada una en la marca y redirige a *Ideas ganadoras* con aviso.
 - [ ] **Resultado de la importación.** Cada idea importada nace en **Borrador**, con etiqueta **Importada**, su

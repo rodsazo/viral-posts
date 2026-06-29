@@ -27,6 +27,8 @@ class ReferenceIdeaImporter extends Component
 
     public $nicheFilter = null;
 
+    public string $search = '';
+
     /** @var array<int, int|string> plantillas seleccionadas para importar */
     public array $selected = [];
 
@@ -77,6 +79,14 @@ class ReferenceIdeaImporter extends Component
                 ->with('viralReferent.niche')
                 ->when($this->referentFilter, fn ($q, $id) => $q->where('viral_referent_id', $id))
                 ->when($this->nicheFilter, fn ($q, $id) => $q->whereHas('viralReferent', fn ($r) => $r->where('niche_id', $id)))
+                ->when(filled($this->search), function ($q): void {
+                    $term = '%'.$this->search.'%';
+                    $q->where(fn ($w) => $w
+                        ->where('name', 'like', $term)
+                        ->orWhere('viral_mechanism', 'like', $term)
+                        ->orWhere('suggested_format', 'like', $term)
+                        ->orWhere('structure', 'like', $term));
+                })
                 ->orderBy('name')
                 ->get(),
             'referents' => ViralReferent::query()->whereHas('herasTemplates')->orderBy('name')->get(),
