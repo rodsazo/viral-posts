@@ -18,6 +18,15 @@
                     @endforeach
                 </flux:select>
 
+                {{-- Filtro por estado: por defecto oculta las descartadas. --}}
+                <flux:select wire:model.live="filterStatus" size="sm">
+                    <flux:select.option value="">Activas (sin descartadas)</flux:select.option>
+                    @foreach ($ideaStatuses as $st)
+                        <flux:select.option value="{{ $st->value }}">{{ $st->getLabel() }}</flux:select.option>
+                    @endforeach
+                    <flux:select.option value="todas">Todas (incl. descartadas)</flux:select.option>
+                </flux:select>
+
                 <div class="mt-1 flex max-h-[32rem] flex-col gap-1 overflow-y-auto">
                     @forelse ($ideas as $idea)
                         <button
@@ -32,6 +41,7 @@
                         >
                             <span class="truncate text-sm font-medium">{{ $idea->title }}</span>
                             <div class="flex flex-wrap items-center gap-1.5">
+                                <flux:badge size="sm" :color="$idea->status->fluxColor()" :icon="$idea->status->icon()">{{ $idea->status->getLabel() }}</flux:badge>
                                 @if ($idea->idealFollower)
                                     <flux:badge size="sm" color="zinc" icon="user">{{ $idea->idealFollower->name }}</flux:badge>
                                 @else
@@ -69,6 +79,13 @@
                     </div>
 
                     <flux:input wire:model.blur="title" label="Título" />
+
+                    {{-- Estado del flujo: borrador → hipótesis → fija | descartada. --}}
+                    <flux:select wire:model.live="status" label="Estado" description="Marca como Fija las ideas que ya te dan resultado (para hacer más contenido); Descartada las que no cuajan.">
+                        @foreach ($ideaStatuses as $st)
+                            <flux:select.option value="{{ $st->value }}">{{ $st->getLabel() }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
 
                     {{-- El seguidor ideal es el centro: de él salen preguntas y mitos/verdades. --}}
                     <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Elige un seguidor" description="De este seguidor salen sus preguntas y sus mitos/verdades.">

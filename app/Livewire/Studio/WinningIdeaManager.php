@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Studio;
 
+use App\Enums\IdeaStatus;
 use App\Enums\ValidationStatus;
 use App\Enums\ViralMechanism;
 use App\Models\Account;
@@ -31,6 +32,9 @@ class WinningIdeaManager extends Component
 
     public ?string $concept = null;
 
+    // Estado del flujo de la idea (borrador/hipótesis/fija/descartada). Sin tipar por Flux.
+    public $status = 'borrador';
+
     public ?string $viral_mechanism = null;
 
     public ?int $heras_template_id = null;
@@ -52,6 +56,9 @@ class WinningIdeaManager extends Component
     // Filtro de la lista por seguidor ideal (sin tipar para tolerar el "" de Flux).
     public $filterFollowerId = null;
 
+    // Filtro por estado: '' = Activas (oculta descartadas), 'todas' = todas, o un estado concreto.
+    public string $filterStatus = '';
+
     public bool $saved = false;
 
     public function mount(Account $account): void
@@ -65,6 +72,7 @@ class WinningIdeaManager extends Component
         $idea = $this->account->winningIdeas()->create([
             'title' => 'Nueva idea ganadora',
             'concept' => '',
+            'status' => IdeaStatus::Borrador->value,
         ]);
 
         $this->loadIdea($idea);
@@ -89,7 +97,7 @@ class WinningIdeaManager extends Component
         $this->account->winningIdeas()->whereKey($id)->delete();
 
         if ($this->selectedId === $id) {
-            $this->reset(['selectedId', 'title', 'concept', 'viral_mechanism', 'heras_template_id', 'idealFollowerId', 'questionIds', 'exampleUrls']);
+            $this->reset(['selectedId', 'title', 'concept', 'status', 'viral_mechanism', 'heras_template_id', 'idealFollowerId', 'questionIds', 'exampleUrls']);
             $next = $this->account->winningIdeas()->orderBy('title')->first();
 
             if ($next !== null) {
@@ -105,6 +113,7 @@ class WinningIdeaManager extends Component
         $this->selectedId = $idea->id;
         $this->title = $idea->title;
         $this->concept = $idea->concept;
+        $this->status = $idea->status?->value ?? IdeaStatus::Borrador->value;
         $this->viral_mechanism = $idea->viral_mechanism?->value;
         $this->heras_template_id = $idea->heras_template_id;
         $this->idealFollowerId = $idea->ideal_follower_id;
@@ -120,7 +129,7 @@ class WinningIdeaManager extends Component
             return;
         }
 
-        if (in_array($name, ['title', 'concept', 'viral_mechanism', 'heras_template_id', 'idealFollowerId'], true)) {
+        if (in_array($name, ['title', 'concept', 'status', 'viral_mechanism', 'heras_template_id', 'idealFollowerId'], true)) {
             $this->saveIdea();
 
             return;
@@ -142,6 +151,7 @@ class WinningIdeaManager extends Component
         $this->currentIdea()?->update([
             'title' => trim($this->title) ?: 'Sin título',
             'concept' => (string) $this->concept,
+            'status' => IdeaStatus::tryFrom($this->status)?->value ?? IdeaStatus::Borrador->value,
             'viral_mechanism' => $this->viral_mechanism ?: null,
             'heras_template_id' => $this->heras_template_id ?: null,
             'ideal_follower_id' => $this->idealFollowerId ?: null,
@@ -245,8 +255,12 @@ class WinningIdeaManager extends Component
             'ideas' => $this->account->winningIdeas()
                 ->with('idealFollower')
                 ->when($this->filterFollowerId, fn ($q, $fid) => $q->where('ideal_follower_id', $fid))
+                // Por defecto ('') ocultamos las descartadas; 'todas' muestra todo; o un estado concreto.
+                ->when($this->filterStatus === '', fn ($q) => $q->where('status', '!=', IdeaStatus::Descartada->value))
+                ->when(! in_array($this->filterStatus, ['', 'todas'], true), fn ($q) => $q->where('status', $this->filterStatus))
                 ->orderBy('title')
                 ->get(),
+            'ideaStatuses' => IdeaStatus::cases(),
             'mechanisms' => ViralMechanism::cases(),
             'herasTemplates' => HerasTemplate::query()->orderBy('number')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),

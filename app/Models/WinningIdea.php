@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\IdeaStatus;
 use App\Enums\ValidationStatus;
 use App\Enums\ViralMechanism;
 use Database\Factories\WinningIdeaFactory;
@@ -23,6 +24,7 @@ class WinningIdea extends Model
         'heras_template_id',
         'title',
         'concept',
+        'status',
         'viral_mechanism',
         'example_urls',
     ];
@@ -30,6 +32,7 @@ class WinningIdea extends Model
     protected function casts(): array
     {
         return [
+            'status' => IdeaStatus::class,
             'viral_mechanism' => ViralMechanism::class,
             'example_urls' => 'array',
         ];

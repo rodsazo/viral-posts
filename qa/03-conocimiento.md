@@ -17,7 +17,8 @@
 
 ## Ideas ganadoras
 
-- [ ] **Crear** una idea: título, concepto, mecanismo de viralidad (enum), plantilla Heras (opcional).
+- [ ] **Crear** una idea: título, **estado** (Borrador/Hipótesis/Fija/Descartada; por defecto Borrador), concepto, mecanismo de viralidad (enum), plantilla Heras (opcional).
+- [ ] **Estado.** Columna **Estado** (badge) en la tabla y **filtro** por estado. Distinto de la "Validación".
 - [ ] **Ejemplos reales (URLs).** Repeater "Añadir ejemplo" con una o varias URLs de posts virales de otros creadores
       (Instagram/TikTok…). Sustituye al antiguo campo único "Referencia viral" (los valores anteriores se migraron
       como primer ejemplo).
@@ -29,7 +30,7 @@
 - [ ] **Vista (ojo 👁).** En la vista de la idea: seguidor ideal, badge de validación, lista de ejemplos (🔗) y "Mitos y verdades del seguidor".
 - [ ] **Relation manager.** Al editar una idea, pestaña con sus **piezas** (crear/editar).
 - [ ] **Crear pregunta inline** desde el selector de preguntas de la idea.
-- [ ] **Filtros** por mecanismo, "con/sin preguntas" y **Validación** (validadas / pendientes).
+- [ ] **Filtros** por **estado**, mecanismo, "con/sin preguntas" y **Validación** (validadas / pendientes).
 
 ## Ideas en lote (Producción → Ideas en lote)
 

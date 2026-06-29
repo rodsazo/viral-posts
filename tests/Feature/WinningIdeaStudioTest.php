@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\IdeaStatus;
 use App\Enums\TeamRole;
 use App\Enums\ValidationStatus;
 use App\Livewire\Studio\WinningIdeaManager;
@@ -46,6 +47,47 @@ class WinningIdeaStudioTest extends TestCase
         $this->actingAs($outsider)
             ->get("/studio/{$account->slug}/ideas-ganadoras")
             ->assertForbidden();
+    }
+
+    public function test_new_idea_starts_as_draft(): void
+    {
+        $account = Account::factory()->create();
+        $this->actingAs($this->member($account));
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])->call('newIdea');
+
+        $this->assertSame(IdeaStatus::Borrador, $account->winningIdeas()->first()->status);
+    }
+
+    public function test_list_hides_discarded_ideas_unless_filtered(): void
+    {
+        $account = Account::factory()->create();
+        WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA ACTIVA', 'status' => IdeaStatus::Hipotesis]);
+        WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA DESCARTADA', 'status' => IdeaStatus::Descartada]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])
+            ->assertSee('IDEA ACTIVA')
+            ->assertDontSee('IDEA DESCARTADA')          // por defecto, ocultas
+            ->set('filterStatus', 'descartada')
+            ->assertSee('IDEA DESCARTADA')
+            ->assertDontSee('IDEA ACTIVA')
+            ->set('filterStatus', 'todas')
+            ->assertSee('IDEA ACTIVA')
+            ->assertSee('IDEA DESCARTADA');
+    }
+
+    public function test_status_autosaves_in_the_editor(): void
+    {
+        $account = Account::factory()->create();
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'status' => IdeaStatus::Borrador]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])
+            ->call('selectIdea', $idea->id)
+            ->set('status', IdeaStatus::Fija->value);
+
+        $this->assertSame(IdeaStatus::Fija, $idea->refresh()->status);
     }
 
     public function test_member_can_create_and_autosave_an_idea(): void

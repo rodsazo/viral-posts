@@ -5,6 +5,7 @@ namespace App\Livewire\Studio;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentStatus;
+use App\Enums\IdeaStatus;
 use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
@@ -464,6 +465,7 @@ class PieceGenerator extends Component
             'ideas' => $this->idealFollowerId
                 ? $this->account->winningIdeas()
                     ->where('ideal_follower_id', $this->idealFollowerId)
+                    ->where('status', '!=', IdeaStatus::Descartada->value) // no se genera para ideas descartadas
                     ->withCount('contentPieces')
                     ->orderBy('title')
                     ->get()

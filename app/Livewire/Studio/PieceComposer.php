@@ -5,6 +5,7 @@ namespace App\Livewire\Studio;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentStatus;
+use App\Enums\IdeaStatus;
 use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
@@ -435,7 +436,16 @@ class PieceComposer extends Component
                 ->when(filled($this->statusFilter), fn ($q) => $q->where('status', $this->statusFilter))
                 ->latest('updated_at')->get(),
             'activePeriod' => StudioPeriod::get($this->account),
-            'ideas' => $this->account->winningIdeas()->orderBy('title')->get(),
+            // Ocultamos las ideas descartadas del selector, pero conservamos la que ya
+            // tenga asignada esta pieza (para no romper su selección).
+            'ideas' => $this->account->winningIdeas()
+                ->where(function ($q): void {
+                    $q->where('status', '!=', IdeaStatus::Descartada->value);
+                    if ($this->winning_idea_id) {
+                        $q->orWhere('id', $this->winning_idea_id);
+                    }
+                })
+                ->orderBy('title')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
         ]);
     }

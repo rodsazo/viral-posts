@@ -29,7 +29,7 @@
                     <flux:select wire:model.live="winning_idea_id" label="Idea ganadora" placeholder="Sin idea (pieza suelta)" :disabled="! $idealFollowerId">
                         <flux:select.option value="">Sin idea (pieza suelta)</flux:select.option>
                         @foreach ($ideas as $idea)
-                            <flux:select.option value="{{ $idea->id }}">{{ $idea->title }} [{{ $idea->content_pieces_count }} piezas]</flux:select.option>
+                            <flux:select.option value="{{ $idea->id }}">{{ $idea->title }} · {{ $idea->status->getLabel() }} [{{ $idea->content_pieces_count }} piezas]</flux:select.option>
                         @endforeach
                     </flux:select>
                     @unless ($idealFollowerId)

@@ -2,6 +2,7 @@
 
 namespace Database\Factories;
 
+use App\Enums\IdeaStatus;
 use App\Enums\ViralMechanism;
 use App\Models\Account;
 use App\Models\WinningIdea;
@@ -20,6 +21,7 @@ class WinningIdeaFactory extends Factory
             'account_id' => Account::factory(),
             'title' => fake()->catchPhrase(),
             'concept' => fake()->paragraph(),
+            'status' => IdeaStatus::Borrador,
             'viral_mechanism' => fake()->optional()->randomElement(ViralMechanism::cases()),
         ];
     }

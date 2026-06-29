@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\WinningIdeas\Tables;
 
+use App\Enums\IdeaStatus;
 use App\Enums\ViralMechanism;
 use App\Models\WinningIdea;
 use Filament\Actions\BulkActionGroup;
@@ -24,6 +25,9 @@ class WinningIdeasTable
                 TextColumn::make('title')
                     ->label('Título')
                     ->searchable(),
+                TextColumn::make('status')
+                    ->label('Estado')
+                    ->badge(),
                 TextColumn::make('viral_mechanism')
                     ->label('Mecanismo')
                     ->badge()
@@ -58,6 +62,9 @@ class WinningIdeasTable
             ->emptyStateDescription('Convierte tus preguntas en conceptos de contenido listos para producir.')
             ->emptyStateIcon('heroicon-o-light-bulb')
             ->filters([
+                SelectFilter::make('status')
+                    ->label('Estado')
+                    ->options(IdeaStatus::class),
                 SelectFilter::make('viral_mechanism')
                     ->label('Mecanismo')
                     ->options(ViralMechanism::class),

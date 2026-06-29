@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\WinningIdeas\Schemas;
 
+use App\Enums\IdeaStatus;
 use App\Enums\ViralMechanism;
 use App\Models\Belief;
 use App\Models\Question;
@@ -42,6 +43,13 @@ class WinningIdeaForm
                             ->label('Título')
                             ->required()
                             ->maxLength(255),
+                        Select::make('status')
+                            ->label('Estado')
+                            ->options(IdeaStatus::class)
+                            ->default(IdeaStatus::Borrador->value)
+                            ->selectablePlaceholder(false)
+                            ->native(false)
+                            ->helperText('Borrador → Hipótesis → Fija (la mantenemos) o Descartada.'),
                         Select::make('viral_mechanism')
                             ->label('Mecanismo de viralidad')
                             ->options(ViralMechanism::class)

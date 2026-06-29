@@ -42,10 +42,13 @@
 > con autoguardado. No confundir con **Generador de ideas** (flujo IA) ni con **Generador de piezas**.
 
 - [ ] **Lista + nueva.** Columna izquierda con las ideas de la marca. Cada tarjeta muestra el **título** y, debajo,
-      un tag con el **Seguidor ideal** (nombre) y el tag de **validación** (icono verde validada / gris pendiente).
-      **"Nueva idea"** crea y selecciona una.
-- [ ] **Filtro por seguidor.** Justo debajo de "Nueva idea", un desplegable **"Todos los seguidores"** filtra la
-      lista por seguidor ideal. Si no hay ideas para el elegido, muestra "No hay ideas para este seguidor".
+      un tag de **Estado** (Borrador/Hipótesis/Fija/Descartada, con color e icono), el **Seguidor ideal** y el tag
+      de **validación** (icono verde validada / gris pendiente). **"Nueva idea"** crea y selecciona una (nace en **Borrador**).
+- [ ] **Filtro por seguidor.** Un desplegable **"Todos los seguidores"** filtra la lista por seguidor ideal.
+- [ ] **Filtro por estado.** Otro desplegable filtra por estado. Por defecto (**"Activas (sin descartadas)"**) **oculta
+      las descartadas**; se puede elegir un estado concreto o **"Todas (incl. descartadas)"**.
+- [ ] **Estado (editor).** En el editor, un selector **Estado** (Borrador → Hipótesis → Fija/Descartada) **autoguarda**.
+      Recuerda: una idea **validada** (con ejemplos reales) igual nace en Borrador; "validación" y "estado" son cosas distintas.
 - [ ] **Autoguardado.** Editar título, concepto, mecanismo o plantilla Heras persiste solo (badge **Guardado**).
 - [ ] **Ejemplos reales.** Añadir/quitar URLs (Enter o botón **Añadir**). Con ≥1 ejemplo el badge de cabecera pasa a **Validada** (verde); sin ejemplos, **Pendiente de validación** (gris) — **en vivo**.
 - [ ] **Seguidor ideal.** Selector de seguidor (el centro): al elegirlo, las preguntas se **acotan** a él y aparece su contexto.
