@@ -1,66 +1,61 @@
 <div>
-    <div class="mb-4">
-        <flux:heading size="xl">Ideas ganadoras</flux:heading>
-        <flux:subheading>Gestiona tus ideas ganadoras: concepto, mecanismo, preguntas y ejemplos reales de viralidad.</flux:subheading>
-    </div>
-
     <div class="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {{-- Lista --}}
-        <section class="lg:col-span-4">
-            <div class="flex flex-col gap-2 rounded-xl border border-zinc-200 bg-white p-3 dark:border-zinc-800 dark:bg-zinc-900">
-                <flux:button wire:click="newIdea" variant="primary" icon="plus" size="sm" class="w-full">Nueva idea</flux:button>
-
-                {{-- Filtro de la lista por seguidor ideal --}}
-                <flux:select wire:model.live="filterFollowerId" size="sm" placeholder="Todos los seguidores">
-                    <flux:select.option value="">Todos los seguidores</flux:select.option>
-                    @foreach ($followers as $follower)
-                        <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
-                    @endforeach
-                </flux:select>
-
-                {{-- Filtro por estado: por defecto oculta las descartadas. --}}
-                <flux:select wire:model.live="filterStatus" size="sm">
-                    <flux:select.option value="">Activas (sin descartadas)</flux:select.option>
-                    @foreach ($ideaStatuses as $st)
-                        <flux:select.option value="{{ $st->value }}">{{ $st->getLabel() }}</flux:select.option>
-                    @endforeach
-                    <flux:select.option value="todas">Todas (incl. descartadas)</flux:select.option>
-                </flux:select>
-
-                <div class="mt-1 flex max-h-[32rem] flex-col gap-1 overflow-y-auto">
-                    @forelse ($ideas as $idea)
-                        <button
-                            type="button"
-                            wire:key="idea-{{ $idea->id }}"
-                            wire:click="selectIdea({{ $idea->id }})"
-                            @class([
-                                'flex flex-col gap-1.5 rounded-lg border px-3 py-2 text-left transition',
-                                'border-violet-300 bg-violet-50 dark:border-violet-500/40 dark:bg-violet-500/10' => $selectedId === $idea->id,
-                                'border-transparent hover:bg-zinc-50 dark:hover:bg-zinc-800/50' => $selectedId !== $idea->id,
-                            ])
-                        >
-                            <span class="truncate text-sm font-medium">{{ $idea->title }}</span>
-                            <div class="flex flex-wrap items-center gap-1.5">
-                                <flux:badge size="sm" :color="$idea->status->fluxColor()" :icon="$idea->status->icon()">{{ $idea->status->getLabel() }}</flux:badge>
-                                @if ($idea->idealFollower)
-                                    <flux:badge size="sm" color="zinc" icon="user">{{ $idea->idealFollower->name }}</flux:badge>
-                                @else
-                                    <flux:badge size="sm" color="zinc" variant="subtle">Sin seguidor</flux:badge>
-                                @endif
-                                <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" :title="$idea->validationStatus()->getLabel()" />
-                                @if ($idea->isImported())
-                                    <flux:badge size="sm" color="violet" icon="arrow-down-tray" :title="$idea->viralReferent?->name ? 'Importada de '.$idea->viralReferent->name : 'Importada'">Importada</flux:badge>
-                                @endif
-                            </div>
-                        </button>
-                    @empty
-                        <flux:text class="px-3 py-6 text-center text-zinc-500">
-                            {{ $filterFollowerId ? 'No hay ideas para este seguidor.' : 'Aún no hay ideas. Crea la primera.' }}
-                        </flux:text>
-                    @endforelse
-                </div>
+        {{-- Lista (mismo patrón que el Composer: sin contenedor, filtros arriba, cada idea es un card) --}}
+        <aside class="lg:col-span-4">
+            <div class="mb-3 flex items-center justify-between">
+                <flux:heading size="lg">Ideas</flux:heading>
+                <flux:button wire:click="newIdea" size="sm" variant="primary" icon="plus">Nueva</flux:button>
             </div>
-        </section>
+
+            {{-- Filtros --}}
+            <flux:select wire:model.live="filterFollowerId" size="sm" placeholder="Todos los seguidores" class="mb-2">
+                <flux:select.option value="">Todos los seguidores</flux:select.option>
+                @foreach ($followers as $follower)
+                    <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
+                @endforeach
+            </flux:select>
+
+            <flux:select wire:model.live="filterStatus" size="sm" class="mb-3">
+                <flux:select.option value="">Activas (sin descartadas)</flux:select.option>
+                @foreach ($ideaStatuses as $st)
+                    <flux:select.option value="{{ $st->value }}">{{ $st->getLabel() }}</flux:select.option>
+                @endforeach
+                <flux:select.option value="todas">Todas (incl. descartadas)</flux:select.option>
+            </flux:select>
+
+            <div class="flex flex-col gap-1">
+                @forelse ($ideas as $idea)
+                    <button
+                        type="button"
+                        wire:key="idea-{{ $idea->id }}"
+                        wire:click="selectIdea({{ $idea->id }})"
+                        @class([
+                            'flex flex-col gap-1.5 rounded-lg border px-3 py-2 text-left transition',
+                            'border-zinc-200 bg-white hover:bg-zinc-50 dark:border-zinc-800 dark:bg-zinc-900 dark:hover:bg-zinc-800' => $selectedId !== $idea->id,
+                            'border-amber-400 bg-amber-50 dark:border-amber-500/50 dark:bg-amber-500/10' => $selectedId === $idea->id,
+                        ])
+                    >
+                        <span class="truncate text-sm font-medium">{{ $idea->title }}</span>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <flux:badge size="sm" :color="$idea->status->fluxColor()" :icon="$idea->status->icon()">{{ $idea->status->getLabel() }}</flux:badge>
+                            @if ($idea->idealFollower)
+                                <flux:badge size="sm" color="zinc" icon="user">{{ $idea->idealFollower->name }}</flux:badge>
+                            @else
+                                <flux:badge size="sm" color="zinc" variant="subtle">Sin seguidor</flux:badge>
+                            @endif
+                            <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" :title="$idea->validationStatus()->getLabel()" />
+                            @if ($idea->isImported())
+                                <flux:badge size="sm" color="violet" icon="arrow-down-tray" :title="$idea->viralReferent?->name ? 'Importada de '.$idea->viralReferent->name : 'Importada'">Importada</flux:badge>
+                            @endif
+                        </div>
+                    </button>
+                @empty
+                    <flux:text class="py-6 text-center text-zinc-500">
+                        {{ $filterFollowerId ? 'No hay ideas para este seguidor.' : 'Aún no hay ideas. Crea la primera.' }}
+                    </flux:text>
+                @endforelse
+            </div>
+        </aside>
 
         {{-- Editor --}}
         <section class="lg:col-span-8">
