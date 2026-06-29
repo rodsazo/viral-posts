@@ -47,6 +47,8 @@
 - [ ] **Filtro por seguidor.** Un desplegable **"Todos los seguidores"** filtra la lista por seguidor ideal.
 - [ ] **Filtro por estado.** Otro desplegable filtra por estado. Por defecto (**"Activas (sin descartadas)"**) **oculta
       las descartadas**; se puede elegir un estado concreto o **"Todas (incl. descartadas)"**.
+- [ ] **Orden por estado.** La lista se ordena **Fija → Hipótesis → Borrador → Descartada** (y por título dentro de
+      cada grupo): las probadas (Fijas) salen arriba.
 - [ ] **Estado (editor).** En el editor, un selector **Estado** (Borrador → Hipótesis → Fija/Descartada) **autoguarda**.
       Recuerda: una idea **validada** (con ejemplos reales) igual nace en Borrador; "validación" y "estado" son cosas distintas.
 - [ ] **Autoguardado.** Editar título, concepto, mecanismo o plantilla Heras persiste solo (badge **Guardado**).
@@ -90,6 +92,9 @@
 
 ## Inicio (`/studio/{marca}`)
 
+- [ ] **Ideas Fijas por explotar.** Si hay un periodo activo y existen ideas **Fijas**, arriba aparece un aviso:
+      las **Fijas sin contenido en el periodo activo** (con sus títulos y botón **Generar contenido**). Si todas las
+      Fijas ya tienen contenido en ese periodo, muestra un mensaje verde de "todo cubierto". Sin Fijas, no aparece.
 - [ ] **Totales** (piezas, ideas, preguntas, creencias).
 - [ ] **Pipeline** de producción con conteo por estado.
 - [ ] **Huecos por cubrir**.

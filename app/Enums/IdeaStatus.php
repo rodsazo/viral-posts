@@ -59,4 +59,15 @@ enum IdeaStatus: string implements HasColor, HasLabel
             self::Descartada => 'archive-box-x-mark',
         };
     }
+
+    /** Prioridad para ordenar la lista: primero las probadas (Fija), al final las descartadas. */
+    public function sortPriority(): int
+    {
+        return match ($this) {
+            self::Fija => 0,
+            self::Hipotesis => 1,
+            self::Borrador => 2,
+            self::Descartada => 3,
+        };
+    }
 }

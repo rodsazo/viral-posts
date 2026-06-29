@@ -259,7 +259,10 @@ class WinningIdeaManager extends Component
                 ->when($this->filterStatus === '', fn ($q) => $q->where('status', '!=', IdeaStatus::Descartada->value))
                 ->when(! in_array($this->filterStatus, ['', 'todas'], true), fn ($q) => $q->where('status', $this->filterStatus))
                 ->orderBy('title')
-                ->get(),
+                ->get()
+                // Orden por estado: Fija → Hipótesis → Borrador → Descartada (estable: respeta el título dentro de cada grupo).
+                ->sortBy(fn ($idea) => $idea->status->sortPriority())
+                ->values(),
             'ideaStatuses' => IdeaStatus::cases(),
             'mechanisms' => ViralMechanism::cases(),
             'herasTemplates' => HerasTemplate::query()->orderBy('number')->get(),

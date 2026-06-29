@@ -77,6 +77,19 @@ class WinningIdeaStudioTest extends TestCase
             ->assertSee('IDEA DESCARTADA');
     }
 
+    public function test_list_is_ordered_fija_then_hipotesis_then_borrador(): void
+    {
+        $account = Account::factory()->create();
+        // Títulos elegidos para que el orden por estado domine al alfabético.
+        WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'CRUDO AAA', 'status' => IdeaStatus::Borrador]);
+        WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'PROBADA ZZZ', 'status' => IdeaStatus::Fija]);
+        WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'TEORIA MMM', 'status' => IdeaStatus::Hipotesis]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])
+            ->assertSeeInOrder(['PROBADA ZZZ', 'TEORIA MMM', 'CRUDO AAA']);
+    }
+
     public function test_status_autosaves_in_the_editor(): void
     {
         $account = Account::factory()->create();

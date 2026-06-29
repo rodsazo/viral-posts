@@ -2,16 +2,19 @@
 
 namespace Tests\Feature;
 
+use App\Enums\IdeaStatus;
 use App\Enums\PeriodStatus;
 use App\Enums\TeamRole;
 use App\Livewire\Studio\PeriodManager;
 use App\Livewire\Studio\PeriodSwitcher;
 use App\Livewire\Studio\PieceComposer;
+use App\Livewire\Studio\StudioHome;
 use App\Livewire\Studio\StudioKanban;
 use App\Models\Account;
 use App\Models\ContentPiece;
 use App\Models\Period;
 use App\Models\User;
+use App\Models\WinningIdea;
 use App\Support\StudioPeriod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
@@ -119,6 +122,22 @@ class PeriodTest extends TestCase
         $this->actingAs($this->member($account, TeamRole::Admin));
         Livewire::test(PeriodManager::class, ['account' => $account])->call('deletePeriod', $period->id);
         $this->assertDatabaseMissing('periods', ['id' => $period->id]);
+    }
+
+    public function test_home_flags_fija_ideas_without_content_in_the_active_period(): void
+    {
+        $account = Account::factory()->create();
+        $period = Period::factory()->published()->create(['account_id' => $account->id]);
+        StudioPeriod::set($account, $period->id);
+
+        WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'FIJA SIN PIEZA', 'status' => IdeaStatus::Fija]);
+        $covered = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'FIJA CON PIEZA', 'status' => IdeaStatus::Fija]);
+        ContentPiece::factory()->create(['account_id' => $account->id, 'period_id' => $period->id, 'winning_idea_id' => $covered->id]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(StudioHome::class, ['account' => $account])
+            ->assertSee('FIJA SIN PIEZA')
+            ->assertDontSee('FIJA CON PIEZA');
     }
 
     public function test_deleting_a_period_leaves_its_pieces_without_period(): void
