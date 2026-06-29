@@ -42,7 +42,7 @@
                         : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'))
                     {{-- Un grupo se marca activo si la ruta actual es cualquiera de sus hijas (incluidas las próximas). --}}
                     @php($audienceActive = request()->routeIs('studio.audience', 'studio.kickstart', 'studio.ctas'))
-                    @php($contentActive = request()->routeIs('studio.winning-ideas', 'studio.ideas', 'studio.generator', 'studio.pieces', 'studio.hooks'))
+                    @php($contentActive = request()->routeIs('studio.winning-ideas', 'studio.reference-ideas', 'studio.ideas', 'studio.generator', 'studio.pieces', 'studio.hooks'))
                     @php($planActive = request()->routeIs('studio.kanban', 'studio.periods', 'studio.calendar'))
                     @php($analyticsActive = request()->routeIs('studio.performance', 'studio.ai-usage'))
 
@@ -70,6 +70,7 @@
                             <flux:menu>
                                 <flux:menu.heading>Ideas Ganadoras</flux:menu.heading>
                                 <flux:menu.item href="{{ route('studio.winning-ideas', $currentAccount) }}" icon="light-bulb">Ideas ganadoras</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.reference-ideas', $currentAccount) }}" icon="rectangle-stack">Ideas Referenciales</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.ideas', $currentAccount) }}" icon="sparkles">Generador de ideas</flux:menu.item>
                                 <flux:menu.separator></flux:menu.separator>
                                 <flux:menu.heading>Contenido</flux:menu.heading>

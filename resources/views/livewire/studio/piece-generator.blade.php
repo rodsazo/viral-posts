@@ -92,28 +92,6 @@
                     </div>
                 @endif
 
-                {{-- Ideas Ganadoras Referenciales (Heras) + filtro por Referente --}}
-                <div class="flex flex-col gap-2">
-                    <flux:select wire:model.live="referentFilter" label="Ideas Ganadoras Referenciales (Heras)" placeholder="Todos los referentes" description="Filtra las plantillas por referente viral. Puedes elegir ninguna, una o varias.">
-                        <flux:select.option value="">Todos los referentes</flux:select.option>
-                        @foreach ($referents as $referent)
-                            <flux:select.option value="{{ $referent->id }}">{{ $referent->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-
-                    <div class="max-h-44 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-                        @forelse ($templates as $template)
-                            <flux:checkbox
-                                wire:model="herasTemplateIds"
-                                value="{{ $template->id }}"
-                                label="{{ $template->display_name }}"
-                            />
-                        @empty
-                            <flux:text class="text-zinc-500">No hay plantillas para este referente.</flux:text>
-                        @endforelse
-                    </div>
-                </div>
-
                 {{-- Plantillas de ganchos seleccionadas --}}
                 <div class="flex flex-col gap-2">
                     <div class="flex items-center justify-between">

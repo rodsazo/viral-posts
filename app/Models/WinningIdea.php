@@ -21,10 +21,12 @@ class WinningIdea extends Model
     protected $fillable = [
         'account_id',
         'ideal_follower_id',
+        'viral_referent_id',
         'heras_template_id',
         'title',
         'concept',
         'status',
+        'imported_at',
         'viral_mechanism',
         'example_urls',
     ];
@@ -33,9 +35,16 @@ class WinningIdea extends Model
     {
         return [
             'status' => IdeaStatus::class,
+            'imported_at' => 'datetime',
             'viral_mechanism' => ViralMechanism::class,
             'example_urls' => 'array',
         ];
+    }
+
+    /** ¿Fue importada de una idea referencial (plantilla Heras)? */
+    public function isImported(): bool
+    {
+        return $this->imported_at !== null;
     }
 
     /**
@@ -60,6 +69,12 @@ class WinningIdea extends Model
     public function idealFollower(): BelongsTo
     {
         return $this->belongsTo(IdealFollower::class);
+    }
+
+    /** Referente viral de origen (para ideas importadas de una idea referencial). */
+    public function viralReferent(): BelongsTo
+    {
+        return $this->belongsTo(ViralReferent::class);
     }
 
     public function herasTemplate(): BelongsTo

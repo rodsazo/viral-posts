@@ -10,7 +10,6 @@ use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
-use App\Models\HerasTemplate;
 use App\Models\HookTemplate;
 use App\Models\Pain;
 use App\Models\Question;
@@ -56,12 +55,6 @@ class PieceGenerator extends Component
 
     /** @var array<int, int|string> */
     public array $painIds = [];
-
-    // Ideas Ganadoras Referenciales (HerasTemplate) + filtro por Referente.
-    public ?int $referentFilter = null;
-
-    /** @var array<int, int|string> */
-    public array $herasTemplateIds = [];
 
     // Plantillas de gancho seleccionadas (hasta 5) + estado del modal selector.
     /** @var array<int, int|string> */
@@ -191,11 +184,6 @@ class PieceGenerator extends Component
         $context->questions = $this->contextQuestions;
         $context->beliefs = $this->contextBeliefs;
         $context->pains = $this->contextPains;
-        $context->templates = collect($context->templates)
-            ->merge(ScriptContext::templateLines($this->selectedTemplates()))
-            ->unique()
-            ->values()
-            ->all();
         $context->hooks = $this->hookLines();
         $context->ctas = $this->ctaLines();
 
@@ -283,18 +271,6 @@ class PieceGenerator extends Component
         return $this->account->winningIdeas()
             ->with(['questions', 'herasTemplate'])
             ->find($this->winning_idea_id);
-    }
-
-    /**
-     * @return Collection<int, HerasTemplate>
-     */
-    private function selectedTemplates()
-    {
-        if (empty($this->herasTemplateIds)) {
-            return collect();
-        }
-
-        return HerasTemplate::query()->whereKey($this->herasTemplateIds)->get();
     }
 
     /** Abre el modal selector de ganchos, sembrando la selección actual. */
@@ -471,11 +447,6 @@ class PieceGenerator extends Component
                     ->get()
                 : collect(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
-            'referents' => ViralReferent::query()->orderBy('name')->get(),
-            'templates' => HerasTemplate::query()
-                ->when($this->referentFilter, fn ($q) => $q->where('viral_referent_id', $this->referentFilter))
-                ->orderBy('name')
-                ->get(),
             // Ganchos de la marca + los globales de referencia (account_id nulo).
             'hooks' => HookTemplate::query()
                 ->with('viralReferent')

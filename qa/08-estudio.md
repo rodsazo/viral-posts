@@ -12,7 +12,7 @@
 - [ ] **Navegación** agrupada (sin emojis, iconos consistentes): el rótulo **"Estudio"** (arriba a la izquierda)
       es el **enlace a la portada** (ya **no** hay item "Inicio") + 3 desplegables —
       **Audiencia** (Seguidores ideales · CTAs · Kickstart),
-      **Contenido** (Ideas ganadoras · Generador de ideas · Generador de piezas · Composer),
+      **Contenido** (Ideas ganadoras · Ideas Referenciales · Generador de ideas · Generador de piezas · Composer),
       **Planificación** (Kanban · Periodos · *Calendario, próx.*).
       *(El grupo **Análisis** está **oculto temporalmente**.)*
       El **grupo** de la sección actual se **resalta**; al abrir un menú se ve su lista. (**Generador de ideas**,
@@ -55,8 +55,26 @@
 - [ ] **Ejemplos reales.** Añadir/quitar URLs (Enter o botón **Añadir**). Con ≥1 ejemplo el badge de cabecera pasa a **Validada** (verde); sin ejemplos, **Pendiente de validación** (gris) — **en vivo**.
 - [ ] **Seguidor ideal.** Selector de seguidor (el centro): al elegirlo, las preguntas se **acotan** a él y aparece su contexto.
 - [ ] **Preguntas.** Buscador + casillas para vincular preguntas **del seguidor**; debajo aparecen los **mitos/verdades del seguidor**.
+- [ ] **Importadas.** Las ideas traídas desde *Ideas Referenciales* muestran una etiqueta **Importada** (violeta)
+      con el referente de origen en el tooltip.
+- [ ] **Campos ocultos (por ahora).** En el editor **no** aparecen **Mecanismo de viralidad** ni **Plantilla Heras**
+      (ocultos hasta aprovechar mejor esas relaciones; el dato sigue en BD).
 - [ ] **Borrado solo Admin.** El botón 🗑 solo aparece para **Admin** de la marca; un **Editor** no lo ve.
 - [ ] **Aislamiento por marca.** Solo se listan ideas de la marca activa.
+
+## Ideas Referenciales (`/studio/{marca}/ideas-referenciales`)
+
+> Menú **Contenido → Ideas Referenciales**. Catálogo **global** de ideas ganadoras de referencia (plantillas
+> Heras) para **importar** a la marca como Ideas Ganadoras regulares.
+
+- [ ] **Catálogo en tarjetas.** Cada idea referencial se muestra como tarjeta con nombre, **referente** y **nicho**,
+      formato sugerido, estructura, mecanismo y el nº de **URLs de referencia**.
+- [ ] **Filtros.** Por **Referente** y por **Nicho** del referente (combinables).
+- [ ] **Selección múltiple → Importar.** Marcar varias y pulsar **"Importar N ideas"** (pide confirmación) crea una
+      Idea Ganadora por cada una en la marca y redirige a *Ideas ganadoras* con aviso.
+- [ ] **Resultado de la importación.** Cada idea importada nace en **Borrador**, con etiqueta **Importada**, su
+      **referente viral** y **todas las URLs** de referencia (principal + adicionales) copiadas como ejemplos reales
+      (por lo que aparece como **Validada**).
 
 ## CTAs (`/studio/{marca}/ctas`)
 

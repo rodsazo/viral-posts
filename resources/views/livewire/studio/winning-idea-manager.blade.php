@@ -48,6 +48,9 @@
                                     <flux:badge size="sm" color="zinc" variant="subtle">Sin seguidor</flux:badge>
                                 @endif
                                 <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" :title="$idea->validationStatus()->getLabel()" />
+                                @if ($idea->isImported())
+                                    <flux:badge size="sm" color="violet" icon="arrow-down-tray" :title="$idea->viralReferent?->name ? 'Importada de '.$idea->viralReferent->name : 'Importada'">Importada</flux:badge>
+                                @endif
                             </div>
                         </button>
                     @empty
@@ -95,6 +98,8 @@
                         @endforeach
                     </flux:select>
 
+                    {{-- Ocultos por ahora (Mecanismo de viralidad y Plantilla Heras): se retomarán
+                         cuando aprovechemos mejor esas relaciones.
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
                         <flux:select wire:model.live="viral_mechanism" label="Mecanismo de viralidad" placeholder="Sin definir">
                             <flux:select.option value="">Sin definir</flux:select.option>
@@ -109,6 +114,7 @@
                             @endforeach
                         </flux:select>
                     </div>
+                    --}}
 
                     <flux:textarea wire:model.blur="concept" label="Concepto" rows="4" placeholder="Explica el ángulo de la idea en 2-4 frases." />
 

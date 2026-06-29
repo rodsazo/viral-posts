@@ -12,6 +12,7 @@ use App\Livewire\Studio\IdealFollowerKickstart;
 use App\Livewire\Studio\PeriodManager;
 use App\Livewire\Studio\PieceComposer;
 use App\Livewire\Studio\PieceGenerator;
+use App\Livewire\Studio\ReferenceIdeaImporter;
 use App\Livewire\Studio\StudioHome;
 use App\Livewire\Studio\StudioKanban;
 use App\Livewire\Studio\WinningIdeaManager;
@@ -39,6 +40,7 @@ Route::middleware(['auth', 'membership'])->group(function () {
     Route::get('/studio/{account:slug}/kanban', StudioKanban::class)->name('studio.kanban');
     Route::get('/studio/{account:slug}/periodos', PeriodManager::class)->name('studio.periods');
     Route::get('/studio/{account:slug}/ideas-ganadoras', WinningIdeaManager::class)->name('studio.winning-ideas');
+    Route::get('/studio/{account:slug}/ideas-referenciales', ReferenceIdeaImporter::class)->name('studio.reference-ideas');
     Route::get('/studio/{account:slug}/ideas', IdeaGenerator::class)->name('studio.ideas');
     Route::get('/studio/{account:slug}/generador', PieceGenerator::class)->name('studio.generator');
     Route::get('/studio/{account:slug}/ctas', ContentCtaManager::class)->name('studio.ctas');
