@@ -14,20 +14,20 @@ class HerasTemplate extends Model
     use HasFactory;
 
     protected $fillable = [
-        'number',
         'viral_referent_id',
         'name',
         'structure',
         'suggested_format',
         'viral_mechanism',
         'reference_url',
+        'reference_urls',
         'preview_image_url',
     ];
 
     protected function casts(): array
     {
         return [
-            'number' => 'integer',
+            'reference_urls' => 'array',
         ];
     }
 
@@ -43,6 +43,6 @@ class HerasTemplate extends Model
 
     public function getDisplayNameAttribute(): string
     {
-        return "#{$this->number} · {$this->name}";
+        return (string) $this->name;
     }
 }

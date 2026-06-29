@@ -474,7 +474,7 @@ class PieceGenerator extends Component
             'referents' => ViralReferent::query()->orderBy('name')->get(),
             'templates' => HerasTemplate::query()
                 ->when($this->referentFilter, fn ($q) => $q->where('viral_referent_id', $this->referentFilter))
-                ->orderBy('number')
+                ->orderBy('name')
                 ->get(),
             // Ganchos de la marca + los globales de referencia (account_id nulo).
             'hooks' => HookTemplate::query()

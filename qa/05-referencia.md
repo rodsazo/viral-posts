@@ -16,13 +16,14 @@
 
 ## Plantillas Heras (menú: Referencia → "Ideas ganadoras")
 
-- [ ] Hay **30 plantillas** sembradas (marcadores "Plantilla #N (por definir)"), asignadas al referente **Víctor Heras**.
-- [ ] **Editar** una plantilla: número, nombre, formato sugerido, mecanismo, estructura, **referente viral**, **URL del post** y **URL de imagen**.
+- [ ] Hay **30 plantillas** sembradas, asignadas al referente **Víctor Heras**. *(Ya **no** tienen "número".)*
+- [ ] **Editar** una plantilla: nombre, formato sugerido, mecanismo, estructura, **referente viral**, **URL del post** y **URL de imagen**.
 - [ ] **Vista previa.** En el campo URL del post, botón **"Obtener vista previa"** → intenta traer la miniatura (TikTok/og:image). Si falla (Instagram), pegar la URL de imagen a mano.
-- [ ] **Tabla**: miniatura, referente, nicho, mecanismo, nº de ideas que la usan.
+- [ ] **Más URLs de referencia.** Repeater **"Añadir URL"** para sumar **varios** posts adicionales (además del principal con vista previa), igual que en las Ideas ganadoras.
+- [ ] **Tabla** (orden por nombre): miniatura, nombre, referente, nicho, mecanismo, nº de ideas que la usan. *(Sin columna de número.)*
 - [ ] **Filtros**: por **referente viral** y por **nicho**.
-- [ ] **Vista (👁)** de una plantilla: muestra la **imagen grande** + enlace al post.
-- [ ] **Relación con Idea.** En una Idea ganadora, el selector "Plantilla Heras" lista `#N · nombre`; queda visible en la tabla e infolist de la idea.
+- [ ] **Vista (👁)** de una plantilla: imagen grande + enlace al post + **lista de URLs de referencia adicionales**.
+- [ ] **Relación con Idea.** En una Idea ganadora, el selector "Plantilla Heras" lista las plantillas por **nombre**; queda visible en la tabla e infolist de la idea.
 - [ ] **Búsqueda global** encuentra plantillas/referentes y muestra su referente/nicho como subtítulo.
 
 ## Plantillas de gancho (menú: Referencia → "Ganchos (plantillas)")

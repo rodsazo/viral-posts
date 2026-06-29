@@ -17,12 +17,8 @@ class HerasTemplatesTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->defaultSort('number')
+            ->defaultSort('name')
             ->columns([
-                TextColumn::make('number')
-                    ->label('#')
-                    ->numeric()
-                    ->sortable(),
                 ImageColumn::make('preview_image_url')
                     ->label('Vista previa')
                     ->height(56)

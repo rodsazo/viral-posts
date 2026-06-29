@@ -28,18 +28,17 @@ class HerasTemplateSeeder extends Seeder
             ['niche_id' => $niche->id, 'instagram_url' => 'https://instagram.com/victorheras'],
         );
 
-        foreach ($this->templates() as $number => $data) {
-            $existing = HerasTemplate::where('number', $number)->first();
+        foreach ($this->templates() as $data) {
+            // Identidad por nombre dentro del referente Heras (ya no hay "número").
+            $key = ['viral_referent_id' => $heras->id, 'name' => $data['name']];
+            $existing = HerasTemplate::where($key)->first();
 
             // No pisar plantillas ya editadas con contenido real.
             if ($existing !== null && filled($existing->structure)) {
                 continue;
             }
 
-            HerasTemplate::updateOrCreate(
-                ['number' => $number],
-                [...$data, 'viral_referent_id' => $heras->id],
-            );
+            HerasTemplate::updateOrCreate($key, [...$data, 'viral_referent_id' => $heras->id]);
         }
     }
 

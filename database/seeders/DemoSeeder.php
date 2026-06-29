@@ -123,7 +123,7 @@ class DemoSeeder extends Seeder
         $idea = WinningIdea::create([
             'account_id' => $account->id,
             'ideal_follower_id' => $follower->id,
-            'heras_template_id' => HerasTemplate::where('number', 1)->value('id'),
+            'heras_template_id' => HerasTemplate::orderBy('id')->value('id'),
             'title' => 'Tu primera partida en 10 minutos',
             'concept' => 'Desmontar el mito de la dificultad mostrando una partida real arrancando de cero con amigos.',
             'viral_mechanism' => ViralMechanism::Sorpresa,

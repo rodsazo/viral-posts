@@ -19,7 +19,6 @@ class ViralReferentTest extends TestCase
         $niche = Niche::factory()->create(['name' => 'Rol de mesa']);
         $referent = ViralReferent::factory()->create(['niche_id' => $niche->id, 'name' => 'Víctor Heras']);
         $template = HerasTemplate::factory()->create([
-            'number' => 1,
             'viral_referent_id' => $referent->id,
         ]);
 

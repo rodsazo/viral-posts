@@ -5,6 +5,7 @@ namespace App\Filament\Resources\HerasTemplates\Schemas;
 use App\Models\ViralReferent;
 use App\Support\LinkPreview;
 use Filament\Actions\Action;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -20,13 +21,6 @@ class HerasTemplateForm
         return $schema
             ->columns(2)
             ->components([
-                TextInput::make('number')
-                    ->label('Número')
-                    ->required()
-                    ->numeric()
-                    ->minValue(1)
-                    ->maxValue(30)
-                    ->unique(ignoreRecord: true),
                 Select::make('viral_referent_id')
                     ->label('Referente viral')
                     ->relationship('viralReferent', 'name')
@@ -82,6 +76,19 @@ class HerasTemplateForm
                     ->maxLength(2048)
                     ->prefixIcon('heroicon-m-photo')
                     ->helperText('Se rellena con el botón "Obtener vista previa", o pégala manualmente.'),
+                Repeater::make('reference_urls')
+                    ->label('Más URLs de referencia')
+                    ->helperText('Otros posts que ilustran esta plantilla (además del principal de arriba).')
+                    ->simple(
+                        TextInput::make('url')
+                            ->url()
+                            ->required()
+                            ->placeholder('https://www.instagram.com/p/...'),
+                    )
+                    ->addActionLabel('Añadir URL')
+                    ->reorderable(false)
+                    ->defaultItems(0)
+                    ->columnSpanFull(),
                 Textarea::make('structure')
                     ->label('Estructura')
                     ->rows(5)

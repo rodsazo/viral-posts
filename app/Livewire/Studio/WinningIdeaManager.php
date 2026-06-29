@@ -265,7 +265,7 @@ class WinningIdeaManager extends Component
                 ->values(),
             'ideaStatuses' => IdeaStatus::cases(),
             'mechanisms' => ViralMechanism::cases(),
-            'herasTemplates' => HerasTemplate::query()->orderBy('number')->get(),
+            'herasTemplates' => HerasTemplate::query()->orderBy('name')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
             // Preguntas acotadas al seguidor elegido.
             'questions' => $this->account->questions()

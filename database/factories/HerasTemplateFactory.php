@@ -15,7 +15,6 @@ class HerasTemplateFactory extends Factory
     public function definition(): array
     {
         return [
-            'number' => fake()->unique()->numberBetween(1, 30),
             'name' => fake()->catchPhrase(),
             'structure' => fake()->paragraph(),
             'suggested_format' => fake()->word(),

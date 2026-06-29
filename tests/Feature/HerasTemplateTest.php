@@ -16,7 +16,7 @@ class HerasTemplateTest extends TestCase
     public function test_winning_idea_belongs_to_a_heras_template(): void
     {
         $account = Account::factory()->create();
-        $template = HerasTemplate::factory()->create(['number' => 1]);
+        $template = HerasTemplate::factory()->create();
 
         $idea = WinningIdea::factory()->create([
             'account_id' => $account->id,
@@ -41,7 +41,6 @@ class HerasTemplateTest extends TestCase
     public function test_heras_templates_are_a_global_catalog_visible_to_any_tenant(): void
     {
         $template = HerasTemplate::factory()->create([
-            'number' => 7,
             'name' => 'PLANTILLA GLOBAL DE PRUEBA',
         ]);
 

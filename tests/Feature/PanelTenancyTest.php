@@ -69,7 +69,7 @@ class PanelTenancyTest extends TestCase
 
         $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
-        $template = HerasTemplate::factory()->create(['number' => 1]);
+        $template = HerasTemplate::factory()->create();
 
         $urls = [
             "/admin/{$account->slug}",                                   // dashboard

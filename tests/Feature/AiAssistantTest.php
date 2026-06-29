@@ -553,7 +553,6 @@ class AiAssistantTest extends TestCase
     public function test_template_lines_include_structure_and_skip_empty(): void
     {
         $full = HerasTemplate::factory()->create([
-            'number' => 1,
             'name' => 'Antes y después',
             'structure' => 'Muestra el antes, el giro y el después.',
             'suggested_format' => 'Reel',

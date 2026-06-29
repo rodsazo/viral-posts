@@ -17,7 +17,6 @@ class HerasTemplateInfolist
                 Section::make()
                     ->columns(2)
                     ->schema([
-                        TextEntry::make('number')->label('Número'),
                         TextEntry::make('name')->label('Nombre'),
                         TextEntry::make('viralReferent.name')->label('Referente viral')->placeholder('—'),
                         TextEntry::make('viralReferent.niche.name')->label('Nicho')->placeholder('—'),
@@ -39,6 +38,12 @@ class HerasTemplateInfolist
                             ->label('Vista previa')
                             ->height(220)
                             ->placeholder('Sin imagen')
+                            ->columnSpanFull(),
+                        TextEntry::make('reference_urls')
+                            ->label('Más URLs de referencia')
+                            ->listWithLineBreaks()
+                            ->bulleted()
+                            ->placeholder('—')
                             ->columnSpanFull(),
                     ]),
             ]);
