@@ -195,6 +195,8 @@ class IdeaGenerator extends Component
             questions: $this->contextQuestions,
             beliefs: $this->contextBeliefs,
             pains: $this->contextPains,
+            brandPromise: $this->account->brand_promise,
+            mainOffers: $this->account->main_offers,
             extra: $this->instructions,
         );
 

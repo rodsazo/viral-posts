@@ -177,6 +177,8 @@ class PieceGenerator extends Component
         }
 
         $context = ScriptContext::fromIdea($this->selectedIdea());
+        $context->brandPromise ??= $this->account->brand_promise;
+        $context->mainOffers ??= $this->account->main_offers;
         $context->objective = $this->objective ? ContentObjective::tryFrom($this->objective)?->getLabel() : null;
         $context->format = $this->format ? ContentFormat::tryFrom($this->format)?->getLabel() : null;
         $context->extra = $this->instructions;

@@ -19,6 +19,8 @@ class IdeaContext
         public array $pains = [],
         public ?string $draftTitle = null,
         public ?string $draftConcept = null,
+        public ?string $brandPromise = null,
+        public ?string $mainOffers = null,
         public ?string $extra = null,
     ) {}
 
@@ -32,6 +34,19 @@ class IdeaContext
         $lines = [];
 
         $lines[] = 'Propón ideas ganadoras de contenido a partir de este material.';
+
+        $brand = array_filter([
+            'Promesa de la marca' => $this->brandPromise,
+            'Oferta(s) principal(es)' => $this->mainOffers,
+        ], fn ($v) => filled($v));
+
+        if (filled($brand)) {
+            $lines[] = '';
+            $lines[] = 'Contexto de la marca (las ideas deben encajar con ella):';
+            foreach ($brand as $label => $value) {
+                $lines[] = "- {$label}: {$value}";
+            }
+        }
 
         if (filled($this->questions)) {
             $lines[] = '';

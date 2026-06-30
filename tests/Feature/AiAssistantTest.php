@@ -98,6 +98,43 @@ class AiAssistantTest extends TestCase
         $this->assertTrue($context->hasMaterial());
     }
 
+    public function test_script_prompt_frames_idea_as_primary_directive_with_structure_and_brand(): void
+    {
+        $account = Account::factory()->create([
+            'brand_promise' => 'PROMESA DE LA MARCA',
+            'main_offers' => 'OFERTA PRINCIPAL',
+        ]);
+        $idea = WinningIdea::factory()->create([
+            'account_id' => $account->id,
+            'title' => 'FORMATO VIRAL',
+            'concept' => 'ESTRUCTURA DEL FORMATO',
+        ]);
+
+        $prompt = ScriptContext::fromIdea($idea->load('questions'))->toPrompt();
+
+        // Idea como directriz principal: título + estructura (concepto).
+        $this->assertStringContainsString('directriz principal', $prompt);
+        $this->assertStringContainsString('FORMATO VIRAL', $prompt);
+        $this->assertStringContainsString('ESTRUCTURA DEL FORMATO', $prompt);
+        // Marca presente en la generación.
+        $this->assertStringContainsString('PROMESA DE LA MARCA', $prompt);
+        $this->assertStringContainsString('OFERTA PRINCIPAL', $prompt);
+    }
+
+    public function test_idea_prompt_includes_brand_promise_and_offers(): void
+    {
+        $context = new IdeaContext(
+            questions: ['¿Y esto?'],
+            brandPromise: 'PROMESA MARCA IDEAS',
+            mainOffers: 'OFERTA MARCA IDEAS',
+        );
+
+        $prompt = $context->toPrompt();
+
+        $this->assertStringContainsString('PROMESA MARCA IDEAS', $prompt);
+        $this->assertStringContainsString('OFERTA MARCA IDEAS', $prompt);
+    }
+
     public function test_idea_context_prompt_includes_questions_and_beliefs(): void
     {
         $context = new IdeaContext(

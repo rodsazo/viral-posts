@@ -29,6 +29,8 @@ class ScriptContext
         public ?string $ideaConcept = null,
         public ?string $objective = null,
         public ?string $format = null,
+        public ?string $brandPromise = null,
+        public ?string $mainOffers = null,
         public array $questions = [],
         public array $beliefs = [],
         public array $pains = [],
@@ -52,6 +54,8 @@ class ScriptContext
             ideaConcept: $idea?->concept,
             objective: $piece->objective?->getLabel(),
             format: $piece->format?->getLabel(),
+            brandPromise: $piece->account?->brand_promise,
+            mainOffers: $piece->account?->main_offers,
             questions: $piece->derivedQuestions()->pluck('body')->all(),
             beliefs: static::beliefLabels($piece->derivedBeliefs()->all()),
             pains: static::painLabels($piece->derivedPains()->all()),
@@ -72,6 +76,8 @@ class ScriptContext
         return new self(
             ideaTitle: $idea->title,
             ideaConcept: $idea->concept,
+            brandPromise: $idea->account?->brand_promise,
+            mainOffers: $idea->account?->main_offers,
             questions: $idea->questions->pluck('body')->all(),
             beliefs: static::beliefLabels($idea->derivedBeliefs()->all()),
             pains: static::painLabels($idea->derivedPains()->all()),
@@ -148,15 +154,34 @@ class ScriptContext
         $lines[] = 'Crea el guión para esta pieza de contenido.';
         $lines[] = '';
 
+        $brand = array_filter([
+            'Promesa de la marca' => $this->brandPromise,
+            'Oferta(s) principal(es)' => $this->mainOffers,
+        ], fn ($v) => filled($v));
+
+        if (filled($brand)) {
+            $lines[] = 'Contexto de la marca (tenlo presente en TODO el contenido para que encaje con ella):';
+            foreach ($brand as $label => $value) {
+                $lines[] = "- {$label}: {$value}";
+            }
+            $lines[] = '';
+        }
+
         if (filled($this->title)) {
             $lines[] = "Título de trabajo: {$this->title}";
         }
-        if (filled($this->ideaTitle)) {
-            $lines[] = "Idea ganadora: {$this->ideaTitle}";
+
+        // La idea ganadora es la DIRECTRIZ PRINCIPAL: un formato ya viral en otros nichos a replicar.
+        if (filled($this->ideaTitle) || filled($this->ideaConcept)) {
+            $lines[] = 'IDEA GANADORA (directriz principal): es un formato de contenido que ya se ha hecho VIRAL en otros nichos y que queremos REPLICAR. Ajusta cada guión a su título y a su estructura por encima de todo lo demás.';
+            if (filled($this->ideaTitle)) {
+                $lines[] = "- Título: {$this->ideaTitle}";
+            }
+            if (filled($this->ideaConcept)) {
+                $lines[] = "- Estructura: {$this->ideaConcept}";
+            }
         }
-        if (filled($this->ideaConcept)) {
-            $lines[] = "Concepto: {$this->ideaConcept}";
-        }
+
         if (filled($this->objective)) {
             $lines[] = "Objetivo: {$this->objective}";
         }
