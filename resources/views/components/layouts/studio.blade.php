@@ -111,6 +111,9 @@
 
             @isset($currentAccount)
                 <div class="flex items-center gap-2">
+                    {{-- Paleta de comandos (⌘K): saltar a piezas/ideas/secciones. --}}
+                    <livewire:studio.command-palette :account="$currentAccount" :key="'cmdk-'.$currentAccount->id" />
+
                     {{-- Captura rápida (Inbox): acción puntual, no una fase del flujo. --}}
                     <flux:button
                         :href="route('studio.inbox', $currentAccount)"
