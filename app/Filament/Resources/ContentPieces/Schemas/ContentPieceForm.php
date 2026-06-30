@@ -7,6 +7,7 @@ use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
 use App\Enums\ContentStatus;
 use App\Models\Belief;
+use App\Models\Question;
 use App\Models\WinningIdea;
 use App\Support\LinkPreview;
 use App\Support\Rum;
@@ -230,7 +231,7 @@ class ContentPieceForm
                             ->placeholder('—'),
                         TextEntry::make('context_questions')
                             ->label('Preguntas que responde')
-                            ->state(fn (Get $get): array => static::selectedIdea($get)?->questions->pluck('body')->all() ?? [])
+                            ->state(fn (Get $get): array => static::followerQuestions($get))
                             ->listWithLineBreaks()
                             ->bulleted()
                             ->placeholder('—'),
@@ -254,20 +255,39 @@ class ContentPieceForm
 
         return WinningIdea::query()
             ->whereBelongsTo(Filament::getTenant())
-            ->with('questions')
             ->whereKey($id)
             ->first();
     }
 
     /**
-     * Mitos/verdades a tratar: del seguidor elegido (o, en su defecto, del seguidor
-     * de la idea). El seguidor es el centro.
+     * Preguntas del seguidor ideal elegido en la pieza.
+     *
+     * @return array<int, string>
+     */
+    private static function followerQuestions(Get $get): array
+    {
+        $followerId = $get('ideal_follower_id');
+
+        if (blank($followerId)) {
+            return [];
+        }
+
+        return Question::query()
+            ->whereBelongsTo(Filament::getTenant())
+            ->where('ideal_follower_id', $followerId)
+            ->orderBy('body')
+            ->pluck('body')
+            ->all();
+    }
+
+    /**
+     * Mitos/verdades a tratar: del seguidor ideal elegido en la pieza.
      *
      * @return array<int, string>
      */
     private static function followerBeliefs(Get $get): array
     {
-        $followerId = $get('ideal_follower_id') ?: static::selectedIdea($get)?->ideal_follower_id;
+        $followerId = $get('ideal_follower_id');
 
         if (blank($followerId)) {
             return [];

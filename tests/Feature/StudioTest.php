@@ -92,26 +92,25 @@ class StudioTest extends TestCase
             ->assertSee('PIEZA RECIENTE');
     }
 
-    public function test_choosing_an_idea_shows_context_and_autosaves(): void
+    public function test_choosing_a_follower_shows_context_and_autosaves(): void
     {
         $account = Account::factory()->create();
         $user = $this->member($account);
 
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
-        $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA DEL ESTUDIO']);
-        // La creencia cuelga del seguidor directamente; la pieza la hereda al elegir la idea.
+        // El contexto (preguntas/mitos) sale del SEGUIDOR de la pieza, no de la idea.
+        Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'body' => 'PREGUNTA DEL ESTUDIO']);
         Belief::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id, 'type' => BeliefType::Truth, 'statement' => 'CREENCIA DEL ESTUDIO']);
 
-        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
-        $idea->questions()->attach($question->id);
-
-        $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'winning_idea_id' => null]);
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
+        $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'winning_idea_id' => null, 'ideal_follower_id' => null]);
 
         $this->actingAs($user);
 
         Livewire::test(PieceComposer::class, ['account' => $account])
             ->call('selectPiece', $piece->id)
             ->set('winning_idea_id', $idea->id)
+            ->set('idealFollowerId', $follower->id)
             ->assertSee('PREGUNTA DEL ESTUDIO')
             ->assertSee('CREENCIA DEL ESTUDIO')
             ->set('hookText', 'Gancho autoguardado');

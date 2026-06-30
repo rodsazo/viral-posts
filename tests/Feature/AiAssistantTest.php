@@ -65,7 +65,7 @@ class AiAssistantTest extends TestCase
         $this->assertNotSame(config('logging.channels.single.path'), $channel['path']);
     }
 
-    public function test_script_context_from_idea_includes_questions_and_beliefs(): void
+    public function test_script_context_from_piece_includes_follower_questions_and_beliefs(): void
     {
         $account = Account::factory()->create();
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
@@ -82,14 +82,17 @@ class AiAssistantTest extends TestCase
             'statement' => 'VERDAD CLAVE',
         ]);
 
-        $idea = WinningIdea::factory()->create([
-            'account_id' => $account->id,
-            'ideal_follower_id' => $follower->id,
-            'title' => 'IDEA X',
-        ]);
-        $idea->questions()->attach($question->id);
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA X']);
 
-        $context = ScriptContext::fromIdea($idea->load('questions', 'idealFollower'));
+        // El contexto del seguidor (preguntas/mitos) se deriva de la PIEZA (su seguidor),
+        // no de la idea. fromPiece lo arma a partir del seguidor de la pieza.
+        $piece = ContentPiece::factory()->create([
+            'account_id' => $account->id,
+            'winning_idea_id' => $idea->id,
+            'ideal_follower_id' => $follower->id,
+        ]);
+
+        $context = ScriptContext::fromPiece($piece);
         $prompt = $context->toPrompt();
 
         $this->assertStringContainsString('IDEA X', $prompt);
@@ -110,7 +113,7 @@ class AiAssistantTest extends TestCase
             'concept' => 'ESTRUCTURA DEL FORMATO',
         ]);
 
-        $prompt = ScriptContext::fromIdea($idea->load('questions'))->toPrompt();
+        $prompt = ScriptContext::fromIdea($idea)->toPrompt();
 
         // Idea como directriz principal: título + estructura (concepto).
         $this->assertStringContainsString('directriz principal', $prompt);
@@ -324,23 +327,20 @@ class AiAssistantTest extends TestCase
         });
     }
 
-    public function test_generator_lists_only_the_chosen_followers_ideas_with_piece_counts(): void
+    public function test_generator_lists_all_brand_ideas_with_piece_counts(): void
     {
         $account = Account::factory()->create();
         $this->actingAs($this->member($account));
 
-        $followerA = IdealFollower::factory()->create(['account_id' => $account->id]);
-        $followerB = IdealFollower::factory()->create(['account_id' => $account->id]);
-
-        $ideaA = WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $followerA->id, 'title' => 'IDEA DEL SEGUIDOR A']);
-        WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $followerB->id, 'title' => 'IDEA DEL SEGUIDOR B']);
+        // Las ideas son independientes del seguidor: el generador las lista todas.
+        $ideaA = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA UNO']);
+        WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA DOS']);
         ContentPiece::factory()->count(2)->create(['account_id' => $account->id, 'winning_idea_id' => $ideaA->id]);
 
         Livewire::test(PieceGenerator::class, ['account' => $account])
-            ->set('idealFollowerId', $followerA->id)
-            ->assertSee('IDEA DEL SEGUIDOR A')
+            ->assertSee('IDEA UNO')
             ->assertSee('[2 piezas]')
-            ->assertDontSee('IDEA DEL SEGUIDOR B');
+            ->assertSee('IDEA DOS');
     }
 
     public function test_generated_pieces_start_as_borrador(): void
@@ -564,11 +564,10 @@ class AiAssistantTest extends TestCase
         $this->actingAs($this->member($account));
 
         $follower = IdealFollower::factory()->create(['account_id' => $account->id]);
-        $question = Question::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $follower->id]);
 
+        // El seguidor solo inspira el brainstorm; las ideas creadas NO guardan seguidor ni preguntas.
         Livewire::test(IdeaGenerator::class, ['account' => $account])
             ->set('idealFollowerId', $follower->id)
-            ->set('questionIds', [$question->id])
             ->set('suggestions', [
                 ['label' => 'Idea 1', 'fields' => ['title' => 'IDEA NUEVA', 'concept' => 'CONCEPTO', 'viral_mechanism' => 'curiosidad'], 'preview' => 'p'],
                 ['label' => 'Idea 2', 'fields' => ['title' => 'OTRA IDEA', 'concept' => 'CONCEPTO 2'], 'preview' => 'p2'],
@@ -581,7 +580,6 @@ class AiAssistantTest extends TestCase
         $this->assertNotNull($idea);
         $this->assertSame('CONCEPTO', $idea->concept);
         $this->assertSame(ViralMechanism::Curiosidad, $idea->viral_mechanism);
-        $this->assertTrue($idea->questions->contains($question->id));
 
         // Solo se creó la idea seleccionada.
         $this->assertSame(1, WinningIdea::where('account_id', $account->id)->count());

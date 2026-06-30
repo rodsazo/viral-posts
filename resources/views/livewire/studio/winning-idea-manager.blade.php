@@ -7,14 +7,7 @@
                 <flux:button wire:click="newIdea" size="sm" variant="primary" icon="plus">Nueva</flux:button>
             </div>
 
-            {{-- Filtros --}}
-            <flux:select wire:model.live="filterFollowerId" size="sm" placeholder="Todos los seguidores" class="mb-2">
-                <flux:select.option value="">Todos los seguidores</flux:select.option>
-                @foreach ($followers as $follower)
-                    <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
-                @endforeach
-            </flux:select>
-
+            {{-- Filtro por estado --}}
             <flux:select wire:model.live="filterStatus" size="sm" class="mb-3">
                 <flux:select.option value="">Activas (sin descartadas)</flux:select.option>
                 @foreach ($ideaStatuses as $st)
@@ -38,11 +31,6 @@
                         <span class="truncate text-sm font-medium">{{ $idea->title }}</span>
                         <div class="flex flex-wrap items-center gap-1.5">
                             <flux:badge size="sm" :color="$idea->status->fluxColor()" :icon="$idea->status->icon()">{{ $idea->status->getLabel() }}</flux:badge>
-                            @if ($idea->idealFollower)
-                                <flux:badge size="sm" color="zinc" icon="user">{{ $idea->idealFollower->name }}</flux:badge>
-                            @else
-                                <flux:badge size="sm" color="zinc" variant="subtle">Sin seguidor</flux:badge>
-                            @endif
                             <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" :title="$idea->validationStatus()->getLabel()" />
                             @if ($idea->isImported())
                                 <flux:badge size="sm" color="violet" icon="arrow-down-tray" :title="$idea->viralReferent?->name ? 'Importada de '.$idea->viralReferent->name : 'Importada'">Importada</flux:badge>
@@ -50,9 +38,7 @@
                         </div>
                     </button>
                 @empty
-                    <flux:text class="py-6 text-center text-zinc-500">
-                        {{ $filterFollowerId ? 'No hay ideas para este seguidor.' : 'Aún no hay ideas. Crea la primera.' }}
-                    </flux:text>
+                    <flux:text class="py-6 text-center text-zinc-500">Aún no hay ideas. Crea la primera.</flux:text>
                 @endforelse
             </div>
         </aside>
@@ -85,14 +71,6 @@
                         @endforeach
                     </flux:select>
 
-                    {{-- El seguidor ideal es el centro: de él salen preguntas y mitos/verdades. --}}
-                    <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Elige un seguidor" description="De este seguidor salen sus preguntas y sus mitos/verdades.">
-                        <flux:select.option value="">Sin seguidor</flux:select.option>
-                        @foreach ($followers as $follower)
-                            <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
-                        @endforeach
-                    </flux:select>
-
                     {{-- Ocultos por ahora (Mecanismo de viralidad y Plantilla Heras): se retomarán
                          cuando aprovechemos mejor esas relaciones.
                     <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
@@ -111,12 +89,12 @@
                     </div>
                     --}}
 
-                    <flux:textarea wire:model.blur="concept" label="Concepto" rows="4" placeholder="Explica el ángulo de la idea en 2-4 frases." />
+                    <flux:textarea wire:model.blur="concept" label="Concepto / estructura" rows="5" placeholder="Describe el FORMATO: estructura, condiciones y consideraciones para hacer el video (no el video en sí)." />
 
                     {{-- Ejemplos reales --}}
                     <div class="flex flex-col gap-2">
                         <flux:subheading>Ejemplos reales (URLs)</flux:subheading>
-                        <flux:text class="text-xs text-zinc-400">Posts virales de otros creadores con una idea similar. Con al menos uno, la idea queda <span class="font-medium">Validada</span>.</flux:text>
+                        <flux:text class="text-xs text-zinc-400">Posts virales de otros creadores con este formato. Con al menos uno, la idea queda <span class="font-medium">Validada</span>.</flux:text>
 
                         @if (count($exampleUrls))
                             <div class="flex flex-col gap-2">
@@ -140,31 +118,6 @@
                             <flux:button wire:click="addExampleUrl" variant="filled" size="sm" icon="plus">Añadir</flux:button>
                         </div>
                     </div>
-
-                    {{-- Preguntas que resuelve --}}
-                    <div class="flex flex-col gap-2">
-                        <flux:subheading>Preguntas que resuelve</flux:subheading>
-                        <flux:input wire:model.live.debounce.300ms="questionSearch" size="sm" icon="magnifying-glass" placeholder="Buscar preguntas…" />
-                        <div class="max-h-52 overflow-y-auto rounded-lg border border-zinc-200 p-3 dark:border-zinc-800">
-                            @forelse ($questions as $question)
-                                <flux:checkbox wire:model.live="questionIds" value="{{ $question->id }}" label="{{ $question->body }}" />
-                            @empty
-                                <flux:text class="text-zinc-500">No hay preguntas que coincidan.</flux:text>
-                            @endforelse
-                        </div>
-                    </div>
-
-                    {{-- Contexto multi-salto: mitos/verdades derivados --}}
-                    @if (count($this->contextBeliefs))
-                        <div class="rounded-lg border border-zinc-200 bg-zinc-50 p-3 dark:border-zinc-800 dark:bg-zinc-800/40">
-                            <flux:subheading class="mb-1">Mitos y verdades en juego</flux:subheading>
-                            <ul class="list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
-                                @foreach ($this->contextBeliefs as $belief)
-                                    <li>{{ $belief }}</li>
-                                @endforeach
-                            </ul>
-                        </div>
-                    @endif
                 </div>
             @else
                 <div class="rounded-xl border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">

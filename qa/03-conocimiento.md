@@ -17,22 +17,21 @@
 
 ## Ideas ganadoras
 
-- [ ] **Crear** una idea: título, **estado** (Borrador/Hipótesis/Fija/Descartada; por defecto Borrador), concepto, mecanismo de viralidad (enum), plantilla Heras (opcional).
+> La idea ganadora es una **descripción de FORMATO** (habla del formato del video, no del video). **NO** se relaciona
+> con seguidor, preguntas ni mitos: eso se elige al generar la **pieza**.
+
+- [ ] **Crear** una idea: título, **estado** (Borrador/Hipótesis/Fija/Descartada; por defecto Borrador), **concepto /
+      estructura**, mecanismo de viralidad (enum), plantilla Heras (opcional). *(Sin seguidor ni preguntas.)*
 - [ ] **Estado.** Columna **Estado** (badge) en la tabla y **filtro** por estado. Distinto de la "Validación".
 - [ ] **Ejemplos reales (URLs).** Repeater "Añadir ejemplo" con una o varias URLs de posts virales de otros creadores
-      (Instagram/TikTok…). Sustituye al antiguo campo único "Referencia viral" (los valores anteriores se migraron
-      como primer ejemplo).
+      (Instagram/TikTok…) que usan ese formato.
 - [ ] **Validación derivada.** Una idea **con** al menos un ejemplo aparece como **Validada** (badge verde); **sin**
       ejemplos, **Pendiente de validación** (badge gris). No es editable a mano: depende de los ejemplos.
-- [ ] **Seguidor ideal (obligatorio).** La idea se dirige a un seguidor; de él salen sus preguntas y mitos/verdades.
-- [ ] **Relacionar preguntas** (N:M) → multiselect **acotado al seguidor** elegido (solo aparecen sus preguntas; deshabilitado hasta elegir seguidor).
-- [ ] **Contexto del seguidor (vital).** Al elegir el **seguidor**, el panel derecho muestra **en vivo** sus mitos/verdades. Al elegir preguntas, se listan arriba.
-- [ ] **Vista (ojo 👁).** En la vista de la idea: seguidor ideal, badge de validación, lista de ejemplos (🔗) y "Mitos y verdades del seguidor".
+- [ ] **Vista (ojo 👁).** En la vista de la idea: estado, validación, concepto/estructura, referente (si importada) y lista de ejemplos (🔗).
 - [ ] **Relation manager.** Al editar una idea, pestaña con sus **piezas** (crear/editar).
-- [ ] **Crear pregunta inline** desde el selector de preguntas de la idea.
-- [ ] **Filtros** por **estado**, mecanismo, "con/sin preguntas" y **Validación** (validadas / pendientes).
+- [ ] **Filtros** por **estado**, mecanismo y **Validación** (validadas / pendientes).
 
 ## Ideas en lote (Producción → Ideas en lote)
 
-- [ ] **Varias ideas.** Añadir varias filas (título + concepto + mecanismo + preguntas), con filtro de seguidor arriba. Guardar. → Se crean todas con sus vínculos.
+- [ ] **Varias ideas.** Añadir varias filas (título + concepto/estructura + mecanismo) y guardar. → Se crean todas. *(Sin seguidor ni preguntas.)*
 - [ ] **Validación.** Una fila sin título o concepto → error, no guarda.

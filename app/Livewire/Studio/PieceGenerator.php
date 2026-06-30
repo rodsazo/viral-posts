@@ -97,7 +97,8 @@ class PieceGenerator extends Component
     /** Al cambiar de seguidor, reinicia la idea (sus ideas se filtran) y el contexto manual. */
     public function updatedIdealFollowerId(): void
     {
-        $this->winning_idea_id = null;
+        // La idea ganadora es independiente del seguidor (no se reinicia). Solo se
+        // reinician las casillas de contexto, que sí dependen del seguidor.
         $this->questionIds = [];
         $this->beliefIds = [];
         $this->painIds = [];
@@ -245,7 +246,7 @@ class PieceGenerator extends Component
             $this->account->contentPieces()->create([
                 'period_id' => $periodId,
                 'winning_idea_id' => $this->winning_idea_id ?: null,
-                'ideal_follower_id' => $this->idealFollowerId ?: $idea?->ideal_follower_id,
+                'ideal_follower_id' => $this->idealFollowerId ?: null,
                 'title' => count($indices) > 1 ? "{$base} — variante {$position}" : $base,
                 'objective' => $this->objective ?: null,
                 'format' => $this->format ?: null,
@@ -271,7 +272,7 @@ class PieceGenerator extends Component
         }
 
         return $this->account->winningIdeas()
-            ->with(['questions', 'herasTemplate'])
+            ->with('herasTemplate')
             ->find($this->winning_idea_id);
     }
 
@@ -381,7 +382,7 @@ class PieceGenerator extends Component
                 ->all();
         }
 
-        return $this->selectedIdea()?->questions->pluck('body')->all() ?? [];
+        return [];
     }
 
     /**
@@ -405,9 +406,7 @@ class PieceGenerator extends Component
                 ->all();
         }
 
-        $idea = $this->selectedIdea();
-
-        return $idea ? $idea->derivedBeliefs()->map($label)->all() : [];
+        return [];
     }
 
     /**
@@ -431,23 +430,19 @@ class PieceGenerator extends Component
                 ->all();
         }
 
-        $idea = $this->selectedIdea();
-
-        return $idea ? $idea->derivedPains()->map($label)->all() : [];
+        return [];
     }
 
     public function render(): View
     {
         return view('livewire.studio.piece-generator', [
-            // Solo las ideas del seguidor elegido, con el nº de piezas ya creadas por idea.
-            'ideas' => $this->idealFollowerId
-                ? $this->account->winningIdeas()
-                    ->where('ideal_follower_id', $this->idealFollowerId)
-                    ->where('status', '!=', IdeaStatus::Descartada->value) // no se genera para ideas descartadas
-                    ->withCount('contentPieces')
-                    ->orderBy('title')
-                    ->get()
-                : collect(),
+            // Todas las ideas ganadoras de la marca (independientes del seguidor), con el nº
+            // de piezas ya creadas. Se combinan con el seguidor que se elija aparte.
+            'ideas' => $this->account->winningIdeas()
+                ->where('status', '!=', IdeaStatus::Descartada->value) // no se genera para ideas descartadas
+                ->withCount('contentPieces')
+                ->orderBy('title')
+                ->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
             // Ganchos de la marca + los globales de referencia (account_id nulo).
             'hooks' => HookTemplate::query()

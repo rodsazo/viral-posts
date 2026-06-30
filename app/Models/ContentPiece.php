@@ -110,14 +110,14 @@ class ContentPiece extends Model
     }
 
     /**
-     * Preguntas que responde la pieza, a través de su idea ganadora (la idea cura
-     * las preguntas). Colección vacía si la pieza no tiene idea.
+     * Preguntas que responde la pieza: ahora salen del SEGUIDOR IDEAL de la pieza
+     * (la idea ganadora ya no cura preguntas). Colección vacía si no hay seguidor.
      *
      * @return Collection<int, Question>
      */
     public function derivedQuestions(): Collection
     {
-        return $this->winningIdea?->questions ?? collect();
+        return $this->idealFollower?->questions()->orderBy('body')->get() ?? collect();
     }
 
     /**

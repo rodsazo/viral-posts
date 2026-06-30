@@ -41,20 +41,23 @@
 > Menú **Contenido → Ideas ganadoras**. CRUD completo de ideas ganadoras en el Estudio (paridad con el admin),
 > con autoguardado. No confundir con **Generador de ideas** (flujo IA) ni con **Generador de piezas**.
 
+> La idea ganadora es una **descripción de FORMATO** (título + estructura/concepto + estado + ejemplos): habla del
+> formato del video, no del video en sí. **Ya NO** se relaciona con seguidor, preguntas ni mitos (eso se elige al
+> generar la pieza).
+
 - [ ] **Lista + nueva.** Columna izquierda con las ideas de la marca. Cada tarjeta muestra el **título** y, debajo,
-      un tag de **Estado** (Borrador/Hipótesis/Fija/Descartada, con color e icono), el **Seguidor ideal** y el tag
-      de **validación** (icono verde validada / gris pendiente). **"Nueva idea"** crea y selecciona una (nace en **Borrador**).
-- [ ] **Filtro por seguidor.** Un desplegable **"Todos los seguidores"** filtra la lista por seguidor ideal.
-- [ ] **Filtro por estado.** Otro desplegable filtra por estado. Por defecto (**"Activas (sin descartadas)"**) **oculta
+      un tag de **Estado** (Borrador/Hipótesis/Fija/Descartada, con color e icono) y el tag de **validación** (icono
+      verde validada / gris pendiente). **"Nueva idea"** crea y selecciona una (nace en **Borrador**). *(Sin tag ni
+      filtro de seguidor.)*
+- [ ] **Filtro por estado.** Un desplegable filtra por estado. Por defecto (**"Activas (sin descartadas)"**) **oculta
       las descartadas**; se puede elegir un estado concreto o **"Todas (incl. descartadas)"**.
 - [ ] **Orden por estado.** La lista se ordena **Fija → Hipótesis → Borrador → Descartada** (y por título dentro de
       cada grupo): las probadas (Fijas) salen arriba.
 - [ ] **Estado (editor).** En el editor, un selector **Estado** (Borrador → Hipótesis → Fija/Descartada) **autoguarda**.
       Recuerda: una idea **validada** (con ejemplos reales) igual nace en Borrador; "validación" y "estado" son cosas distintas.
-- [ ] **Autoguardado.** Editar título, concepto, mecanismo o plantilla Heras persiste solo (badge **Guardado**).
+- [ ] **Concepto / estructura.** Campo de texto donde se describe el **formato** (estructura, condiciones,
+      consideraciones para hacer el video). Autoguarda.
 - [ ] **Ejemplos reales.** Añadir/quitar URLs (Enter o botón **Añadir**). Con ≥1 ejemplo el badge de cabecera pasa a **Validada** (verde); sin ejemplos, **Pendiente de validación** (gris) — **en vivo**.
-- [ ] **Seguidor ideal.** Selector de seguidor (el centro): al elegirlo, las preguntas se **acotan** a él y aparece su contexto.
-- [ ] **Preguntas.** Buscador + casillas para vincular preguntas **del seguidor**; debajo aparecen los **mitos/verdades del seguidor**.
 - [ ] **Importadas.** Las ideas traídas desde *Ideas Referenciales* muestran una etiqueta **Importada** (violeta)
       con el referente de origen en el tooltip.
 - [ ] **Campos ocultos (por ahora).** En el editor **no** aparecen **Mecanismo de viralidad** ni **Plantilla Heras**
@@ -163,7 +166,9 @@
 - [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, **Notas para el cliente**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
 - [ ] **Enlace para el cliente.** En la pestaña **Producción**, un bloque violeta muestra la **URL pública** de la pieza con botones **Copiar** (cambia a "¡Copiado!") y **Abrir** (nueva pestaña). Solo aparece con una pieza seleccionada.
 - [ ] **Botón Compartir (cabecera).** En la cabecera del Composer, entre **Eliminar** y **Guardar**, un botón **Compartir** copia la URL pública al portapapeles (cambia a "¡Copiado!" ~1,5 s). Solo aparece con una pieza seleccionada.
-- [ ] **Seleccionar idea** → panel de **contexto en vivo** (preguntas + mitos/verdades a tratar).
+- [ ] **Idea + seguidor independientes.** En **Datos básicos** se eligen la **idea ganadora** (el formato) y el
+      **seguidor ideal** (a quién va dirigida) por separado. Al elegir **seguidor**, el panel de **contexto en vivo**
+      (derecha) muestra sus **preguntas**, **mitos/verdades** y **dolores/deseos** (ya **no** dependen de la idea).
 - [ ] **Autoguardado.** Escribir en cualquier campo (de cualquier pestaña) → se guarda solo (recargar confirma). Indicador "Guardado"; botón **Guardar** guarda todo de una.
 - [ ] **Publicación.** Pegar URL → botón **"Vista previa"** muestra la miniatura. Botón **"Marcar publicada"** pone estado Publicada + fecha; luego desaparece.
 - [ ] **Evaluación RUM.** En la pestaña RUM, 5 selectores; al elegirlos, el **badge RUM** se actualiza en vivo (rojo ≤5 / amarillo 5–7 / verde >7) y se autoguarda.

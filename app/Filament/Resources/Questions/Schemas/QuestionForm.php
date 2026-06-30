@@ -48,13 +48,6 @@ class QuestionForm
                                     ->required()
                                     ->rows(3)
                                     ->columnSpanFull(),
-                                Select::make('winningIdeas')
-                                    ->label('Ideas ganadoras relacionadas')
-                                    ->relationship('winningIdeas', 'title', $scopeToTenant)
-                                    ->multiple()
-                                    ->searchable()
-                                    ->preload()
-                                    ->columnSpanFull(),
                                 Textarea::make('notes')
                                     ->label('Notas internas')
                                     ->rows(2)

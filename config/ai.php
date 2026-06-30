@@ -58,7 +58,7 @@ return [
                 'Retén la respuesta lo máximo posible; revélala lo más tarde que tenga sentido.',
                 'Congruencia > relleno: el contenido se apoya en lo que la marca ES y VENDE',
                 'La info de IA solo rellena huecos, nunca es la base. Marca con [HUECO: ...] lo que deba completar la persona real cuando no tengas su dato concreto',
-                'El guión debe contener una o más de estas cosas: un punto de vista contrario al nicho en los primeros 1.5 segundos; una promesa muy clara para el segundo 9; un cambio de ritmo a la mitad del video que resetea la atención.'
+                'El guión debe contener una o más de estas cosas: un punto de vista contrario al nicho en los primeros 1.5 segundos; una promesa muy clara para el segundo 9; un cambio de ritmo a la mitad del video que resetea la atención.',
             ],
             'checklist' => [
                 'El gancho detiene el scroll en <6 s y se entiende solo.',

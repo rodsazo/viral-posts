@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\WinningIdeas\Schemas;
 
-use App\Models\Belief;
 use App\Models\WinningIdea;
 use Filament\Infolists\Components\TextEntry;
 use Filament\Schemas\Components\Section;
@@ -18,22 +17,24 @@ class WinningIdeaInfolist
                     ->columns(2)
                     ->schema([
                         TextEntry::make('title')->label('Título'),
+                        TextEntry::make('status')->label('Estado')->badge(),
                         TextEntry::make('viral_mechanism')
                             ->label('Mecanismo de viralidad')
                             ->badge()
                             ->placeholder('—'),
-                        TextEntry::make('idealFollower.name')
-                            ->label('Seguidor ideal')
-                            ->badge()
-                            ->color('info')
-                            ->placeholder('Sin seguidor'),
-                        TextEntry::make('herasTemplate.display_name')
-                            ->label('Plantilla Heras')
-                            ->placeholder('Sin plantilla'),
                         TextEntry::make('validation')
                             ->label('Validación')
                             ->badge()
                             ->state(fn (WinningIdea $record) => $record->validationStatus()),
+                        TextEntry::make('viralReferent.name')
+                            ->label('Referente (si importada)')
+                            ->placeholder('—'),
+                        TextEntry::make('herasTemplate.display_name')
+                            ->label('Plantilla Heras')
+                            ->placeholder('Sin plantilla'),
+                        TextEntry::make('concept')
+                            ->label('Concepto / estructura')
+                            ->columnSpanFull(),
                         TextEntry::make('example_urls')
                             ->label('Ejemplos reales (viralidad)')
                             ->state(fn (WinningIdea $record): array => $record->example_urls ?? [])
@@ -43,33 +44,6 @@ class WinningIdeaInfolist
                             ->color('info')
                             ->placeholder('Sin ejemplos: idea pendiente de validación.')
                             ->columnSpanFull(),
-                        TextEntry::make('concept')
-                            ->label('Concepto')
-                            ->columnSpanFull(),
-                    ]),
-
-                Section::make('Preguntas que resuelve')
-                    ->schema([
-                        TextEntry::make('questions')
-                            ->hiddenLabel()
-                            ->state(fn (WinningIdea $record): array => $record->questions->pluck('body')->all())
-                            ->listWithLineBreaks()
-                            ->bulleted()
-                            ->placeholder('Esta idea aún no tiene preguntas relacionadas.'),
-                    ]),
-
-                // El seguidor ideal es el centro: sus mitos/verdades.
-                Section::make('Mitos y verdades del seguidor')
-                    ->description('Mitos y verdades del seguidor ideal de la idea.')
-                    ->schema([
-                        TextEntry::make('derived_beliefs')
-                            ->hiddenLabel()
-                            ->state(fn (WinningIdea $record): array => $record->derivedBeliefs()
-                                ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
-                                ->all())
-                            ->listWithLineBreaks()
-                            ->bulleted()
-                            ->placeholder('Sin mitos/verdades: la idea no tiene seguidor, o el seguidor no tiene creencias.'),
                     ]),
             ]);
     }

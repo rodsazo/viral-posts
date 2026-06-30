@@ -7,8 +7,6 @@ use App\Enums\TeamRole;
 use App\Enums\ValidationStatus;
 use App\Livewire\Studio\WinningIdeaManager;
 use App\Models\Account;
-use App\Models\IdealFollower;
-use App\Models\Question;
 use App\Models\User;
 use App\Models\WinningIdea;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -141,21 +139,6 @@ class WinningIdeaStudioTest extends TestCase
         $this->assertFalse($idea->fresh()->isValidated());
     }
 
-    public function test_linking_questions_syncs_the_pivot(): void
-    {
-        $account = Account::factory()->create();
-        $this->actingAs($this->member($account));
-
-        $question = Question::factory()->create(['account_id' => $account->id, 'body' => 'PREGUNTA CLAVE']);
-
-        Livewire::test(WinningIdeaManager::class, ['account' => $account])
-            ->call('newIdea')
-            ->set('questionIds', [$question->id]);
-
-        $idea = WinningIdea::where('account_id', $account->id)->firstOrFail();
-        $this->assertTrue($idea->questions()->whereKey($question->id)->exists());
-    }
-
     public function test_deletion_is_reserved_to_brand_admins(): void
     {
         $account = Account::factory()->create();
@@ -186,26 +169,5 @@ class WinningIdeaStudioTest extends TestCase
         Livewire::test(WinningIdeaManager::class, ['account' => $account])
             ->assertSee('IDEA PROPIA')
             ->assertDontSee('IDEA AJENA');
-    }
-
-    public function test_manager_list_filters_by_follower_and_shows_follower_name(): void
-    {
-        $account = Account::factory()->create();
-        $this->actingAs($this->member($account));
-
-        $followerA = IdealFollower::factory()->create(['account_id' => $account->id, 'name' => 'SEGUIDOR A']);
-        $followerB = IdealFollower::factory()->create(['account_id' => $account->id, 'name' => 'SEGUIDOR B']);
-        WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $followerA->id, 'title' => 'IDEA DE A']);
-        WinningIdea::factory()->create(['account_id' => $account->id, 'ideal_follower_id' => $followerB->id, 'title' => 'IDEA DE B']);
-
-        // Sin filtro: ambas, con el nombre del seguidor visible en su tarjeta.
-        Livewire::test(WinningIdeaManager::class, ['account' => $account])
-            ->assertSee('IDEA DE A')
-            ->assertSee('IDEA DE B')
-            ->assertSee('SEGUIDOR A')
-            // Al filtrar por A, solo aparece su idea.
-            ->set('filterFollowerId', $followerA->id)
-            ->assertSee('IDEA DE A')
-            ->assertDontSee('IDEA DE B');
     }
 }

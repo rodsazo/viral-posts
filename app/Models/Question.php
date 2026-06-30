@@ -6,7 +6,6 @@ use Database\Factories\QuestionFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class Question extends Model
 {
@@ -34,10 +33,5 @@ class Question extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(Category::class);
-    }
-
-    public function winningIdeas(): BelongsToMany
-    {
-        return $this->belongsToMany(WinningIdea::class);
     }
 }

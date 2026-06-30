@@ -124,8 +124,8 @@
                             @endforeach
                         </flux:select>
 
-                        {{-- El seguidor ideal es el centro: de él salen los mitos/verdades a tratar. --}}
-                        <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Sin seguidor" description="Suele coincidir con el de la idea; de él salen los mitos/verdades a tratar.">
+                        {{-- El seguidor ideal de la pieza: de él salen las preguntas, mitos/verdades y dolores. --}}
+                        <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Sin seguidor" description="Elige a quién va dirigida esta pieza: de él salen las preguntas, mitos/verdades y dolores a tratar.">
                             <flux:select.option value="">Sin seguidor</flux:select.option>
                             @foreach ($followers as $follower)
                                 <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
@@ -264,7 +264,7 @@
                             @endforeach
                         </ul>
                     @else
-                        <flux:text class="mt-1 text-zinc-400">Elige una idea para ver su contexto.</flux:text>
+                        <flux:text class="mt-1 text-zinc-400">Elige un seguidor ideal para ver su contexto.</flux:text>
                     @endif
                 </div>
 
@@ -276,6 +276,21 @@
                         <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
                             @foreach ($this->contextBeliefs as $b)
                                 <li>{{ $b }}</li>
+                            @endforeach
+                        </ul>
+                    @else
+                        <flux:text class="mt-1 text-zinc-400">—</flux:text>
+                    @endif
+                </div>
+
+                <flux:separator />
+
+                <div>
+                    <flux:subheading>❤️ Dolores/deseos a tocar</flux:subheading>
+                    @if (count($this->contextPains))
+                        <ul class="mt-1 list-disc space-y-1 pl-5 text-sm text-zinc-600 dark:text-zinc-300">
+                            @foreach ($this->contextPains as $p)
+                                <li>{{ $p }}</li>
                             @endforeach
                         </ul>
                     @else

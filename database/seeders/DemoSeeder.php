@@ -119,26 +119,22 @@ class DemoSeeder extends Seeder
             'stance' => 'Impulsar la idea de "prueba una partida para principiantes".',
         ]);
 
-        // --- Idea ganadora + relación N:M con preguntas (alimenta el multi-salto) ---
+        // --- Ideas ganadoras (descripciones de FORMATO, independientes del seguidor) ---
         $idea = WinningIdea::create([
             'account_id' => $account->id,
-            'ideal_follower_id' => $follower->id,
             'heras_template_id' => HerasTemplate::orderBy('id')->value('id'),
             'title' => 'Tu primera partida en 10 minutos',
             'concept' => 'Desmontar el mito de la dificultad mostrando una partida real arrancando de cero con amigos.',
             'viral_mechanism' => ViralMechanism::Sorpresa,
             'example_urls' => ['https://www.instagram.com/reel/ejemplo-viral/'],
         ]);
-        $idea->questions()->attach([$q1->id, $q3->id]);
 
         $idea2 = WinningIdea::create([
             'account_id' => $account->id,
-            'ideal_follower_id' => $follower->id,
             'title' => 'Solicita un GM y juega esta semana',
             'concept' => 'Para grupos sin máster: cómo conseguir un GM en MesasRoleras y jugar ya.',
             'viral_mechanism' => ViralMechanism::Utilidad,
         ]);
-        $idea2->questions()->attach([$q2->id]);
 
         // --- Piezas de contenido ---
         ContentPiece::create([
@@ -191,12 +187,11 @@ class DemoSeeder extends Seeder
         ]);
 
         // Idea sin piezas de contenido todavía.
-        $idea3 = WinningIdea::create([
+        WinningIdea::create([
             'account_id' => $account->id,
             'title' => 'Los 3 errores del máster novato',
             'concept' => 'Lista de errores comunes para tranquilizar a quien quiere dirigir por primera vez.',
             'viral_mechanism' => ViralMechanism::Utilidad,
         ]);
-        $idea3->questions()->attach([$q1->id]);
     }
 }

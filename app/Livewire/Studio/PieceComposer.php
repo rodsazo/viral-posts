@@ -11,6 +11,7 @@ use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\ContentPiece;
+use App\Models\Pain;
 use App\Models\WinningIdea;
 use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\ScriptContext;
@@ -189,11 +190,6 @@ class PieceComposer extends Component
     /** Autoguardado: cualquier campo enlazado dispara save(). */
     public function updated(string $name): void
     {
-        // Al elegir idea, si no hay seguidor aún, hereda el de la idea.
-        if ($name === 'winning_idea_id' && blank($this->idealFollowerId)) {
-            $this->idealFollowerId = $this->selectedIdea()?->ideal_follower_id;
-        }
-
         $fields = ['winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
 
         if (in_array($name, $fields, true) || str_starts_with($name, 'rumFactors')) {
@@ -317,6 +313,10 @@ class PieceComposer extends Component
         $context = ScriptContext::fromIdea($this->selectedIdea());
         $context->brandPromise ??= $this->account->brand_promise;
         $context->mainOffers ??= $this->account->main_offers;
+        // El contexto del seguidor (preguntas/mitos/dolores) sale del seguidor de la pieza.
+        $context->questions = $this->contextQuestions;
+        $context->beliefs = $this->contextBeliefs;
+        $context->pains = $this->contextPains;
         $context->title = $this->title;
         $context->objective = $this->objective ? ContentObjective::tryFrom($this->objective)?->getLabel() : null;
         $context->format = $this->format ? ContentFormat::tryFrom($this->format)?->getLabel() : null;
@@ -386,34 +386,57 @@ class PieceComposer extends Component
             return null;
         }
 
-        return $this->account->winningIdeas()
-            ->with('questions')
-            ->find($this->winning_idea_id);
+        return $this->account->winningIdeas()->find($this->winning_idea_id);
     }
 
+    /** Preguntas del seguidor ideal de la pieza. */
     /** @return array<int, string> */
     #[Computed]
     public function contextQuestions(): array
     {
-        return $this->selectedIdea()?->questions->pluck('body')->all() ?? [];
+        if (! $this->idealFollowerId) {
+            return [];
+        }
+
+        return $this->account->questions()
+            ->where('ideal_follower_id', $this->idealFollowerId)
+            ->orderBy('body')
+            ->pluck('body')
+            ->all();
     }
 
-    /** Mitos/verdades a tratar: del seguidor de la pieza (o, en su defecto, del de la idea). */
+    /** Mitos/verdades a tratar: del seguidor ideal de la pieza. */
     /** @return array<int, string> */
     #[Computed]
     public function contextBeliefs(): array
     {
-        $followerId = $this->idealFollowerId ?: $this->selectedIdea()?->ideal_follower_id;
-
-        if (! $followerId) {
+        if (! $this->idealFollowerId) {
             return [];
         }
 
         return $this->account->beliefs()
-            ->where('ideal_follower_id', $followerId)
+            ->where('ideal_follower_id', $this->idealFollowerId)
             ->orderBy('statement')
             ->get()
             ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
+            ->all();
+    }
+
+    /** Dolores/problemas/deseos del seguidor ideal de la pieza. */
+    /** @return array<int, string> */
+    #[Computed]
+    public function contextPains(): array
+    {
+        if (! $this->idealFollowerId) {
+            return [];
+        }
+
+        return $this->account->pains()
+            ->where('ideal_follower_id', $this->idealFollowerId)
+            ->orderBy('type')
+            ->orderBy('body')
+            ->get()
+            ->map(fn (Pain $pain): string => '['.$pain->type->getLabel().'] '.$pain->body)
             ->all();
     }
 

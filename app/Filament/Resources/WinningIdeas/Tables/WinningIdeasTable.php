@@ -33,15 +33,10 @@ class WinningIdeasTable
                     ->badge()
                     ->placeholder('—')
                     ->toggleable(),
-                TextColumn::make('herasTemplate.number')
+                TextColumn::make('herasTemplate.name')
                     ->label('Plantilla')
-                    ->formatStateUsing(fn ($state) => $state ? "#{$state}" : null)
                     ->placeholder('—')
-                    ->toggleable(),
-                TextColumn::make('questions_count')
-                    ->label('Preguntas')
-                    ->counts('questions')
-                    ->badge(),
+                    ->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('content_pieces_count')
                     ->label('Piezas')
                     ->counts('contentPieces')
@@ -59,7 +54,7 @@ class WinningIdeasTable
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->emptyStateHeading('Aún no hay ideas ganadoras')
-            ->emptyStateDescription('Convierte tus preguntas en conceptos de contenido listos para producir.')
+            ->emptyStateDescription('Describe formatos de contenido que ya funcionan, listos para producir.')
             ->emptyStateIcon('heroicon-o-light-bulb')
             ->filters([
                 SelectFilter::make('status')
@@ -68,15 +63,6 @@ class WinningIdeasTable
                 SelectFilter::make('viral_mechanism')
                     ->label('Mecanismo')
                     ->options(ViralMechanism::class),
-                TernaryFilter::make('questions')
-                    ->label('Preguntas')
-                    ->placeholder('Todas')
-                    ->trueLabel('Con preguntas')
-                    ->falseLabel('Sin preguntas')
-                    ->queries(
-                        true: fn (Builder $query) => $query->has('questions'),
-                        false: fn (Builder $query) => $query->doesntHave('questions'),
-                    ),
                 TernaryFilter::make('validated')
                     ->label('Validación')
                     ->placeholder('Todas')

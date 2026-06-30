@@ -3,7 +3,7 @@
 ## Pieza de contenido (formulario)
 
 - [ ] **Crear** una pieza. La idea ganadora es **opcional** (puede ser "pieza suelta"). El estado por defecto es **Borrador** (primer estado del flujo: Borrador → Planificación → …).
-- [ ] **Cascada multi-salto.** Al elegir una idea o un **seguidor**, el panel muestra las preguntas (vía idea) y los **mitos/verdades del seguidor** en vivo.
+- [ ] **Cascada multi-salto.** Al elegir el **seguidor ideal** de la pieza, el panel muestra en vivo sus **preguntas**, **mitos/verdades** y **dolores** (ya no dependen de la idea).
 - [ ] **Guión** en 4 campos: gancho, historia, moraleja, CTA. Recordatorio de creencias dentro del guión.
 - [ ] **Producción.** Sección con **Locación**, **Equipo necesario**, **Personas y personajes** y **Notas para el cliente** (estas últimas se muestran en la vista pública de la pieza).
 - [ ] **Meta**: objetivo (Viralidad/Venta), formato, estado, calificación.
@@ -28,7 +28,7 @@
 - [ ] **Columnas**: estado, objetivo, formato, idea, calificación, enlace (🔗), fecha publicada.
 - [ ] **Filtros**: estado, objetivo, formato, calificación, "con idea / sueltas".
 - [ ] **Badge de navegación**: el menú "Piezas de contenido" muestra en ámbar el nº de piezas **sin publicar**.
-- [ ] **Vista (👁)** de una pieza: muestra toda la info + preguntas (vía idea) y mitos/verdades (del seguidor ideal) (solo lectura).
+- [ ] **Vista (👁)** de una pieza: muestra toda la info + preguntas, mitos/verdades y dolores (del seguidor ideal de la pieza) (solo lectura).
 - [ ] **Permisos.** Como **Editor** (login `editor@elrodyelrol.test`), el botón de **eliminar no aparece**; como **Admin** sí.
 
 ## CTAs (Producción → CTAs)

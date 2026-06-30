@@ -243,21 +243,16 @@ class IdeaGenerator extends Component
             return null;
         }
 
-        $questionIds = array_map('intval', $this->questionIds);
-
         foreach ($indices as $i) {
             $fields = $this->suggestions[$i]['fields'];
 
-            $idea = $this->account->winningIdeas()->create([
-                'ideal_follower_id' => $this->idealFollowerId,
+            // Las ideas ya NO guardan seguidor ni preguntas: son descripciones de formato.
+            // El seguidor sirve solo como inspiración del brainstorm, no se persiste.
+            $this->account->winningIdeas()->create([
                 'title' => $fields['title'] ?? 'Idea generada',
                 'concept' => $fields['concept'] ?? '',
                 'viral_mechanism' => $fields['viral_mechanism'] ?? null,
             ]);
-
-            if (filled($questionIds)) {
-                $idea->questions()->syncWithoutDetaching($questionIds);
-            }
         }
 
         session()->flash('studio.flash', count($indices) === 1

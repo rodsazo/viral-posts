@@ -16,26 +16,21 @@
             <div class="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
                 <flux:heading size="lg">1 · Parámetros</flux:heading>
 
-                {{-- 1) Seguidor ideal (primero): de él salen las ideas y el contexto. --}}
-                <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Elige un seguidor ideal" description="Empieza por aquí. Las opciones muestran su nivel de conciencia (0-4) y el nombre.">
+                {{-- 1) Idea ganadora (formato a replicar); entre corchetes, nº de piezas ya creadas. --}}
+                <flux:select wire:model.live="winning_idea_id" label="Idea ganadora" placeholder="Sin idea (pieza suelta)" description="El formato a replicar. Es independiente del seguidor: puedes usar la misma idea para distintos seguidores.">
+                    <flux:select.option value="">Sin idea (pieza suelta)</flux:select.option>
+                    @foreach ($ideas as $idea)
+                        <flux:select.option value="{{ $idea->id }}">{{ $idea->title }} · {{ $idea->status->getLabel() }} [{{ $idea->content_pieces_count }} piezas]</flux:select.option>
+                    @endforeach
+                </flux:select>
+
+                {{-- 2) Seguidor ideal: de él salen el contexto (preguntas/mitos/dolores). --}}
+                <flux:select wire:model.live="idealFollowerId" label="Seguidor ideal" placeholder="Elige un seguidor ideal" description="A quién va dirigido. Sus opciones muestran el nivel de conciencia (0-4) y el nombre; de él salen las preguntas/mitos/dolores.">
                     <flux:select.option value="">Elige un seguidor ideal</flux:select.option>
                     @foreach ($followers as $follower)
                         <flux:select.option value="{{ $follower->id }}">@if ($follower->awareness_level) {{ $follower->awareness_level->value }} · @endif{{ $follower->name }}</flux:select.option>
                     @endforeach
                 </flux:select>
-
-                {{-- 2) Idea ganadora del seguidor elegido; entre corchetes, nº de piezas ya creadas. --}}
-                <div class="flex flex-col gap-1">
-                    <flux:select wire:model.live="winning_idea_id" label="Idea ganadora" placeholder="Sin idea (pieza suelta)" :disabled="! $idealFollowerId">
-                        <flux:select.option value="">Sin idea (pieza suelta)</flux:select.option>
-                        @foreach ($ideas as $idea)
-                            <flux:select.option value="{{ $idea->id }}">{{ $idea->title }} · {{ $idea->status->getLabel() }} [{{ $idea->content_pieces_count }} piezas]</flux:select.option>
-                        @endforeach
-                    </flux:select>
-                    @unless ($idealFollowerId)
-                        <flux:text class="text-xs text-zinc-400">Elige primero un seguidor ideal para ver sus ideas.</flux:text>
-                    @endunless
-                </div>
 
                 <div class="grid grid-cols-2 gap-4">
                     <flux:select wire:model="objective" label="Objetivo" placeholder="Sin objetivo">

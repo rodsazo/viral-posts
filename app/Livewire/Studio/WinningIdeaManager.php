@@ -6,7 +6,6 @@ use App\Enums\IdeaStatus;
 use App\Enums\ValidationStatus;
 use App\Enums\ViralMechanism;
 use App\Models\Account;
-use App\Models\Belief;
 use App\Models\HerasTemplate;
 use App\Models\WinningIdea;
 use Illuminate\Contracts\View\View;
@@ -15,10 +14,10 @@ use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 /**
- * CRUD de Ideas Ganadoras en el Estudio (paridad con el admin): lista a la izquierda,
- * editor con autoguardado a la derecha. Gestiona título, concepto, mecanismo, plantilla
- * Heras, preguntas vinculadas y los Ejemplos reales (URLs). Una idea con al menos un
- * ejemplo queda "Validada"; sin ejemplos, "Pendiente de validación".
+ * CRUD de Ideas Ganadoras en el Estudio: lista a la izquierda, editor con autoguardado a
+ * la derecha. La idea ganadora es una descripción de FORMATO (título + estructura/concepto
+ * + estado + ejemplos reales); ya NO se relaciona con seguidor, preguntas ni mitos (eso se
+ * elige al generar la pieza). Una idea con al menos un ejemplo queda "Validada".
  */
 #[Layout('components.layouts.studio')]
 class WinningIdeaManager extends Component
@@ -35,26 +34,15 @@ class WinningIdeaManager extends Component
     // Estado del flujo de la idea (borrador/hipótesis/fija/descartada). Sin tipar por Flux.
     public $status = 'borrador';
 
+    // Ocultos por ahora en el editor, pero conservados en BD.
     public ?string $viral_mechanism = null;
 
     public ?int $heras_template_id = null;
-
-    // El seguidor ideal es el centro: de él salen preguntas y mitos/verdades.
-    // Sin tipar para tolerar el "" que mandan los selects de Flux.
-    public $idealFollowerId = null;
-
-    /** @var array<int, int|string> preguntas vinculadas */
-    public array $questionIds = [];
 
     /** @var array<int, string> ejemplos reales (URLs), lista plana */
     public array $exampleUrls = [];
 
     public string $newExampleUrl = '';
-
-    public string $questionSearch = '';
-
-    // Filtro de la lista por seguidor ideal (sin tipar para tolerar el "" de Flux).
-    public $filterFollowerId = null;
 
     // Filtro por estado: '' = Activas (oculta descartadas), 'todas' = todas, o un estado concreto.
     public string $filterStatus = '';
@@ -97,7 +85,7 @@ class WinningIdeaManager extends Component
         $this->account->winningIdeas()->whereKey($id)->delete();
 
         if ($this->selectedId === $id) {
-            $this->reset(['selectedId', 'title', 'concept', 'status', 'viral_mechanism', 'heras_template_id', 'idealFollowerId', 'questionIds', 'exampleUrls']);
+            $this->reset(['selectedId', 'title', 'concept', 'status', 'viral_mechanism', 'heras_template_id', 'exampleUrls']);
             $next = $this->account->winningIdeas()->orderBy('title')->first();
 
             if ($next !== null) {
@@ -108,16 +96,12 @@ class WinningIdeaManager extends Component
 
     private function loadIdea(WinningIdea $idea): void
     {
-        $idea->loadMissing('questions');
-
         $this->selectedId = $idea->id;
         $this->title = $idea->title;
         $this->concept = $idea->concept;
         $this->status = $idea->status?->value ?? IdeaStatus::Borrador->value;
         $this->viral_mechanism = $idea->viral_mechanism?->value;
         $this->heras_template_id = $idea->heras_template_id;
-        $this->idealFollowerId = $idea->ideal_follower_id;
-        $this->questionIds = $idea->questions->pluck('id')->all();
         $this->exampleUrls = array_values($idea->example_urls ?? []);
         $this->newExampleUrl = '';
         $this->saved = false;
@@ -129,14 +113,8 @@ class WinningIdeaManager extends Component
             return;
         }
 
-        if (in_array($name, ['title', 'concept', 'status', 'viral_mechanism', 'heras_template_id', 'idealFollowerId'], true)) {
+        if (in_array($name, ['title', 'concept', 'status', 'viral_mechanism', 'heras_template_id'], true)) {
             $this->saveIdea();
-
-            return;
-        }
-
-        if ($name === 'questionIds') {
-            $this->syncQuestions();
 
             return;
         }
@@ -154,28 +132,8 @@ class WinningIdeaManager extends Component
             'status' => IdeaStatus::tryFrom($this->status)?->value ?? IdeaStatus::Borrador->value,
             'viral_mechanism' => $this->viral_mechanism ?: null,
             'heras_template_id' => $this->heras_template_id ?: null,
-            'ideal_follower_id' => $this->idealFollowerId ?: null,
         ]);
 
-        $this->saved = true;
-    }
-
-    private function syncQuestions(): void
-    {
-        $idea = $this->currentIdea();
-
-        if ($idea === null) {
-            return;
-        }
-
-        // Solo preguntas de la marca activa y del seguidor elegido.
-        $ids = $this->account->questions()
-            ->when($this->idealFollowerId, fn ($q, $fid) => $q->where('ideal_follower_id', $fid))
-            ->whereKey(array_map('intval', $this->questionIds))
-            ->pluck('id')
-            ->all();
-
-        $idea->questions()->sync($ids);
         $this->saved = true;
     }
 
@@ -223,27 +181,6 @@ class WinningIdeaManager extends Component
         return $hasExample ? ValidationStatus::Validated : ValidationStatus::Pending;
     }
 
-    /**
-     * Mitos/verdades derivados de las preguntas elegidas (VISIBILIDAD MULTI-SALTO en vivo).
-     *
-     * @return array<int, string>
-     */
-    #[Computed]
-    public function contextBeliefs(): array
-    {
-        if (! $this->idealFollowerId) {
-            return [];
-        }
-
-        return $this->account->beliefs()
-            ->where('ideal_follower_id', $this->idealFollowerId)
-            ->orderBy('statement')
-            ->get()
-            ->map(fn (Belief $belief): string => '['.$belief->type->getLabel().'] '.$belief->statement)
-            ->values()
-            ->all();
-    }
-
     public function canDelete(): bool
     {
         return auth()->user()->isAdminOf($this->account);
@@ -253,8 +190,6 @@ class WinningIdeaManager extends Component
     {
         return view('livewire.studio.winning-idea-manager', [
             'ideas' => $this->account->winningIdeas()
-                ->with('idealFollower')
-                ->when($this->filterFollowerId, fn ($q, $fid) => $q->where('ideal_follower_id', $fid))
                 // Por defecto ('') ocultamos las descartadas; 'todas' muestra todo; o un estado concreto.
                 ->when($this->filterStatus === '', fn ($q) => $q->where('status', '!=', IdeaStatus::Descartada->value))
                 ->when(! in_array($this->filterStatus, ['', 'todas'], true), fn ($q) => $q->where('status', $this->filterStatus))
@@ -266,13 +201,6 @@ class WinningIdeaManager extends Component
             'ideaStatuses' => IdeaStatus::cases(),
             'mechanisms' => ViralMechanism::cases(),
             'herasTemplates' => HerasTemplate::query()->orderBy('name')->get(),
-            'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
-            // Preguntas acotadas al seguidor elegido.
-            'questions' => $this->account->questions()
-                ->when($this->idealFollowerId, fn ($q, $fid) => $q->where('ideal_follower_id', $fid))
-                ->when(filled($this->questionSearch), fn ($q) => $q->where('body', 'like', '%'.$this->questionSearch.'%'))
-                ->orderBy('body')
-                ->get(),
         ]);
     }
 }

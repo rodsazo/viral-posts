@@ -22,12 +22,12 @@ class GapsOverview extends StatsOverviewWidget
 
         $followersWithoutBeliefs = $account->idealFollowers()->doesntHave('beliefs')->count();
         $ideasWithoutPieces = $account->winningIdeas()->doesntHave('contentPieces')->count();
-        $questionsWithoutIdea = $account->questions()->doesntHave('winningIdeas')->count();
+        $followersWithoutQuestions = $account->idealFollowers()->doesntHave('questions')->count();
 
         return [
             $this->gapStat('Seguidores sin creencias', $followersWithoutBeliefs, 'heroicon-m-scale'),
             $this->gapStat('Ideas sin piezas', $ideasWithoutPieces, 'heroicon-m-film'),
-            $this->gapStat('Preguntas sin idea', $questionsWithoutIdea, 'heroicon-m-light-bulb'),
+            $this->gapStat('Seguidores sin preguntas', $followersWithoutQuestions, 'heroicon-m-light-bulb'),
         ];
     }
 

@@ -73,14 +73,13 @@ class ScriptContext
             return new self;
         }
 
+        // La idea ya no aporta seguidor/preguntas/mitos/dolores: solo su título y estructura.
+        // El contexto del seguidor (preguntas/mitos/dolores) lo añade el componente al generar.
         return new self(
             ideaTitle: $idea->title,
             ideaConcept: $idea->concept,
             brandPromise: $idea->account?->brand_promise,
             mainOffers: $idea->account?->main_offers,
-            questions: $idea->questions->pluck('body')->all(),
-            beliefs: static::beliefLabels($idea->derivedBeliefs()->all()),
-            pains: static::painLabels($idea->derivedPains()->all()),
             templates: $idea->herasTemplate ? static::templateLines([$idea->herasTemplate]) : [],
         );
     }

@@ -61,7 +61,7 @@ class StudioHome extends Component
             'gaps' => [
                 'Seguidores sin creencias' => $account->idealFollowers()->doesntHave('beliefs')->count(),
                 'Ideas sin piezas' => $account->winningIdeas()->doesntHave('contentPieces')->count(),
-                'Preguntas sin idea' => $account->questions()->doesntHave('winningIdeas')->count(),
+                'Seguidores sin preguntas' => $account->idealFollowers()->doesntHave('questions')->count(),
             ],
             'recentPieces' => $account->contentPieces()->latest('updated_at')->take(6)->get(),
         ]);
