@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ContentStatus;
 use App\Enums\IdeaStatus;
 use App\Enums\TeamRole;
 use App\Enums\ValidationStatus;
@@ -137,6 +138,22 @@ class WinningIdeaStudioTest extends TestCase
         $component->call('removeExampleUrl', 0);
         $this->assertSame([], $idea->fresh()->example_urls);
         $this->assertFalse($idea->fresh()->isValidated());
+    }
+
+    public function test_create_piece_from_idea_makes_a_draft_and_redirects_to_composer(): void
+    {
+        $account = Account::factory()->create();
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'FORMATO VIRAL']);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])
+            ->call('createPieceFromIdea', $idea->id)
+            ->assertRedirect("/studio/{$account->slug}/piezas?piece=".$account->contentPieces()->first()->id);
+
+        $piece = $account->contentPieces()->first();
+        $this->assertSame('FORMATO VIRAL', $piece->title);
+        $this->assertSame($idea->id, $piece->winning_idea_id);
+        $this->assertSame(ContentStatus::Borrador, $piece->status);
     }
 
     public function test_deletion_is_reserved_to_brand_admins(): void

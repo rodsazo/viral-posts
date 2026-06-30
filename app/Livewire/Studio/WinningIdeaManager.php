@@ -2,12 +2,14 @@
 
 namespace App\Livewire\Studio;
 
+use App\Enums\ContentStatus;
 use App\Enums\IdeaStatus;
 use App\Enums\ValidationStatus;
 use App\Enums\ViralMechanism;
 use App\Models\Account;
 use App\Models\HerasTemplate;
 use App\Models\WinningIdea;
+use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
@@ -179,6 +181,27 @@ class WinningIdeaManager extends Component
         $hasExample = filled(array_filter(array_map('trim', $this->exampleUrls), fn (string $u): bool => $u !== ''));
 
         return $hasExample ? ValidationStatus::Validated : ValidationStatus::Pending;
+    }
+
+    /** Atajo: crea una pieza con esta idea ya elegida y salta al Composer. */
+    public function createPieceFromIdea(int $id)
+    {
+        $idea = $this->account->winningIdeas()->find($id);
+
+        if ($idea === null) {
+            return null;
+        }
+
+        $piece = $this->account->contentPieces()->create([
+            'title' => $idea->title,
+            'winning_idea_id' => $idea->id,
+            'status' => ContentStatus::Borrador->value,
+            'period_id' => StudioPeriod::id($this->account),
+        ]);
+
+        session()->flash('studio.flash', 'Pieza creada desde la idea. ¡A escribir el guión!');
+
+        return $this->redirect(route('studio.pieces', ['account' => $this->account, 'piece' => $piece->id]), navigate: true);
     }
 
     public function canDelete(): bool

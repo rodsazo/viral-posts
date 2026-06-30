@@ -56,6 +56,7 @@
                             @if ($saved)
                                 <flux:badge size="sm" color="green" icon="check">Guardado</flux:badge>
                             @endif
+                            <flux:button wire:click="createPieceFromIdea({{ $selectedId }})" variant="primary" size="sm" icon="film">Crear pieza</flux:button>
                             @if ($this->canDelete())
                                 <flux:button wire:click="deleteIdea({{ $selectedId }})" wire:confirm="¿Eliminar esta idea ganadora?" variant="subtle" size="sm" icon="trash" />
                             @endif
