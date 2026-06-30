@@ -70,6 +70,11 @@
                                     @if ($piece->winningIdea)
                                         <p class="mt-1.5 truncate text-sm text-zinc-500">💡 {{ $piece->winningIdea->title }}</p>
                                     @endif
+                                    @if ($piece->client_review_status?->value === 'approved')
+                                        <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-bold text-green-800">✅ Aprobada</p>
+                                    @elseif ($piece->client_review_status?->value === 'changes_requested')
+                                        <p class="mt-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-bold text-amber-800">✏️ Cambios pedidos</p>
+                                    @endif
                                     <p class="mt-3 flex items-center gap-1 text-sm font-semibold text-violet-600">
                                         Ver detalles <span aria-hidden="true">→</span>
                                     </p>

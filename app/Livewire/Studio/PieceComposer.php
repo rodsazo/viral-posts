@@ -2,6 +2,7 @@
 
 namespace App\Livewire\Studio;
 
+use App\Enums\ClientReviewStatus;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentStatus;
@@ -438,6 +439,19 @@ class PieceComposer extends Component
             ->get()
             ->map(fn (Pain $pain): string => '['.$pain->type->getLabel().'] '.$pain->body)
             ->all();
+    }
+
+    /** Respuesta del cliente desde la vista pública (null si aún no ha respondido). */
+    #[Computed]
+    public function clientReview(): ?ContentPiece
+    {
+        if (! $this->pieceId) {
+            return null;
+        }
+
+        $piece = $this->account->contentPieces()->whereKey($this->pieceId)->first();
+
+        return ($piece && $piece->client_review_status !== ClientReviewStatus::Pending) ? $piece : null;
     }
 
     /** Enlace público (sin login) de la pieza seleccionada, para compartir con el cliente. */

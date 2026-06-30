@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ClientReviewStatus;
 use App\Enums\ContentFormat;
 use App\Enums\ContentObjective;
 use App\Enums\ContentRating;
@@ -42,6 +43,9 @@ class ContentPiece extends Model
         'equipment',
         'people',
         'client_notes',
+        'client_review_status',
+        'client_review_notes',
+        'client_reviewed_at',
     ];
 
     protected function casts(): array
@@ -51,7 +55,9 @@ class ContentPiece extends Model
             'format' => ContentFormat::class,
             'status' => ContentStatus::class,
             'rating' => ContentRating::class,
+            'client_review_status' => ClientReviewStatus::class,
             'published_at' => 'datetime',
+            'client_reviewed_at' => 'datetime',
             'rum_factors' => 'array',
             'rum' => 'float',
         ];

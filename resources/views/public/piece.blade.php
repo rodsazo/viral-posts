@@ -28,6 +28,12 @@
             <p class="mt-2 text-base text-zinc-500">Propuesta de contenido para tu revisión 👀</p>
         </div>
 
+        @if (session('review.flash'))
+            <div class="mt-6 rounded-2xl bg-green-50 px-5 py-4 text-center text-lg font-semibold text-green-800 ring-1 ring-green-200">
+                {{ session('review.flash') }}
+            </div>
+        @endif
+
         {{-- Título grande --}}
         <h1 class="mt-5 text-center text-4xl font-black leading-tight text-zinc-900 sm:text-5xl">
             {{ $piece->title ?: 'Pieza sin título todavía' }}
@@ -193,9 +199,53 @@
             @endif
         </div>
 
+        {{-- Tu respuesta (aprobar / pedir cambios) --}}
+        <section class="mt-8 rounded-3xl bg-white p-7 shadow-sm ring-1 ring-black/5 sm:p-9">
+            <h2 class="flex items-center gap-3 text-2xl font-extrabold text-zinc-900">
+                <span class="text-3xl">🙌</span> ¿Qué te parece?
+            </h2>
+
+            @if ($piece->client_review_status?->value === 'approved')
+                <p class="mt-4 flex items-center gap-2 text-xl font-bold text-green-700">✅ ¡La aprobaste! Gracias.</p>
+                <p class="mt-1 text-base text-zinc-500">Puedes volver a responder si cambias de opinión.</p>
+            @elseif ($piece->client_review_status?->value === 'changes_requested')
+                <p class="mt-4 flex items-center gap-2 text-xl font-bold text-amber-700">✍️ Pediste cambios.</p>
+                @if (filled($piece->client_review_notes))
+                    <p class="mt-2 rounded-2xl bg-amber-50 px-4 py-3 text-lg text-amber-900 ring-1 ring-amber-100">“{{ $piece->client_review_notes }}”</p>
+                @endif
+            @else
+                <p class="mt-2 text-lg text-zinc-500">Dinos si te gusta tal cual o, si necesitas cambios, escríbelos abajo. 👇</p>
+            @endif
+
+            <form method="POST" action="{{ route('piece.public.review', $piece->public_token) }}" class="mt-6">
+                @csrf
+
+                <div class="mb-4">
+                    <label class="mb-1 block text-base font-semibold text-zinc-700">¿Quieres pedir cambios? Cuéntanos aquí</label>
+                    <textarea name="notes" rows="4"
+                              class="w-full rounded-2xl border border-zinc-200 bg-white px-4 py-3 text-lg text-zinc-800 focus:border-amber-400 focus:outline-none"
+                              placeholder="Escríbelo con tus palabras… (solo si vas a pedir cambios)">{{ old('notes', $piece->client_review_notes) }}</textarea>
+                    @error('notes')
+                        <p class="mt-1 text-base font-medium text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div class="flex flex-col gap-3 sm:flex-row">
+                    <button type="submit" name="decision" value="approved"
+                            class="flex-1 rounded-2xl bg-green-500 px-6 py-4 text-center text-xl font-extrabold text-white shadow-sm transition hover:bg-green-600">
+                        ✅ Me gusta, aprobar
+                    </button>
+                    <button type="submit" name="decision" value="changes_requested"
+                            class="flex-1 rounded-2xl bg-amber-100 px-6 py-4 text-center text-xl font-extrabold text-amber-800 ring-1 ring-amber-200 transition hover:bg-amber-200">
+                        ✏️ Pedir cambios
+                    </button>
+                </div>
+            </form>
+        </section>
+
         <footer class="mt-12 text-center text-sm text-zinc-400">
             @isset($brand) Creado por {{ $brand->name }} · @endisset
-            ¿Dudas o cambios? Coméntalo con tu equipo. 🤝
+            ¿Dudas o cambios? Usa los botones de arriba. 🤝
         </footer>
     </div>
 </body>

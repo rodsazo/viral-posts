@@ -43,6 +43,9 @@
                         @else
                             <flux:badge size="sm" color="zinc">RUM —</flux:badge>
                         @endif
+                        @if ($piece->client_review_status && $piece->client_review_status !== \App\Enums\ClientReviewStatus::Pending)
+                            <flux:badge size="sm" :color="$piece->client_review_status->fluxColor()" :icon="$piece->client_review_status->icon()">{{ $piece->client_review_status->shortLabel() }}</flux:badge>
+                        @endif
                     </div>
                 </button>
             @empty
@@ -87,6 +90,26 @@
                 {{-- Autoguarda al salir de cada campo; este botón guarda todo de una y da confirmación clara. --}}
                 <flux:button wire:click="save" variant="primary" size="sm" icon="check">Guardar</flux:button>
             </div>
+
+            {{-- Respuesta del cliente desde la vista pública --}}
+            @if ($this->clientReview)
+                @php($review = $this->clientReview)
+                <div @class([
+                    'mb-3 rounded-xl border p-4',
+                    'border-green-300 bg-green-50 dark:border-green-500/30 dark:bg-green-500/10' => $review->client_review_status === \App\Enums\ClientReviewStatus::Approved,
+                    'border-amber-300 bg-amber-50 dark:border-amber-500/30 dark:bg-amber-500/10' => $review->client_review_status === \App\Enums\ClientReviewStatus::ChangesRequested,
+                ])>
+                    <div class="flex items-center gap-2">
+                        <flux:badge size="sm" :color="$review->client_review_status->fluxColor()" :icon="$review->client_review_status->icon()">{{ $review->client_review_status->getLabel() }}</flux:badge>
+                        @if ($review->client_reviewed_at)
+                            <flux:text class="text-xs text-zinc-500">{{ $review->client_reviewed_at->diffForHumans() }}</flux:text>
+                        @endif
+                    </div>
+                    @if ($review->client_review_status === \App\Enums\ClientReviewStatus::ChangesRequested && filled($review->client_review_notes))
+                        <flux:text class="mt-2 text-zinc-700 dark:text-zinc-200">“{{ $review->client_review_notes }}”</flux:text>
+                    @endif
+                </div>
+            @endif
 
             @php($tabBtn = 'rounded-t-md border-b-2 px-3 py-2 text-sm transition -mb-px')
             @php($tabOn = 'border-violet-400 font-medium text-zinc-900 dark:text-white')
