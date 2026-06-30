@@ -93,18 +93,17 @@
                             </flux:menu>
                         </flux:dropdown>
 
-                        {{-- Análisis — oculto temporalmente (restaurar cuando esté listo).
+                        {{-- Análisis --}}
                         <flux:dropdown position="bottom" align="start">
                             <button type="button" class="{{ $navLink($analyticsActive) }}">
                                 <flux:icon.chart-bar variant="micro" class="size-4 text-emerald-300" /> Análisis
                                 <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
                             </button>
                             <flux:menu>
+                                <flux:menu.item href="{{ route('studio.ai-usage', $currentAccount) }}" icon="banknotes">Uso de IA</flux:menu.item>
                                 <x-studio.menu-soon icon="arrow-trending-up" label="Rendimiento" />
-                                <x-studio.menu-soon icon="banknotes" label="Uso de IA" />
                             </flux:menu>
                         </flux:dropdown>
-                        --}}
                     </nav>
                 @endisset
             </div>

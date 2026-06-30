@@ -13,8 +13,8 @@
       es el **enlace a la portada** (ya **no** hay item "Inicio") + 3 desplegables —
       **Audiencia** (Seguidores ideales · CTAs · Kickstart),
       **Contenido** (Ideas ganadoras · Ideas Referenciales · Generador de ideas · Generador de piezas · Composer),
-      **Planificación** (Kanban · Periodos · *Calendario, próx.*).
-      *(El grupo **Análisis** está **oculto temporalmente**.)*
+      **Planificación** (Kanban · Periodos · *Calendario, próx.*),
+      **Análisis** (Uso de IA · *Rendimiento, próx.*).
       El **grupo** de la sección actual se **resalta**; al abrir un menú se ve su lista. (**Generador de ideas**,
       **Generador de piezas** y **Kickstart** se detallan en [09-ia.md](09-ia.md).)
 - [ ] **Lado derecho:** botón de **captura rápida (Inbox)** (icono), **selector de periodo** (planificación),
@@ -23,9 +23,8 @@
       (verde Publicado / gris Borrador). El desplegable lista los periodos de la marca, permite **crear uno nuevo**
       (campo + Enter/+) que queda activo al instante, y enlaza a **Gestionar periodos**. El periodo activo se
       recuerda **por marca** y al cambiarlo **refiltran** el Composer y el Kanban (y las piezas nuevas se le asignan).
-- [ ] **Próximamente.** *Calendario* (en Planificación) aparece como fila **deshabilitada** con etiqueta "próx."
-      (aún no navegable; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)). *(Rendimiento/Uso de IA viven
-      en el grupo Análisis, hoy oculto.)*
+- [ ] **Próximamente.** *Calendario* (en Planificación) y *Rendimiento* (en Análisis) aparecen como filas
+      **deshabilitadas** con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
 - [ ] **Sin selección al abrir.** Las pantallas maestro-detalle (**Audiencia**, **Ideas ganadoras**, **Composer**)
       abren **sin ningún elemento seleccionado** (estado vacío con su mensaje). El usuario elige uno de la lista.
       *(El Composer sí preselecciona si llega por deep-link `?piece={id}`, p. ej. desde el Kanban.)*
@@ -215,3 +214,19 @@
 - [ ] **Tarjetas enlazadas.** Cada tarjeta (título + idea + "Ver detalles →") es un **enlace a la vista pública de
       esa pieza** (`/p/{token}`).
 - [ ] **Token y 404.** El acceso es por token inadivinable; un **token inexistente** da **404**. Lleva `noindex,nofollow`.
+
+## Uso de IA (`/studio/{marca}/uso-ia`)
+
+> Menú **Análisis → Uso de IA**. Volumen de generaciones de IA por marca (no coste/tokens: cada generación es una
+> llamada de pago a Anthropic; esto dimensiona el gasto).
+
+- [ ] **Totales.** Tarjetas con generaciones **totales**, **este mes** y **fallidas**.
+- [ ] **Por tipo y por miembro.** Conteos por tipo (Guiones / Ideas / Kickstart) y por usuario de la marca.
+- [ ] **Actividad reciente.** Lista de las últimas generaciones con estado (Hecha/Fallida/En curso), tipo, autor y cuándo.
+- [ ] **Aislamiento.** Solo cuenta las generaciones de la marca activa.
+
+## Atajos / Búsqueda rápida (⌘K)
+
+- [ ] **Abrir.** El botón **⌘K** de la cabecera (o pulsar **⌘K / Ctrl+K**) abre la paleta de comandos.
+- [ ] **Buscar.** Escribir filtra **piezas** e **ideas** de la marca por título (clic → salta a ellas) y los **atajos**
+      a las secciones (Generador de ideas/piezas, Composer, Kanban, Periodos, etc.).

@@ -4,6 +4,7 @@ use App\Http\Controllers\InvitationController;
 use App\Http\Controllers\PublicBrandController;
 use App\Http\Controllers\PublicPieceController;
 use App\Http\Controllers\PublicPieceReviewController;
+use App\Livewire\Studio\AiUsage;
 use App\Livewire\Studio\AudienceHub;
 use App\Livewire\Studio\CaptureInbox;
 use App\Livewire\Studio\ContentCtaManager;
@@ -41,6 +42,7 @@ Route::middleware(['auth', 'membership'])->group(function () {
     Route::get('/studio/{account:slug}/kickstart', IdealFollowerKickstart::class)->name('studio.kickstart');
     Route::get('/studio/{account:slug}/kanban', StudioKanban::class)->name('studio.kanban');
     Route::get('/studio/{account:slug}/periodos', PeriodManager::class)->name('studio.periods');
+    Route::get('/studio/{account:slug}/uso-ia', AiUsage::class)->name('studio.ai-usage');
     Route::get('/studio/{account:slug}/ideas-ganadoras', WinningIdeaManager::class)->name('studio.winning-ideas');
     Route::get('/studio/{account:slug}/ideas-referenciales', ReferenceIdeaImporter::class)->name('studio.reference-ideas');
     Route::get('/studio/{account:slug}/ideas', IdeaGenerator::class)->name('studio.ideas');
