@@ -1,5 +1,14 @@
 # 01 — Acceso y marcas (tenancy)
 
+## Landing público (home `/`)
+
+- [ ] **Home.** Abrir `/` (sin sesión). → Landing de **Tracción Online**: hero ("Sal del anonimato digital"),
+      sección de **dolores** (los 3), **proceso** (3 pasos) y **CTA final**.
+- [ ] **CTA "Agenda tu sesión".** El botón principal apunta a la **URL de agenda** (`BOOKING_URL`, Calendly/Cal.com,
+      abre en pestaña nueva). Sin `BOOKING_URL`, cae al correo (`CONTACT_EMAIL`) o al ancla `#contacto`.
+- [ ] **Entrar.** El enlace **"Entrar" / "Acceso al equipo"** lleva a `/admin` (login).
+- [ ] **Nombre de la app.** El título de la pestaña y el admin muestran **"Tracción Online"**.
+
 ## Login y acceso
 
 - [ ] **Login válido.** Ir a `/admin`, entrar con `rodsazo@gmail.com` / `password`. → Entra al panel de la marca *El Rod y El Rol*.

@@ -16,4 +16,18 @@ return [
 
     'client_review' => env('STUDIO_CLIENT_REVIEW', false),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Landing público (home)
+    |--------------------------------------------------------------------------
+    |
+    | URL de agenda (Calendly / Cal.com / etc.) a la que apunta el botón principal
+    | del landing. Defínela en BOOKING_URL. Correo de contacto opcional para el pie.
+    |
+    */
+
+    'booking_url' => env('BOOKING_URL', ''),
+
+    'contact_email' => env('CONTACT_EMAIL', ''),
+
 ];
