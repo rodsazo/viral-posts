@@ -24,7 +24,6 @@
             </a>
             <nav class="flex items-center gap-2 sm:gap-4">
                 <a href="#proceso" class="hidden text-sm font-medium text-slate-500 hover:text-slate-800 sm:inline">Cómo trabajamos</a>
-                <a href="/admin" class="hidden text-sm font-medium text-slate-500 hover:text-slate-800 sm:inline">Entrar</a>
                 <a href="{{ $cta }}" @if (filled($booking)) target="_blank" rel="noopener" @endif
                    class="rounded-full bg-blue-900 px-4 py-2 text-sm font-bold text-white shadow-sm transition hover:bg-blue-950">
                     Agenda tu sesión
@@ -128,9 +127,8 @@
     </section>
 
     <footer class="border-t border-slate-100 py-8">
-        <div class="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-5 text-sm text-slate-400 sm:flex-row">
-            <span>© {{ date('Y') }} {{ config('app.name') }}</span>
-            <a href="/admin" class="hover:text-slate-600">Acceso al equipo</a>
+        <div class="mx-auto max-w-6xl px-5 text-center text-sm text-slate-400">
+            © {{ date('Y') }} {{ config('app.name') }}
         </div>
     </footer>
 </body>
