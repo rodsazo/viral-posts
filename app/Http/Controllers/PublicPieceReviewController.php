@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Enums\ClientReviewStatus;
 use App\Models\ContentPiece;
+use App\Notifications\PieceReviewedNotification;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Notification;
 
 class PublicPieceReviewController extends Controller
 {
@@ -32,6 +34,9 @@ class PublicPieceReviewController extends Controller
             'client_review_notes' => $status === ClientReviewStatus::ChangesRequested ? trim((string) $data['notes']) : null,
             'client_reviewed_at' => now(),
         ]);
+
+        // Avisar al equipo de la marca (en cola; requiere worker + mailer configurado).
+        Notification::send($piece->account->users, new PieceReviewedNotification($piece));
 
         return redirect()
             ->route('piece.public', $piece->public_token)

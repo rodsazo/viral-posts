@@ -7,7 +7,10 @@ use App\Enums\ContentStatus;
 use App\Models\Account;
 use App\Models\ContentPiece;
 use App\Models\Period;
+use App\Models\User;
+use App\Notifications\PieceReviewedNotification;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Notification;
 use Tests\TestCase;
 
 class PublicPieceReviewTest extends TestCase
@@ -62,6 +65,22 @@ class PublicPieceReviewTest extends TestCase
             ->assertSessionHasErrors('notes');
 
         $this->assertSame(ClientReviewStatus::Pending, $piece->refresh()->client_review_status);
+    }
+
+    public function test_a_review_notifies_the_brand_team(): void
+    {
+        Notification::fake();
+
+        $piece = $this->visiblePiece();
+        $member = User::factory()->create();
+        $piece->account->users()->attach($member->id, ['role' => 'editor']);
+
+        $this->post("/p/{$piece->public_token}/review", [
+            'decision' => 'changes_requested',
+            'notes' => 'AJUSTA EL FINAL',
+        ]);
+
+        Notification::assertSentTo($member, PieceReviewedNotification::class);
     }
 
     public function test_cannot_review_a_non_public_piece(): void

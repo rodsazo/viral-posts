@@ -198,6 +198,9 @@
 - [ ] **Visible en el Estudio.** En el **Composer**, la pieza muestra la respuesta del cliente: **badge** en la lista
       (Aprobada/Cambios pedidos) y un **banner** en el editor con la nota y cuándo respondió.
 - [ ] **Tablero de marca.** En `/m/{token}`, cada tarjeta marca **✅ Aprobada** o **✏️ Cambios pedidos** si el cliente respondió.
+- [ ] **Aviso al equipo.** Al responder el cliente, se envía un **correo** a los miembros de la marca (asunto con
+      "Aprobada"/"Cambios solicitados", el comentario si lo hay, y botón **"Abrir en el Estudio"**). Va **en cola**:
+      requiere `queue:work` y `MAIL_*` configurado (con `MAIL_MAILER=log` en dev, se ve en `storage/logs/laravel.log`).
 
 ## Tablero público de la marca (`/m/{token}`)
 
