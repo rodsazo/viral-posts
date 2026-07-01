@@ -192,9 +192,9 @@
 - [ ] **Pieza vacía.** Si la pieza aún no tiene idea ni guión, aparece un **estado amable** ("se está cocinando")
       en vez de tarjetas vacías.
 - [ ] **No indexable.** La página lleva `noindex,nofollow` (no pensada para buscadores).
-- [ ] **Respuesta del cliente (sin login).** Al final, sección **"¿Qué te parece?"** con **✅ Aprobar** y **✏️ Pedir
-      cambios** (con caja de texto). Aprobar registra la aprobación; "Pedir cambios" **exige** una nota. Tras enviar,
-      banner de agradecimiento y se muestra el estado actual (Aprobada / Cambios pedidos + la nota).
+- [ ] **Respuesta del cliente (opcional, tras flag).** **Desactivada por defecto** (`STUDIO_CLIENT_REVIEW`). Con el
+      flag activo, al final aparece la sección **"¿Qué te parece?"** con **✅ Aprobar** y **✏️ Pedir cambios** (con
+      caja de texto; "Pedir cambios" **exige** nota). Desactivada, la sección **no** aparece y el POST de revisión da 404.
 - [ ] **Visible en el Estudio.** En el **Composer**, la pieza muestra la respuesta del cliente: **badge** en la lista
       (Aprobada/Cambios pedidos) y un **banner** en el editor con la nota y cuándo respondió.
 - [ ] **Tablero de marca.** En `/m/{token}`, cada tarjeta marca **✅ Aprobada** o **✏️ Cambios pedidos** si el cliente respondió.

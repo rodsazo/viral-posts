@@ -17,6 +17,8 @@ class PublicPieceReviewController extends Controller
      */
     public function __invoke(Request $request, ContentPiece $piece): RedirectResponse
     {
+        // La revisión del cliente está tras un flag (desactivada por defecto).
+        abort_unless(config('studio.client_review'), 404);
         abort_unless($piece->isPubliclyVisible(), 404);
 
         $data = $request->validate([

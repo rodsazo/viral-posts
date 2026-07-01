@@ -17,6 +17,13 @@ class PublicPieceReviewTest extends TestCase
 {
     use RefreshDatabase;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+        // La revisión del cliente está tras un flag; la activamos para estos tests.
+        config(['studio.client_review' => true]);
+    }
+
     private function visiblePiece(): ContentPiece
     {
         $account = Account::factory()->create();
@@ -81,6 +88,17 @@ class PublicPieceReviewTest extends TestCase
         ]);
 
         Notification::assertSentTo($member, PieceReviewedNotification::class);
+    }
+
+    public function test_review_is_disabled_by_the_feature_flag(): void
+    {
+        config(['studio.client_review' => false]);
+        $piece = $this->visiblePiece();
+
+        // La página pública no muestra los botones y el POST devuelve 404.
+        $this->get("/p/{$piece->public_token}")->assertOk()->assertDontSee('¿Qué te parece?');
+        $this->post("/p/{$piece->public_token}/review", ['decision' => 'approved'])->assertNotFound();
+        $this->assertSame(ClientReviewStatus::Pending, $piece->refresh()->client_review_status);
     }
 
     public function test_cannot_review_a_non_public_piece(): void

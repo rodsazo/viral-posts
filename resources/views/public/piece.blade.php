@@ -199,7 +199,8 @@
             @endif
         </div>
 
-        {{-- Tu respuesta (aprobar / pedir cambios) --}}
+        {{-- Tu respuesta (aprobar / pedir cambios). Desactivable por config (studio.client_review). --}}
+        @if (config('studio.client_review'))
         <section class="mt-8 rounded-3xl bg-white p-7 shadow-sm ring-1 ring-black/5 sm:p-9">
             <h2 class="flex items-center gap-3 text-2xl font-extrabold text-zinc-900">
                 <span class="text-3xl">🙌</span> ¿Qué te parece?
@@ -242,10 +243,11 @@
                 </div>
             </form>
         </section>
+        @endif
 
         <footer class="mt-12 text-center text-sm text-zinc-400">
             @isset($brand) Creado por {{ $brand->name }} · @endisset
-            ¿Dudas o cambios? Usa los botones de arriba. 🤝
+            ¿Dudas o cambios? Coméntalo con tu equipo. 🤝
         </footer>
     </div>
 </body>
