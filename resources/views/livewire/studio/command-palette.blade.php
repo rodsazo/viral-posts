@@ -46,7 +46,7 @@
                 @if ($ideas->isNotEmpty())
                     <p class="px-1 pb-1 pt-3 text-xs font-semibold uppercase tracking-wide text-zinc-400">Ideas ganadoras</p>
                     @foreach ($ideas as $idea)
-                        <a href="{{ route('studio.winning-ideas', $account) }}" wire:navigate
+                        <a href="{{ route('studio.winning-ideas', [$account, 'idea' => $idea->id]) }}" wire:navigate
                            class="flex items-center justify-between gap-2 rounded-md px-2 py-2 text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800">
                             <span class="flex items-center gap-2 truncate">
                                 <flux:icon.light-bulb variant="micro" class="size-4 text-zinc-400" />

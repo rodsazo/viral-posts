@@ -53,8 +53,15 @@ class WinningIdeaManager extends Component
 
     public function mount(Account $account): void
     {
-        // Sin selección por defecto: el usuario elige una idea (evita confusión al abrir).
+        // Sin selección por defecto, salvo deep-link ?idea={id} (p. ej. desde la paleta ⌘K).
         $this->account = $account;
+
+        $requested = request()->integer('idea');
+        $idea = $requested ? $this->account->winningIdeas()->find($requested) : null;
+
+        if ($idea !== null) {
+            $this->loadIdea($idea);
+        }
     }
 
     public function newIdea(): void

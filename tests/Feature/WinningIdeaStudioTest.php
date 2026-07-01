@@ -156,6 +156,18 @@ class WinningIdeaStudioTest extends TestCase
         $this->assertSame(ContentStatus::Borrador, $piece->status);
     }
 
+    public function test_deep_link_preselects_an_idea(): void
+    {
+        $account = Account::factory()->create();
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA DEEP LINK']);
+        $this->actingAs($this->member($account));
+
+        Livewire::withQueryParams(['idea' => $idea->id])
+            ->test(WinningIdeaManager::class, ['account' => $account])
+            ->assertSet('selectedId', $idea->id)
+            ->assertSet('title', 'IDEA DEEP LINK');
+    }
+
     public function test_deletion_is_reserved_to_brand_admins(): void
     {
         $account = Account::factory()->create();
