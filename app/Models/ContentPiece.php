@@ -12,6 +12,7 @@ use Database\Factories\ContentPieceFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
@@ -113,6 +114,16 @@ class ContentPiece extends Model
     public function idealFollower(): BelongsTo
     {
         return $this->belongsTo(IdealFollower::class);
+    }
+
+    /**
+     * Hilo de refinamiento (conversación con la IA) de la pieza, en orden cronológico.
+     *
+     * @return HasMany<PieceRefinement, $this>
+     */
+    public function refinements(): HasMany
+    {
+        return $this->hasMany(PieceRefinement::class)->orderBy('id');
     }
 
     /**

@@ -30,6 +30,28 @@
         <p class="px-2 py-1 text-xs font-semibold uppercase tracking-wide text-zinc-400">Periodo de planificación</p>
 
         <div class="max-h-64 overflow-y-auto">
+            {{-- Sin periodo: ver y reasignar piezas sin asignar. --}}
+            <button
+                type="button"
+                wire:click="selectNone"
+                @class([
+                    'flex w-full items-center justify-between gap-2 rounded-md px-2 py-1.5 text-left text-sm hover:bg-zinc-100 dark:hover:bg-zinc-800',
+                    'bg-zinc-100 dark:bg-zinc-800' => $isNone,
+                ])
+            >
+                <span class="flex items-center gap-2 truncate">
+                    @if ($isNone)
+                        <flux:icon.check variant="micro" class="size-4 text-violet-400" />
+                    @else
+                        <span class="size-4"></span>
+                    @endif
+                    <span class="truncate text-zinc-500">Sin periodo</span>
+                </span>
+                @if ($unassignedCount > 0)
+                    <flux:badge size="sm" color="amber">{{ $unassignedCount }}</flux:badge>
+                @endif
+            </button>
+
             @forelse ($periods as $period)
                 <button
                     type="button"

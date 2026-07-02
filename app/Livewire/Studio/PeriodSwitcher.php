@@ -32,6 +32,13 @@ class PeriodSwitcher extends Component
         }
     }
 
+    /** Modo "Sin periodo": ver y reasignar las piezas sin periodo. */
+    public function selectNone(): void
+    {
+        StudioPeriod::setNone($this->account);
+        $this->dispatch('period-changed');
+    }
+
     public function create(): void
     {
         $name = trim($this->newName);
@@ -55,6 +62,9 @@ class PeriodSwitcher extends Component
         return view('livewire.studio.period-switcher', [
             'periods' => $this->account->periods()->latest('id')->get(),
             'active' => StudioPeriod::get($this->account),
+            'isNone' => StudioPeriod::isNone($this->account),
+            // Nº de piezas sin periodo (para mostrarlo en la opción "Sin periodo").
+            'unassignedCount' => $this->account->contentPieces()->whereNull('period_id')->count(),
         ]);
     }
 }

@@ -3,6 +3,8 @@
 namespace App\Support\Ai;
 
 use Anthropic\Client;
+use Anthropic\Messages\CacheControlEphemeral;
+use Anthropic\Messages\TextBlockParam;
 use Anthropic\Messages\ThinkingConfigAdaptive;
 use App\Enums\PainType;
 use App\Enums\ViralMechanism;
@@ -38,7 +40,7 @@ class ContentAssistant
 
         $set = $this->generate(
             system: $this->scriptSystemPrompt($max),
-            userPrompt: $context->toPrompt(),
+            messages: [['role' => 'user', 'content' => $context->toPrompt()]],
             format: ScriptVariantSet::class,
         );
 
@@ -76,7 +78,7 @@ class ContentAssistant
 
         $set = $this->generate(
             system: $this->ideaSystemPrompt($max),
-            userPrompt: $context->toPrompt(),
+            messages: [['role' => 'user', 'content' => $context->toPrompt()]],
             format: IdeaVariantSet::class,
         );
 
@@ -119,7 +121,7 @@ class ContentAssistant
 
         $set = $this->generate(
             system: $this->kickstartSystemPrompt($max),
-            userPrompt: $context->toPrompt(),
+            messages: [['role' => 'user', 'content' => $context->toPrompt()]],
             format: IdealFollowerHypothesisSet::class,
         );
 
@@ -139,14 +141,55 @@ class ContentAssistant
     }
 
     /**
+     * Refina el guión de una pieza en modo conversación: recibe el hilo (historial +
+     * nueva instrucción) y devuelve una nota de cambios + la versión propuesta del guión.
+     *
+     * El bloque de sistema (marca + idea + audiencia + borrador base) se marca como
+     * cacheable (prompt caching): entre "más cálido" y "más corto" ese prefijo no cambia,
+     * así que en cada vuelta se paga solo una fracción de esos tokens.
+     *
+     * @return array{note: string, fields: array<string, string>}
+     */
+    public function refineScript(RefineContext $context): array
+    {
+        // Bloque de sistema estable → punto de caché (ephemeral). Lo mutable (la
+        // conversación) viaja en `messages`, fuera del prefijo cacheado.
+        $system = [
+            TextBlockParam::with(
+                text: $context->toSystem(),
+                cacheControl: CacheControlEphemeral::with(),
+            ),
+        ];
+
+        $refinement = $this->generate(
+            system: $system,
+            messages: $context->toMessages(),
+            format: ScriptRefinement::class,
+        );
+
+        return [
+            'note' => trim($refinement->note),
+            'fields' => [
+                'hook' => $refinement->hook,
+                'story' => $refinement->story,
+                'moral' => $refinement->moral,
+                'cta' => $refinement->cta,
+            ],
+        ];
+    }
+
+    /**
      * Llamada genérica con structured output. `$format` es una clase StructuredOutputModel.
+     * `$system` puede ser texto plano o bloques (p. ej. con cache_control para prompt caching).
      *
      * @template T of object
      *
+     * @param  string|array<int, TextBlockParam>  $system
+     * @param  array<int, array{role: string, content: string}>  $messages
      * @param  class-string<T>  $format
      * @return T
      */
-    private function generate(string $system, string $userPrompt, string $format): object
+    private function generate(string|array $system, array $messages, string $format): object
     {
         if (! $this->isConfigured()) {
             throw new RuntimeException('Falta configurar ANTHROPIC_API_KEY para usar el asistente de IA.');
@@ -175,8 +218,8 @@ class ContentAssistant
         Log::channel('ai')->info('Petición IA', [
             'workflow' => $workflow,
             'model' => $model,
-            'system' => $system,
-            'prompt' => $userPrompt,
+            'system' => is_array($system) ? array_map(fn (TextBlockParam $b): string => $b->text, $system) : $system,
+            'messages' => $messages,
         ]);
 
         try {
@@ -185,7 +228,7 @@ class ContentAssistant
                 model: $model,
                 system: $system,
                 thinking: ThinkingConfigAdaptive::with(),
-                messages: [['role' => 'user', 'content' => $userPrompt]],
+                messages: $messages,
                 outputConfig: $outputConfig,
                 requestOptions: ['timeout' => (float) $timeout],
             );

@@ -133,6 +133,9 @@
                 <div class="flex flex-wrap gap-1 border-b border-zinc-200 px-3 pt-2 dark:border-zinc-800">
                     <button type="button" @click="tab='basicos'" :class="tab==='basicos' ? '{{ $tabOn }}' : '{{ $tabOff }}'" class="{{ $tabBtn }}"><i class="fa-solid fa-circle-info mr-1.5"></i>Datos básicos</button>
                     <button type="button" @click="tab='guion'" :class="tab==='guion' ? '{{ $tabOn }}' : '{{ $tabOff }}'" class="{{ $tabBtn }}"><i class="fa-solid fa-clapperboard mr-1.5"></i>Guión</button>
+                    @if ($this->aiEnabled)
+                        <button type="button" @click="tab='asistente'" :class="tab==='asistente' ? '{{ $tabOn }}' : '{{ $tabOff }}'" class="{{ $tabBtn }}"><i class="fa-solid fa-comments mr-1.5"></i>Asistente<span @class(['ml-1.5 rounded-full bg-violet-100 px-1.5 text-xs font-medium text-violet-600 dark:bg-violet-500/20 dark:text-violet-300', 'hidden' => ! count($this->refinements)])>{{ count($this->refinements) }}</span></button>
+                    @endif
                     <button type="button" @click="tab='rum'" :class="tab==='rum' ? '{{ $tabOn }}' : '{{ $tabOff }}'" class="{{ $tabBtn }}"><i class="fa-solid fa-gauge-high mr-1.5"></i>RUM</button>
                     <button type="button" @click="tab='produccion'" :class="tab==='produccion' ? '{{ $tabOn }}' : '{{ $tabOff }}'" class="{{ $tabBtn }}"><i class="fa-solid fa-video mr-1.5"></i>Producción</button>
                 </div>
@@ -152,6 +155,14 @@
                             <flux:select.option value="">Sin seguidor</flux:select.option>
                             @foreach ($followers as $follower)
                                 <flux:select.option value="{{ $follower->id }}">{{ $follower->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+
+                        {{-- Periodo de planificación: permite mover una pieza (incluso una sin periodo) a uno. --}}
+                        <flux:select wire:model.live="periodId" label="Periodo" placeholder="Sin periodo" description="Ventana de planificación a la que pertenece la pieza.">
+                            <flux:select.option value="">Sin periodo</flux:select.option>
+                            @foreach ($periods as $period)
+                                <flux:select.option value="{{ $period->id }}">{{ $period->name }}</flux:select.option>
                             @endforeach
                         </flux:select>
 
@@ -192,6 +203,99 @@
                         <flux:textarea wire:model.blur="moral" label="Moraleja" rows="4" />
                         <flux:textarea wire:model.blur="cta" label="CTA" rows="2" />
                     </div>
+
+                    {{-- Pestaña: Asistente (chat de refinamiento del guión) --}}
+                    @if ($this->aiEnabled)
+                        <div x-show="tab==='asistente'" x-cloak class="flex flex-col gap-4">
+                            <div class="flex items-start justify-between gap-2">
+                                <flux:text class="text-zinc-500">
+                                    Conversa para pulir el guión: pide “más cálido”, “más corto”, “otro gancho”… La IA
+                                    propone una versión; se aplica al guión solo cuando pulsas <span class="font-medium">Usar esta versión</span>.
+                                </flux:text>
+                                @if (count($this->refinements))
+                                    <flux:button
+                                        wire:click="resetRefinements"
+                                        wire:confirm="¿Reiniciar la conversación? Se borrará el historial de este chat (no afecta al guión ya aplicado)."
+                                        variant="subtle" size="xs" icon="trash"
+                                    >Reiniciar</flux:button>
+                                @endif
+                            </div>
+
+                            {{-- Historial de la conversación --}}
+                            <div class="flex flex-col gap-3">
+                                @forelse ($this->refinements as $message)
+                                    @if ($message->isUser())
+                                        <div class="flex justify-end">
+                                            <div class="max-w-[85%] rounded-2xl rounded-br-sm bg-violet-500 px-3.5 py-2 text-sm text-white">
+                                                {{ $message->body }}
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="flex justify-start">
+                                            <div class="w-full max-w-[92%] rounded-2xl rounded-bl-sm border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 dark:border-zinc-700 dark:bg-zinc-800">
+                                                <div class="mb-2 flex items-center gap-1.5 text-xs font-medium text-violet-500">
+                                                    <flux:icon.sparkles variant="micro" class="size-3.5" />
+                                                    Asistente
+                                                </div>
+                                                @if (filled($message->body))
+                                                    <p class="mb-2 text-sm text-zinc-700 dark:text-zinc-200">{{ $message->body }}</p>
+                                                @endif
+                                                @if (filled($message->proposal))
+                                                    <div class="space-y-1.5 rounded-lg border border-zinc-200 bg-white p-2.5 text-xs text-zinc-600 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">
+                                                        <p><span class="font-semibold text-zinc-500">Gancho:</span> {{ $message->proposal['hook'] ?? '' }}</p>
+                                                        <p><span class="font-semibold text-zinc-500">Historia:</span> {{ \Illuminate\Support\Str::limit($message->proposal['story'] ?? '', 220) }}</p>
+                                                        <p><span class="font-semibold text-zinc-500">Moraleja:</span> {{ \Illuminate\Support\Str::limit($message->proposal['moral'] ?? '', 160) }}</p>
+                                                        <p><span class="font-semibold text-zinc-500">CTA:</span> {{ $message->proposal['cta'] ?? '' }}</p>
+                                                    </div>
+                                                    <div class="mt-2 flex justify-end">
+                                                        <flux:button wire:click="applyRefinement({{ $message->id }})" size="xs" variant="primary" icon="check">Usar esta versión</flux:button>
+                                                    </div>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                @empty
+                                    <div class="rounded-xl border border-dashed border-zinc-300 p-6 text-center dark:border-zinc-700">
+                                        <flux:text class="text-zinc-500">Aún no hay conversación. Escribe una instrucción o usa un atajo para empezar.</flux:text>
+                                    </div>
+                                @endforelse
+
+                                {{-- Indicador de "escribiendo" mientras se procesa el turno --}}
+                                @if ($this->refining)
+                                    <div wire:poll.2s="pollRefinement" class="flex justify-start">
+                                        <div class="flex items-center gap-2 rounded-2xl rounded-bl-sm border border-zinc-200 bg-zinc-50 px-3.5 py-2.5 dark:border-zinc-700 dark:bg-zinc-800">
+                                            <flux:icon.arrow-path class="size-4 animate-spin text-zinc-400" />
+                                            <flux:text class="text-zinc-500">Pensando…</flux:text>
+                                        </div>
+                                    </div>
+                                @endif
+                            </div>
+
+                            @if ($refineError)
+                                <flux:callout variant="danger" icon="exclamation-triangle">{{ $refineError }}</flux:callout>
+                            @endif
+
+                            {{-- Atajos rápidos --}}
+                            <div class="flex flex-wrap gap-1.5">
+                                @foreach (['Más corto', 'Más cálido', 'Más directo', 'Otro gancho', 'Más emocional'] as $chip)
+                                    <flux:button wire:click="quickRefine('{{ $chip }}')" size="xs" variant="subtle" :disabled="$this->refining">{{ $chip }}</flux:button>
+                                @endforeach
+                            </div>
+
+                            {{-- Entrada de instrucción --}}
+                            <div class="flex items-end gap-2">
+                                <flux:textarea
+                                    wire:model="refineInstruction"
+                                    wire:keydown.cmd.enter="sendRefinement"
+                                    wire:keydown.ctrl.enter="sendRefinement"
+                                    rows="2"
+                                    class="flex-1"
+                                    placeholder="Pide un ajuste… (⌘/Ctrl + Enter para enviar)"
+                                />
+                                <flux:button wire:click="sendRefinement" variant="primary" icon="paper-airplane" :disabled="$this->refining">Enviar</flux:button>
+                            </div>
+                        </div>
+                    @endif
 
                     {{-- Pestaña: RUM --}}
                     <div x-show="tab==='rum'" x-cloak class="flex flex-col gap-4">

@@ -72,6 +72,48 @@ class PeriodTest extends TestCase
         $this->assertSame($period->id, $account->contentPieces()->latest('id')->first()->period_id);
     }
 
+    public function test_composer_can_move_a_piece_into_a_period(): void
+    {
+        $account = Account::factory()->create();
+        $period = Period::factory()->create(['account_id' => $account->id]);
+        $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'period_id' => null]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
+            ->set('periodId', $period->id);
+
+        $this->assertSame($period->id, $piece->refresh()->period_id);
+    }
+
+    public function test_none_mode_shows_unassigned_pieces_even_when_a_period_exists(): void
+    {
+        $account = Account::factory()->create();
+        $period = Period::factory()->create(['account_id' => $account->id]);
+        ContentPiece::factory()->create(['account_id' => $account->id, 'period_id' => $period->id, 'title' => 'CON PERIODO']);
+        ContentPiece::factory()->create(['account_id' => $account->id, 'period_id' => null, 'title' => 'SIN PERIODO']);
+        $this->actingAs($this->member($account));
+
+        StudioPeriod::setNone($account);
+
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->assertSee('SIN PERIODO')
+            ->assertDontSee('CON PERIODO');
+    }
+
+    public function test_switcher_can_enter_none_mode(): void
+    {
+        $account = Account::factory()->create();
+        Period::factory()->create(['account_id' => $account->id]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(PeriodSwitcher::class, ['account' => $account])
+            ->call('selectNone')
+            ->assertDispatched('period-changed');
+
+        $this->assertTrue(StudioPeriod::isNone($account));
+    }
+
     public function test_composer_only_lists_pieces_of_the_active_period(): void
     {
         $account = Account::factory()->create();

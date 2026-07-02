@@ -23,6 +23,10 @@
       (verde Publicado / gris Borrador). El desplegable lista los periodos de la marca, permite **crear uno nuevo**
       (campo + Enter/+) que queda activo al instante, y enlaza a **Gestionar periodos**. El periodo activo se
       recuerda **por marca** y al cambiarlo **refiltran** el Composer y el Kanban (y las piezas nuevas se le asignan).
+- [ ] **Modo "Sin periodo".** El desplegable incluye, arriba, la opción **Sin periodo** (con un badge ámbar con el
+      **nº de piezas sin asignar**). Al elegirla, el Composer y el Kanban muestran **solo las piezas sin periodo**
+      (`period_id` nulo), que de otro modo quedarían invisibles al haber un periodo activo. Sirve para **rescatarlas**
+      y asignarles un periodo desde el Composer (ver abajo).
 - [ ] **Próximamente.** *Calendario* (en Planificación) y *Rendimiento* (en Análisis) aparecen como filas
       **deshabilitadas** con etiqueta "próx." (aún no navegables; ver [../docs/roadmap/README.md](../docs/roadmap/README.md)).
 - [ ] **Sin selección al abrir.** Las pantallas maestro-detalle (**Audiencia**, **Ideas ganadoras**, **Composer**)
@@ -161,7 +165,7 @@
 - [ ] **Filtro por estado.** Sobre la lista, un desplegable **"Todos los estados"** filtra las piezas por estado
       (Borrador, Planificación, …). Sin piezas en ese estado: "No hay piezas en este estado".
 - [ ] **Título y Estado siempre visibles.** El **Título de trabajo** y el **Estado** están arriba, fuera de las pestañas (visibles en todo momento).
-- [ ] **Pestañas.** El resto se agrupa en 4 pestañas: **Datos básicos** (idea, seguidor, objetivo/formato/calificación), **Guión** (4 campos + botón IA), **RUM** (los 5 factores con sus textos guía + badge), **Producción**. La pestaña activa se resalta; cambiar de pestaña **no** pierde lo escrito.
+- [ ] **Pestañas.** El resto se agrupa en pestañas: **Datos básicos** (idea, seguidor, periodo, objetivo/formato/calificación), **Guión** (4 campos + botón IA), **Asistente** (chat de IA — solo si hay clave configurada), **RUM** (los 5 factores con sus textos guía + badge), **Producción**. La pestaña activa se resalta; cambiar de pestaña **no** pierde lo escrito.
 - [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, **Notas para el cliente**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
 - [ ] **Enlace para el cliente.** En la pestaña **Producción**, un bloque violeta muestra la **URL pública** de la pieza con botones **Copiar** (cambia a "¡Copiado!") y **Abrir** (nueva pestaña). Solo aparece con una pieza seleccionada.
 - [ ] **Botón Compartir (cabecera).** En la cabecera del Composer, entre **Eliminar** y **Guardar**, un botón **Compartir** copia la URL pública al portapapeles (cambia a "¡Copiado!" ~1,5 s). Solo aparece con una pieza seleccionada.
@@ -170,10 +174,36 @@
       (derecha) muestra sus **preguntas**, **mitos/verdades** y **dolores/deseos** (ya **no** dependen de la idea).
 - [ ] **Reels de referencia.** Si la idea ganadora elegida tiene ejemplos reales (URLs), el panel de contexto los
       lista como **"Referencia 1", "Referencia 2", …** (enlaces que abren en pestaña nueva). Sin ejemplos, no aparece.
+- [ ] **Periodo (mover pieza).** En **Datos básicos**, un selector **Periodo** (opción **Sin periodo** + los periodos
+      de la marca) permite **reasignar** la pieza a otro periodo, o **rescatar** una pieza sin periodo. Combinado con el
+      modo **"Sin periodo"** del selector de cabecera: entra en ese modo, abre la pieza sin asignar y elígele un periodo;
+      al hacerlo (autoguardado) desaparece de la lista de "sin periodo" y pasa al periodo elegido.
 - [ ] **Autoguardado.** Escribir en cualquier campo (de cualquier pestaña) → se guarda solo (recargar confirma). Indicador "Guardado"; botón **Guardar** guarda todo de una.
 - [ ] **Publicación.** Pegar URL → botón **"Vista previa"** muestra la miniatura. Botón **"Marcar publicada"** pone estado Publicada + fecha; luego desaparece.
 - [ ] **Evaluación RUM.** En la pestaña RUM, 5 selectores; al elegirlos, el **badge RUM** se actualiza en vivo (rojo ≤5 / amarillo 5–7 / verde >7) y se autoguarda.
 - [ ] **Deep-link.** Entrar con `?piece={id}` (o desde el kanban) preselecciona esa pieza.
+
+### Asistente (chat de refinamiento del guión)
+
+> Pestaña **Asistente** (solo aparece si el asistente de IA está configurado — ver [09-ia.md](09-ia.md)).
+> Es una **conversación** para pulir el guión de la pieza: el creador pide ajustes y la IA propone versiones
+> **sin tocar la pieza**; solo se aplican al elegirlas. El hilo se guarda **por pieza** (persiste al recargar).
+
+- [ ] **Enviar instrucción.** Escribe un ajuste (p. ej. "hazlo más corto") y pulsa **Enviar** (o **⌘/Ctrl + Enter**).
+      Aparece tu mensaje (burbuja violeta a la derecha) y un indicador **"Pensando…"** mientras la IA trabaja en 2º plano.
+- [ ] **Respuesta de la IA.** Al terminar, aparece una burbuja del **Asistente** con una **nota** de qué cambió y una
+      **versión propuesta** del guión (Gancho / Historia / Moraleja / CTA), con botón **Usar esta versión**.
+- [ ] **Atajos rápidos.** Los chips (**Más corto**, **Más cálido**, **Más directo**, **Otro gancho**, **Más emocional**)
+      envían esa instrucción de un clic.
+- [ ] **Iterar mantiene contexto.** Un segundo ajuste ("ahora más cálido") parte de la **última versión** propuesta,
+      no del guión original: la conversación acumula contexto (no hay que re-explicar todo).
+- [ ] **Aplicar (IA = sugerencia).** Solo al pulsar **Usar esta versión** se reescriben Gancho/Historia/Moraleja/CTA
+      en la pestaña **Guión** (autoguardado). Sin pulsar, el guión de la pieza no cambia.
+- [ ] **Contador y persistencia.** La pestaña muestra un contador con el nº de mensajes; al recargar o volver a la pieza,
+      el hilo sigue ahí. Cambiar de pieza muestra **su** propio hilo (no se mezclan).
+- [ ] **Reiniciar.** El botón **Reiniciar** (con confirmación) borra el historial del chat de esa pieza (no afecta al
+      guión ya aplicado).
+- [ ] **Sin clave de IA.** Si no hay `ANTHROPIC_API_KEY`, la pestaña **Asistente** no aparece.
 
 ## Vista pública del cliente (`/p/{token}`)
 

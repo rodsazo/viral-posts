@@ -30,7 +30,15 @@ servicio compartida (`App\Support\Ai\*`); el Estudio aporta la UI y encola el tr
 | 2 | **Generador de piezas** | Idea + objetivo + formato + instrucciones + selección manual de preguntas/creencias (por seguidor) + **Ideas Ganadoras Referenciales** (HerasTemplate, 0/1/varias, filtrables por Referente) | **5** guiones → el usuario elige 1 o varios → **crea una pieza por cada uno** | ✅ Estudio (`/studio/{marca}/generador`) |
 | 3 | **Generador de ideas** | Seguidor ideal → preguntas/creencias elegidas + instrucciones | Hasta 3 ideas (título · concepto · mecanismo) → el usuario guarda 1 o varias como `WinningIdea` (enlazadas a las preguntas) | ✅ Estudio (`/studio/{marca}/ideas`) |
 | 4 | **Kickstart · Seguidores ideales** | Info de la marca (descripción, promesa, ofertas, cliente ideal) + instrucciones | **3** hipótesis de seguidor ideal, cada una con nivel de conciencia + 4 dolores/problemas/deseos + 4 preguntas + 4 mitos → el usuario guarda 1 o varias (crea `IdealFollower` + `Question`/`Belief`/`Pain`) | ✅ Estudio (`/studio/{marca}/kickstart`) |
-| 5 | *(futuro)* Lluvia de preguntas/creencias | Seguidor ideal + categoría | Hasta 3 preguntas o creencias candidatas | ⏳ |
+| 5 | **Asistente conversacional** (chat de refinamiento) | Hilo por pieza: marca + idea + audiencia + borrador base (bloque de sistema **cacheado**) + historial + nueva instrucción ("más cálido", "más corto") | Nota de cambios + versión propuesta del guión → se aplica **solo** al pulsar "Usar esta versión" | ✅ Estudio (composer → pestaña **Asistente**) |
+| 6 | *(futuro)* Lluvia de preguntas/creencias | Seguidor ideal + categoría | Hasta 3 preguntas o creencias candidatas | ⏳ |
+
+**Caso 5 — detalle técnico:** el hilo se guarda en `piece_refinements` (un mensaje por fila). La API de Claude es
+*stateless*: en cada turno se reenvía la conversación acumulada, pero el prefijo estable (rol + reglas + marca +
+idea + audiencia + borrador base) se marca con **prompt caching** (`CacheControlEphemeral`), así que iterar
+("más corto" → "más cálido") cuesta una fracción. La generación va en cola (`RefinePieceJob`) con polling, igual
+que los demás casos. `ContentAssistant::refineScript()` construye `RefineContext` → `toSystem()` (bloque cacheado)
++ `toMessages()` (user/assistant + instrucción).
 
 ### Configuración editable
 

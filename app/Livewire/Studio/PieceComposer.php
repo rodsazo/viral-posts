@@ -8,18 +8,22 @@ use App\Enums\ContentObjective;
 use App\Enums\ContentStatus;
 use App\Enums\IdeaStatus;
 use App\Jobs\GenerateSuggestionsJob;
+use App\Jobs\RefinePieceJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
 use App\Models\ContentPiece;
 use App\Models\Pain;
+use App\Models\PieceRefinement;
 use App\Models\WinningIdea;
 use App\Support\Ai\ContentAssistant;
+use App\Support\Ai\RefineContext;
 use App\Support\Ai\ScriptContext;
 use App\Support\LinkPreview;
 use App\Support\Rum;
 use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -37,6 +41,9 @@ class PieceComposer extends Component
     // El seguidor ideal es el centro: de él salen los mitos/verdades a tratar.
     // Sin tipar (como winning_idea_id) para tolerar el "" que mandan los selects de Flux.
     public $idealFollowerId = null;
+
+    // Periodo de la pieza (permite mover una pieza sin periodo a uno). Sin tipar por Flux.
+    public $periodId = null;
 
     public string $title = '';
 
@@ -96,6 +103,15 @@ class PieceComposer extends Component
     // Generación en curso (id del registro AiGeneration) mientras se procesa en la cola.
     public ?int $scriptGenerationId = null;
 
+    // ── Asistente conversacional (refinamiento del guión estilo chat) ──────────────
+    // Instrucción que escribe el creador ("más cálido", "más corto"…).
+    public string $refineInstruction = '';
+
+    // Turno de refinamiento en curso (id del registro AiGeneration) mientras se procesa.
+    public ?int $refineGenerationId = null;
+
+    public ?string $refineError = null;
+
     public function mount(Account $account): void
     {
         $this->account = $account;
@@ -145,7 +161,7 @@ class PieceComposer extends Component
 
         if ($this->pieceId === $id) {
             $this->reset([
-                'pieceId', 'winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating',
+                'pieceId', 'winning_idea_id', 'idealFollowerId', 'periodId', 'title', 'objective', 'format', 'status', 'rating',
                 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'publishedAt', 'rumFactors', 'saved',
                 'location', 'equipment', 'people', 'clientNotes',
             ]);
@@ -168,6 +184,7 @@ class PieceComposer extends Component
         $this->pieceId = $piece->id;
         $this->winning_idea_id = $piece->winning_idea_id;
         $this->idealFollowerId = $piece->ideal_follower_id;
+        $this->periodId = $piece->period_id;
         $this->title = $piece->title;
         $this->objective = $piece->objective?->value;
         $this->format = $piece->format?->value;
@@ -186,12 +203,18 @@ class PieceComposer extends Component
         $this->people = $piece->people;
         $this->clientNotes = $piece->client_notes;
         $this->saved = false;
+
+        // Reinicia el estado del chat de refinamiento al cambiar de pieza.
+        $this->refineInstruction = '';
+        $this->refineGenerationId = null;
+        $this->refineError = null;
+        unset($this->refinements);
     }
 
     /** Autoguardado: cualquier campo enlazado dispara save(). */
     public function updated(string $name): void
     {
-        $fields = ['winning_idea_id', 'idealFollowerId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
+        $fields = ['winning_idea_id', 'idealFollowerId', 'periodId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
 
         if (in_array($name, $fields, true) || str_starts_with($name, 'rumFactors')) {
             $this->save();
@@ -213,6 +236,7 @@ class PieceComposer extends Component
         $piece->update([
             'winning_idea_id' => $this->winning_idea_id ?: null,
             'ideal_follower_id' => $this->idealFollowerId ?: null,
+            'period_id' => $this->periodId ?: null,
             'title' => trim((string) $this->title) ?: 'Sin título',
             'objective' => $this->objective ?: null,
             'format' => $this->format ?: null,
@@ -381,6 +405,175 @@ class PieceComposer extends Component
         $this->modal('script-suggestions')->close();
     }
 
+    // ── Asistente conversacional (chat de refinamiento del guión) ──────────────────
+
+    /**
+     * Hilo de refinamiento de la pieza abierta, en orden cronológico.
+     *
+     * @return Collection<int, PieceRefinement>
+     */
+    #[Computed]
+    public function refinements(): Collection
+    {
+        if ($this->pieceId === null) {
+            return collect();
+        }
+
+        return PieceRefinement::where('content_piece_id', $this->pieceId)->orderBy('id')->get();
+    }
+
+    /** ¿Hay un turno de refinamiento procesándose (encolado)? La vista lo usa para el polling. */
+    #[Computed]
+    public function refining(): bool
+    {
+        return $this->refineGenerationId !== null;
+    }
+
+    /**
+     * Envía una instrucción de refinamiento ("más cálido", "más corto"). Persiste el turno
+     * del usuario en el hilo y encola la respuesta de la IA (que llega por polling).
+     */
+    public function sendRefinement(): void
+    {
+        $instruction = trim($this->refineInstruction);
+
+        // Nota: comprobamos la propiedad directa (no el computed `refining`) para no memoizar
+        // su valor antiguo antes de arrancar la generación en el mismo request.
+        if ($instruction === '' || $this->pieceId === null || $this->refineGenerationId !== null) {
+            return;
+        }
+
+        if (! app(ContentAssistant::class)->isConfigured()) {
+            return;
+        }
+
+        $piece = $this->account->contentPieces()->find($this->pieceId);
+
+        if ($piece === null) {
+            return;
+        }
+
+        // El historial que ve la IA son los turnos YA existentes (antes de este). La nueva
+        // instrucción viaja aparte como último mensaje del usuario.
+        $history = $this->refinements
+            ->map(fn (PieceRefinement $r): array => [
+                'role' => $r->role,
+                'body' => $r->body,
+                'proposal' => $r->proposal,
+            ])
+            ->all();
+
+        $context = new RefineContext(
+            instruction: $instruction,
+            brandPromise: $this->account->brand_promise,
+            mainOffers: $this->account->main_offers,
+            ideaTitle: $this->selectedIdea()?->title,
+            ideaConcept: $this->selectedIdea()?->concept,
+            objective: $this->objective ? ContentObjective::tryFrom($this->objective)?->getLabel() : null,
+            format: $this->format ? ContentFormat::tryFrom($this->format)?->getLabel() : null,
+            questions: $this->contextQuestions,
+            beliefs: $this->contextBeliefs,
+            pains: $this->contextPains,
+            baseHook: $this->hookText,
+            baseStory: $this->story,
+            baseMoral: $this->moral,
+            baseCta: $this->cta,
+            history: $history,
+        );
+
+        // Persiste el turno del usuario (se ve en el chat de inmediato).
+        PieceRefinement::create([
+            'content_piece_id' => $piece->id,
+            'user_id' => auth()->id(),
+            'role' => PieceRefinement::ROLE_USER,
+            'body' => $instruction,
+        ]);
+
+        $generation = AiGeneration::create([
+            'account_id' => $this->account->getKey(),
+            'user_id' => auth()->id(),
+            'kind' => 'refine',
+            'status' => AiGeneration::STATUS_PROCESSING,
+        ]);
+
+        RefinePieceJob::dispatch($generation->id, $context);
+
+        $this->refineGenerationId = $generation->id;
+        $this->refineInstruction = '';
+        $this->refineError = null;
+        unset($this->refinements);
+    }
+
+    /** Atajo: rellena la instrucción con un preajuste ("Más corto"…) y la envía. */
+    public function quickRefine(string $instruction): void
+    {
+        $this->refineInstruction = $instruction;
+        $this->sendRefinement();
+    }
+
+    /** Polling: cuando el job termina, añade el mensaje del asistente al hilo (o el error). */
+    public function pollRefinement(): void
+    {
+        if ($this->refineGenerationId === null) {
+            return;
+        }
+
+        $generation = AiGeneration::find($this->refineGenerationId);
+
+        if ($generation === null || $generation->isProcessing()) {
+            return;
+        }
+
+        if ($generation->isDone() && $this->pieceId !== null) {
+            $result = $generation->result ?? [];
+
+            PieceRefinement::create([
+                'content_piece_id' => $this->pieceId,
+                'role' => PieceRefinement::ROLE_ASSISTANT,
+                'body' => $result['note'] ?? null,
+                'proposal' => $result['fields'] ?? null,
+            ]);
+        } elseif (! $generation->isDone()) {
+            $this->refineError = $generation->error ?: 'No se pudo refinar. Inténtalo de nuevo.';
+        }
+
+        $this->refineGenerationId = null;
+        unset($this->refinements);
+        $this->dispatch('ai-generation-done');
+    }
+
+    /** Aplica al guión la versión propuesta por un turno del asistente y guarda. */
+    public function applyRefinement(int $id): void
+    {
+        $refinement = $this->refinements->firstWhere('id', $id);
+
+        if ($refinement === null || ! $refinement->isAssistant() || ! filled($refinement->proposal)) {
+            return;
+        }
+
+        $fields = $refinement->proposal;
+        $this->hookText = $fields['hook'] ?? $this->hookText;
+        $this->story = $fields['story'] ?? $this->story;
+        $this->moral = $fields['moral'] ?? $this->moral;
+        $this->cta = $fields['cta'] ?? $this->cta;
+
+        $this->save();
+    }
+
+    /** Reinicia la conversación de refinamiento (borra el hilo de la pieza). */
+    public function resetRefinements(): void
+    {
+        if ($this->pieceId === null) {
+            return;
+        }
+
+        PieceRefinement::where('content_piece_id', $this->pieceId)->delete();
+
+        $this->refineGenerationId = null;
+        $this->refineError = null;
+        unset($this->refinements);
+    }
+
     private function selectedIdea(): ?WinningIdea
     {
         if (! $this->winning_idea_id) {
@@ -497,6 +690,7 @@ class PieceComposer extends Component
                 })
                 ->orderBy('title')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
+            'periods' => $this->account->periods()->latest('id')->get(),
         ]);
     }
 }
