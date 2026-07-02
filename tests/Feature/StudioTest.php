@@ -92,6 +92,24 @@ class StudioTest extends TestCase
             ->assertSee('PIEZA RECIENTE');
     }
 
+    public function test_composer_shows_idea_reference_reels_numbered(): void
+    {
+        $account = Account::factory()->create();
+        $idea = WinningIdea::factory()->create([
+            'account_id' => $account->id,
+            'example_urls' => ['https://www.tiktok.com/@a/video/1', 'https://www.instagram.com/reel/2'],
+        ]);
+        $piece = ContentPiece::factory()->create(['account_id' => $account->id, 'winning_idea_id' => $idea->id]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
+            ->assertSee('Reels de referencia')
+            ->assertSee('Referencia 1')
+            ->assertSee('Referencia 2')
+            ->assertSee('https://www.tiktok.com/@a/video/1');
+    }
+
     public function test_choosing_a_follower_shows_context_and_autosaves(): void
     {
         $account = Account::factory()->create();

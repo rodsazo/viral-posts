@@ -278,6 +278,26 @@
             <flux:heading size="lg" class="mb-3">Contexto</flux:heading>
 
             <div class="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900">
+                {{-- Reels de referencia de la idea ganadora elegida --}}
+                @if (count($this->ideaReferences))
+                    <div>
+                        <flux:subheading>🎬 Reels de referencia</flux:subheading>
+                        <ul class="mt-1 flex flex-col gap-1 text-sm">
+                            @foreach ($this->ideaReferences as $i => $url)
+                                <li>
+                                    <a href="{{ $url }}" target="_blank" rel="noopener"
+                                       class="inline-flex items-center gap-1 font-medium text-violet-500 hover:underline">
+                                        <flux:icon.link variant="micro" class="size-3.5" />
+                                        Referencia {{ $i + 1 }}
+                                    </a>
+                                </li>
+                            @endforeach
+                        </ul>
+                    </div>
+
+                    <flux:separator />
+                @endif
+
                 <div>
                     <flux:subheading>Preguntas que responde</flux:subheading>
                     @if (count($this->contextQuestions))

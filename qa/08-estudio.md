@@ -168,6 +168,8 @@
 - [ ] **Idea + seguidor independientes.** En **Datos básicos** se eligen la **idea ganadora** (el formato) y el
       **seguidor ideal** (a quién va dirigida) por separado. Al elegir **seguidor**, el panel de **contexto en vivo**
       (derecha) muestra sus **preguntas**, **mitos/verdades** y **dolores/deseos** (ya **no** dependen de la idea).
+- [ ] **Reels de referencia.** Si la idea ganadora elegida tiene ejemplos reales (URLs), el panel de contexto los
+      lista como **"Referencia 1", "Referencia 2", …** (enlaces que abren en pestaña nueva). Sin ejemplos, no aparece.
 - [ ] **Autoguardado.** Escribir en cualquier campo (de cualquier pestaña) → se guarda solo (recargar confirma). Indicador "Guardado"; botón **Guardar** guarda todo de una.
 - [ ] **Publicación.** Pegar URL → botón **"Vista previa"** muestra la miniatura. Botón **"Marcar publicada"** pone estado Publicada + fecha; luego desaparece.
 - [ ] **Evaluación RUM.** En la pestaña RUM, 5 selectores; al elegirlos, el **badge RUM** se actualiza en vivo (rojo ≤5 / amarillo 5–7 / verde >7) y se autoguarda.

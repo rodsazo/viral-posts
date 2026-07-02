@@ -454,6 +454,17 @@ class PieceComposer extends Component
         return ($piece && $piece->client_review_status !== ClientReviewStatus::Pending) ? $piece : null;
     }
 
+    /** Reels de referencia de la idea ganadora elegida (ejemplos reales, URLs). */
+    /** @return array<int, string> */
+    #[Computed]
+    public function ideaReferences(): array
+    {
+        return array_values(array_filter(
+            $this->selectedIdea()?->example_urls ?? [],
+            fn ($u): bool => filled($u),
+        ));
+    }
+
     /** Enlace público (sin login) de la pieza seleccionada, para compartir con el cliente. */
     #[Computed]
     public function publicUrl(): ?string
