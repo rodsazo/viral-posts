@@ -10,7 +10,8 @@
       (Filament) conserva su propio tema y **no** se ve afectado.
 - [ ] **Acceso protegido.** Sin sesión → redirige a login. Usuario no miembro de la marca → 403.
 - [ ] **Navegación** agrupada (sin emojis, iconos consistentes): el rótulo **"Estudio"** (arriba a la izquierda)
-      es el **enlace a la portada** (ya **no** hay item "Inicio") + 3 desplegables —
+      es el **enlace a la portada** (ya **no** hay item "Inicio") + desplegables —
+      **Marca** (Diseño de Marca — ver [10-marca.md](10-marca.md); Personajes de marca y Generador de personajes — ver [11-personajes.md](11-personajes.md)),
       **Audiencia** (Seguidores ideales · CTAs · Kickstart),
       **Contenido** (Ideas ganadoras · Ideas Referenciales · Generador de ideas · Generador de piezas · Composer),
       **Planificación** (Kanban · Periodos · *Calendario, próx.*),

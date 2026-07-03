@@ -22,6 +22,8 @@ class IdeaContext
         public ?string $brandPromise = null,
         public ?string $mainOffers = null,
         public ?string $extra = null,
+        // Personaje de marca (ya renderizado con BrandCharacter::toPromptContext()).
+        public ?string $characterContext = null,
     ) {}
 
     public function hasMaterial(): bool
@@ -46,6 +48,11 @@ class IdeaContext
             foreach ($brand as $label => $value) {
                 $lines[] = "- {$label}: {$value}";
             }
+        }
+
+        if (filled($this->characterContext)) {
+            $lines[] = '';
+            $lines[] = $this->characterContext;
         }
 
         if (filled($this->questions)) {

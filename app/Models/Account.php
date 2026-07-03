@@ -153,6 +153,11 @@ class Account extends Model implements HasAvatar
         return $this->hasMany(Period::class);
     }
 
+    public function brandCharacters(): HasMany
+    {
+        return $this->hasMany(BrandCharacter::class);
+    }
+
     public function aiGenerations(): HasMany
     {
         return $this->hasMany(AiGeneration::class);

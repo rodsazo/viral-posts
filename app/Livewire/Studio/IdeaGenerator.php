@@ -6,6 +6,7 @@ use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
+use App\Models\BrandCharacter;
 use App\Models\Pain;
 use App\Models\Question;
 use App\Support\Ai\ContentAssistant;
@@ -27,6 +28,9 @@ class IdeaGenerator extends Component
     public Account $account;
 
     public ?int $idealFollowerId = null;
+
+    // Personaje de marca (opcional): las ideas salen "en personaje".
+    public $brandCharacterId = null;
 
     /** @var array<int, int|string> */
     public array $questionIds = [];
@@ -198,6 +202,7 @@ class IdeaGenerator extends Component
             brandPromise: $this->account->brand_promise,
             mainOffers: $this->account->main_offers,
             extra: $this->instructions,
+            characterContext: $this->selectedCharacter()?->toPromptContext(),
         );
 
         $generation = AiGeneration::create([
@@ -263,10 +268,20 @@ class IdeaGenerator extends Component
         return $this->redirect(route('studio.generator', $this->account), navigate: true);
     }
 
+    private function selectedCharacter(): ?BrandCharacter
+    {
+        if (! $this->brandCharacterId) {
+            return null;
+        }
+
+        return $this->account->brandCharacters()->find($this->brandCharacterId);
+    }
+
     public function render(): View
     {
         return view('livewire.studio.idea-generator', [
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
+            'characters' => $this->account->brandCharacters()->orderBy('name')->get(),
         ]);
     }
 }

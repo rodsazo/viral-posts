@@ -23,6 +23,15 @@
                     @endforeach
                 </flux:select>
 
+                @if (count($characters))
+                    <flux:select wire:model.live="brandCharacterId" label="Personaje de marca (opcional)" placeholder="Sin personaje" description="Si eliges uno, las ideas salen con su voz y posturas.">
+                        <flux:select.option value="">Sin personaje</flux:select.option>
+                        @foreach ($characters as $character)
+                            <flux:select.option value="{{ $character->id }}">{{ $character->name }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                @endif
+
                 @if ($idealFollowerId)
                     <div>
                         <flux:subheading class="mb-1">Preguntas a enviar</flux:subheading>

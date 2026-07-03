@@ -12,6 +12,7 @@ use App\Jobs\RefinePieceJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
+use App\Models\BrandCharacter;
 use App\Models\ContentPiece;
 use App\Models\Pain;
 use App\Models\PieceRefinement;
@@ -44,6 +45,9 @@ class PieceComposer extends Component
 
     // Periodo de la pieza (permite mover una pieza sin periodo a uno). Sin tipar por Flux.
     public $periodId = null;
+
+    // Personaje de marca con el que se genera/refina el guión (opcional). Sin tipar por Flux.
+    public $brandCharacterId = null;
 
     public string $title = '';
 
@@ -161,7 +165,7 @@ class PieceComposer extends Component
 
         if ($this->pieceId === $id) {
             $this->reset([
-                'pieceId', 'winning_idea_id', 'idealFollowerId', 'periodId', 'title', 'objective', 'format', 'status', 'rating',
+                'pieceId', 'winning_idea_id', 'idealFollowerId', 'periodId', 'brandCharacterId', 'title', 'objective', 'format', 'status', 'rating',
                 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'publishedAt', 'rumFactors', 'saved',
                 'location', 'equipment', 'people', 'clientNotes',
             ]);
@@ -185,6 +189,7 @@ class PieceComposer extends Component
         $this->winning_idea_id = $piece->winning_idea_id;
         $this->idealFollowerId = $piece->ideal_follower_id;
         $this->periodId = $piece->period_id;
+        $this->brandCharacterId = $piece->brand_character_id;
         $this->title = $piece->title;
         $this->objective = $piece->objective?->value;
         $this->format = $piece->format?->value;
@@ -214,7 +219,7 @@ class PieceComposer extends Component
     /** Autoguardado: cualquier campo enlazado dispara save(). */
     public function updated(string $name): void
     {
-        $fields = ['winning_idea_id', 'idealFollowerId', 'periodId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
+        $fields = ['winning_idea_id', 'idealFollowerId', 'periodId', 'brandCharacterId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
 
         if (in_array($name, $fields, true) || str_starts_with($name, 'rumFactors')) {
             $this->save();
@@ -237,6 +242,7 @@ class PieceComposer extends Component
             'winning_idea_id' => $this->winning_idea_id ?: null,
             'ideal_follower_id' => $this->idealFollowerId ?: null,
             'period_id' => $this->periodId ?: null,
+            'brand_character_id' => $this->brandCharacterId ?: null,
             'title' => trim((string) $this->title) ?: 'Sin título',
             'objective' => $this->objective ?: null,
             'format' => $this->format ?: null,
@@ -350,6 +356,8 @@ class PieceComposer extends Component
         $context->currentMoral = $this->moral;
         $context->currentCta = $this->cta;
         $context->extra = $this->aiBrief;
+        // Personaje de marca elegido (opcional): habla y piensa en personaje.
+        $context->characterContext = $this->selectedCharacter()?->toPromptContext();
 
         $generation = AiGeneration::create([
             'account_id' => $this->account->getKey(),
@@ -479,6 +487,7 @@ class PieceComposer extends Component
             baseMoral: $this->moral,
             baseCta: $this->cta,
             history: $history,
+            characterContext: $this->selectedCharacter()?->toPromptContext(),
         );
 
         // Persiste el turno del usuario (se ve en el chat de inmediato).
@@ -581,6 +590,15 @@ class PieceComposer extends Component
         }
 
         return $this->account->winningIdeas()->find($this->winning_idea_id);
+    }
+
+    private function selectedCharacter(): ?BrandCharacter
+    {
+        if (! $this->brandCharacterId) {
+            return null;
+        }
+
+        return $this->account->brandCharacters()->find($this->brandCharacterId);
     }
 
     /** Preguntas del seguidor ideal de la pieza. */
@@ -691,6 +709,7 @@ class PieceComposer extends Component
                 ->orderBy('title')->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
             'periods' => $this->account->periods()->latest('id')->get(),
+            'characters' => $this->account->brandCharacters()->orderBy('name')->get(),
         ]);
     }
 }

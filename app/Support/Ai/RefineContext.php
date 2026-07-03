@@ -40,6 +40,8 @@ class RefineContext
         public ?string $baseMoral = null,
         public ?string $baseCta = null,
         public array $history = [],
+        // Personaje de marca (ya renderizado con BrandCharacter::toPromptContext()).
+        public ?string $characterContext = null,
     ) {}
 
     /**
@@ -74,6 +76,11 @@ class RefineContext
             foreach ($brand as $label => $value) {
                 $lines[] = "- {$label}: {$value}";
             }
+        }
+
+        if (filled($this->characterContext)) {
+            $lines[] = '';
+            $lines[] = $this->characterContext;
         }
 
         if (filled($this->ideaTitle) || filled($this->ideaConcept)) {

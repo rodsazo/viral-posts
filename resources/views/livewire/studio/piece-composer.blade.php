@@ -166,6 +166,14 @@
                             @endforeach
                         </flux:select>
 
+                        {{-- Personaje de marca (opcional): la IA genera y refina el guión "en personaje". --}}
+                        <flux:select wire:model.live="brandCharacterId" label="Personaje de marca" placeholder="Sin personaje" description="Si eliges uno, la IA escribe con su voz, posturas y reglas.">
+                            <flux:select.option value="">Sin personaje</flux:select.option>
+                            @foreach ($characters as $character)
+                                <flux:select.option value="{{ $character->id }}">{{ $character->name }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+
                         <div class="grid grid-cols-2 gap-4">
                             <flux:select wire:model.live="objective" label="Objetivo" placeholder="Sin objetivo">
                                 <flux:select.option value="">Sin objetivo</flux:select.option>

@@ -41,12 +41,26 @@
                         ? 'bg-zinc-200 font-medium text-zinc-900 dark:bg-zinc-700 dark:text-white'
                         : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-800'))
                     {{-- Un grupo se marca activo si la ruta actual es cualquiera de sus hijas (incluidas las próximas). --}}
+                    @php($brandActive = request()->routeIs('studio.brand-design', 'studio.brand-characters', 'studio.character-generator'))
                     @php($audienceActive = request()->routeIs('studio.audience', 'studio.kickstart', 'studio.ctas'))
                     @php($contentActive = request()->routeIs('studio.winning-ideas', 'studio.reference-ideas', 'studio.ideas', 'studio.generator', 'studio.pieces', 'studio.hooks'))
                     @php($planActive = request()->routeIs('studio.kanban', 'studio.periods', 'studio.calendar'))
                     @php($analyticsActive = request()->routeIs('studio.performance', 'studio.ai-usage'))
 
                     <nav class="flex items-center gap-1">
+
+                        {{-- Marca --}}
+                        <flux:dropdown position="bottom" align="start">
+                            <button type="button" class="{{ $navLink($brandActive) }}">
+                                <flux:icon.sparkles variant="micro" class="size-4 text-violet-300" /> Marca
+                                <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
+                            </button>
+                            <flux:menu>
+                                <flux:menu.item href="{{ route('studio.brand-design', $currentAccount) }}" icon="swatch">Diseño de Marca</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.brand-characters', $currentAccount) }}" icon="user-circle">Personajes de marca</flux:menu.item>
+                                <flux:menu.item href="{{ route('studio.character-generator', $currentAccount) }}" icon="sparkles">Generador de personajes</flux:menu.item>
+                            </flux:menu>
+                        </flux:dropdown>
 
                         {{-- Audiencia --}}
                         <flux:dropdown position="bottom" align="start">

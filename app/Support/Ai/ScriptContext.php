@@ -42,6 +42,8 @@ class ScriptContext
         public array $templates = [],
         public array $hooks = [],
         public array $ctas = [],
+        // Personaje de marca (ya renderizado con BrandCharacter::toPromptContext()).
+        public ?string $characterContext = null,
     ) {}
 
     public static function fromPiece(ContentPiece $piece): self
@@ -163,6 +165,11 @@ class ScriptContext
             foreach ($brand as $label => $value) {
                 $lines[] = "- {$label}: {$value}";
             }
+            $lines[] = '';
+        }
+
+        if (filled($this->characterContext)) {
+            $lines[] = $this->characterContext;
             $lines[] = '';
         }
 

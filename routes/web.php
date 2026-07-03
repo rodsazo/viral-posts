@@ -6,7 +6,10 @@ use App\Http\Controllers\PublicPieceController;
 use App\Http\Controllers\PublicPieceReviewController;
 use App\Livewire\Studio\AiUsage;
 use App\Livewire\Studio\AudienceHub;
+use App\Livewire\Studio\BrandCharacterManager;
+use App\Livewire\Studio\BrandDesign;
 use App\Livewire\Studio\CaptureInbox;
+use App\Livewire\Studio\CharacterGenerator;
 use App\Livewire\Studio\ContentCtaManager;
 use App\Livewire\Studio\HookManager;
 use App\Livewire\Studio\IdeaGenerator;
@@ -37,6 +40,9 @@ Route::get('/m/{account:public_token}', PublicBrandController::class)->name('bra
 // Estudio de creación a medida (Livewire + Flux), escopado a la marca.
 Route::middleware(['auth', 'membership'])->group(function () {
     Route::get('/studio/{account:slug}', StudioHome::class)->name('studio.home');
+    Route::get('/studio/{account:slug}/marca/diseno', BrandDesign::class)->name('studio.brand-design');
+    Route::get('/studio/{account:slug}/marca/personajes', BrandCharacterManager::class)->name('studio.brand-characters');
+    Route::get('/studio/{account:slug}/marca/generador-personajes', CharacterGenerator::class)->name('studio.character-generator');
     Route::get('/studio/{account:slug}/inbox', CaptureInbox::class)->name('studio.inbox');
     Route::get('/studio/{account:slug}/audiencia', AudienceHub::class)->name('studio.audience');
     Route::get('/studio/{account:slug}/kickstart', IdealFollowerKickstart::class)->name('studio.kickstart');

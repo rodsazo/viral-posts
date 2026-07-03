@@ -141,6 +141,100 @@ class ContentAssistant
     }
 
     /**
+     * Genera un Personaje de Marca completo (las 9 secciones) a partir del contexto.
+     * Devuelve un array serializable listo para persistir en `brand_characters`.
+     *
+     * @return array<string, mixed>
+     */
+    public function generateCharacter(CharacterContext $context): array
+    {
+        $draft = $this->generate(
+            system: $this->characterSystemPrompt(),
+            messages: [['role' => 'user', 'content' => $context->toPrompt()]],
+            format: BrandCharacterDraft::class,
+            timeout: (int) config('ai.character.request_timeout', 180),
+        );
+
+        return $this->characterToArray($draft);
+    }
+
+    /**
+     * Refina un Personaje de Marca en modo conversación: recibe el hilo (documento actual +
+     * historial + nueva instrucción) y devuelve una nota + la versión propuesta del personaje.
+     * El bloque de sistema (metodología + documento actual) se marca cacheable (prompt caching).
+     *
+     * @return array{note: string, fields: array<string, mixed>}
+     */
+    public function refineCharacter(RefineCharacterContext $context): array
+    {
+        $system = [
+            TextBlockParam::with(
+                text: $context->toSystem(),
+                cacheControl: CacheControlEphemeral::with(),
+            ),
+        ];
+
+        $draft = $this->generate(
+            system: $system,
+            messages: $context->toMessages(),
+            format: CharacterRefinementDraft::class,
+            timeout: (int) config('ai.character.request_timeout', 180),
+        );
+
+        return [
+            'note' => trim($draft->note),
+            'fields' => $this->characterToArray($draft->character),
+        ];
+    }
+
+    /**
+     * Mapea un BrandCharacterDraft (salida de IA) al array de columnas de brand_characters.
+     *
+     * @return array<string, mixed>
+     */
+    private function characterToArray(BrandCharacterDraft $draft): array
+    {
+        return [
+            'name' => trim($draft->name),
+            'essence' => $draft->essence,
+            'promise_line' => $draft->promise_line,
+            'archetype' => $draft->archetype,
+            'archetype_why' => $draft->archetype_why,
+            'authority_source' => $draft->authority_source,
+            'enemy_abstract' => $draft->enemy_abstract,
+            'enemies_concrete' => array_values($draft->enemies_concrete),
+            'polarization_rule' => $draft->polarization_rule,
+            'postures' => array_map(fn (CharacterPosture $p): array => [
+                'statement' => $p->statement,
+                'why' => $p->why,
+                'kind' => $p->kind,
+                'bridge' => $p->bridge,
+            ], $draft->postures),
+            'origin_full' => $draft->origin_full,
+            'origin_reel' => $draft->origin_reel,
+            'origin_oneliner' => $draft->origin_oneliner,
+            'voice_tone' => $draft->voice_tone,
+            'voice_jargon' => $draft->voice_jargon,
+            'voice_rhythm' => $draft->voice_rhythm,
+            'voice_humor' => $draft->voice_humor,
+            'verbal_signature' => $draft->verbal_signature,
+            'visual_principle' => $draft->visual_principle,
+            'visual_outfit' => $draft->visual_outfit,
+            'visual_look' => $draft->visual_look,
+            'visual_environment' => $draft->visual_environment,
+            'visual_props' => array_map(fn (CharacterProp $p): array => [
+                'description' => $p->description,
+                'moment' => $p->moment,
+            ], $draft->visual_props),
+            'production_formats' => array_values($draft->production_formats),
+            'conversion_destination' => $draft->conversion_destination,
+            'conversion_chain' => $draft->conversion_chain,
+            'valid_ctas' => array_values($draft->valid_ctas),
+            'coherence_rules' => array_values($draft->coherence_rules),
+        ];
+    }
+
+    /**
      * Refina el guión de una pieza en modo conversación: recibe el hilo (historial +
      * nueva instrucción) y devuelve una nota de cambios + la versión propuesta del guión.
      *
@@ -189,13 +283,13 @@ class ContentAssistant
      * @param  class-string<T>  $format
      * @return T
      */
-    private function generate(string|array $system, array $messages, string $format): object
+    private function generate(string|array $system, array $messages, string $format, ?int $timeout = null): object
     {
         if (! $this->isConfigured()) {
             throw new RuntimeException('Falta configurar ANTHROPIC_API_KEY para usar el asistente de IA.');
         }
 
-        $timeout = (int) config('ai.request_timeout', 120);
+        $timeout = $timeout ?? (int) config('ai.request_timeout', 120);
 
         // Generar varios guiones con razonamiento puede superar el max_execution_time
         // por defecto de PHP (30 s). Ampliamos el límite solo para esta operación.
@@ -304,6 +398,25 @@ class ContentAssistant
 
         Verificación: Cada contenido debe cumplir con la mayor cantidad posible de las siguientes verificaciones:
         {$checklist}
+        PROMPT;
+    }
+
+    private function characterSystemPrompt(): string
+    {
+        $role = (string) config('ai.character.system.role');
+        $method = (string) config('ai.character.system.method');
+        $rules = $this->bullets((array) config('ai.character.system.rules', []));
+
+        return <<<PROMPT
+        {$role}
+
+        Tu tarea: a partir de los insumos del usuario (marca, audiencia, destino de conversión y hechos
+        de la historia de origen), construye un personaje de marca completo: las 9 secciones del framework.
+
+        {$method}
+
+        Reglas:
+        {$rules}
         PROMPT;
     }
 

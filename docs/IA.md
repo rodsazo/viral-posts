@@ -31,7 +31,18 @@ servicio compartida (`App\Support\Ai\*`); el Estudio aporta la UI y encola el tr
 | 3 | **Generador de ideas** | Seguidor ideal → preguntas/creencias elegidas + instrucciones | Hasta 3 ideas (título · concepto · mecanismo) → el usuario guarda 1 o varias como `WinningIdea` (enlazadas a las preguntas) | ✅ Estudio (`/studio/{marca}/ideas`) |
 | 4 | **Kickstart · Seguidores ideales** | Info de la marca (descripción, promesa, ofertas, cliente ideal) + instrucciones | **3** hipótesis de seguidor ideal, cada una con nivel de conciencia + 4 dolores/problemas/deseos + 4 preguntas + 4 mitos → el usuario guarda 1 o varias (crea `IdealFollower` + `Question`/`Belief`/`Pain`) | ✅ Estudio (`/studio/{marca}/kickstart`) |
 | 5 | **Asistente conversacional** (chat de refinamiento) | Hilo por pieza: marca + idea + audiencia + borrador base (bloque de sistema **cacheado**) + historial + nueva instrucción ("más cálido", "más corto") | Nota de cambios + versión propuesta del guión → se aplica **solo** al pulsar "Usar esta versión" | ✅ Estudio (composer → pestaña **Asistente**) |
-| 6 | *(futuro)* Lluvia de preguntas/creencias | Seguidor ideal + categoría | Hasta 3 preguntas o creencias candidatas | ⏳ |
+| 6 | **Generador de Personajes de Marca** | Marca (promesa/ofertas/cliente ideal) + audiencia (seguidores) + destino/CTAs + hechos de origen | **Un** personaje completo (9 secciones del framework) → se guarda como `BrandCharacter` y se abre el editor | ✅ Estudio (Marca → Generador de personajes) |
+| 7 | **Refinamiento del personaje** (chat) | Documento actual del personaje (cacheado) + instrucción | Nota + versión propuesta del personaje → se aplica al elegir "Usar esta versión" | ✅ Estudio (editor de personaje) |
+| 8 | *(futuro)* Lluvia de preguntas/creencias | Seguidor ideal + categoría | Hasta 3 preguntas o creencias candidatas | ⏳ |
+
+**Personaje de Marca (casos 6-7).** El personaje es la identidad frente a cámara (arquetipo, enemigo, posturas,
+historia de origen, voz, identidad visual, conversión, guardrails). Se genera con `CharacterContext` → `BrandCharacterDraft`
+(structured output, objetos anidados `CharacterPosture`/`CharacterProp`) siguiendo los 8 pasos del framework
+(`config/ai.character`, editable). A diferencia del resto, devuelve **un** personaje (no 3): es un artefacto fundacional
+construido desde hechos reales, y luego es 100% editable + refinable. El **refinamiento** reusa el patrón del Composer
+(`RefineCharacterContext` con prompt caching sobre el documento actual; `character_refinements`). Un personaje elegido se
+**inyecta en toda generación** de ideas/guiones vía `BrandCharacter::toPromptContext()` (selector opcional en Composer —
+que lo recuerda en la pieza — y en los generadores de piezas e ideas).
 
 **Caso 5 — detalle técnico:** el hilo se guarda en `piece_refinements` (un mensaje por fila). La API de Claude es
 *stateless*: en cada turno se reenvía la conversación acumulada, pero el prefijo estable (rol + reglas + marca +

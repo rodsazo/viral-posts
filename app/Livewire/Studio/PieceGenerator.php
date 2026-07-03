@@ -10,6 +10,7 @@ use App\Jobs\GenerateSuggestionsJob;
 use App\Models\Account;
 use App\Models\AiGeneration;
 use App\Models\Belief;
+use App\Models\BrandCharacter;
 use App\Models\HookTemplate;
 use App\Models\Pain;
 use App\Models\Question;
@@ -37,6 +38,9 @@ class PieceGenerator extends Component
 
     // Paso 1 — parámetros (los mismos que una pieza).
     public $winning_idea_id = null;
+
+    // Personaje de marca (opcional): la IA genera "en personaje" y la pieza lo recuerda.
+    public $brandCharacterId = null;
 
     public ?string $objective = null;
 
@@ -189,6 +193,7 @@ class PieceGenerator extends Component
         $context->pains = $this->contextPains;
         $context->hooks = $this->hookLines();
         $context->ctas = $this->ctaLines();
+        $context->characterContext = $this->selectedCharacter()?->toPromptContext();
 
         $generation = AiGeneration::create([
             'account_id' => $this->account->getKey(),
@@ -247,6 +252,7 @@ class PieceGenerator extends Component
                 'period_id' => $periodId,
                 'winning_idea_id' => $this->winning_idea_id ?: null,
                 'ideal_follower_id' => $this->idealFollowerId ?: null,
+                'brand_character_id' => $this->brandCharacterId ?: null,
                 'title' => count($indices) > 1 ? "{$base} — variante {$position}" : $base,
                 'objective' => $this->objective ?: null,
                 'format' => $this->format ?: null,
@@ -274,6 +280,15 @@ class PieceGenerator extends Component
         return $this->account->winningIdeas()
             ->with('herasTemplate')
             ->find($this->winning_idea_id);
+    }
+
+    private function selectedCharacter(): ?BrandCharacter
+    {
+        if (! $this->brandCharacterId) {
+            return null;
+        }
+
+        return $this->account->brandCharacters()->find($this->brandCharacterId);
     }
 
     /** Abre el modal selector de ganchos, sembrando la selección actual. */
@@ -444,6 +459,7 @@ class PieceGenerator extends Component
                 ->orderBy('title')
                 ->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
+            'characters' => $this->account->brandCharacters()->orderBy('name')->get(),
             // Ganchos de la marca + los globales de referencia (account_id nulo).
             'hooks' => HookTemplate::query()
                 ->with('viralReferent')

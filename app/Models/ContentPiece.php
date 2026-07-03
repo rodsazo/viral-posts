@@ -26,6 +26,7 @@ class ContentPiece extends Model
         'period_id',
         'ideal_follower_id',
         'winning_idea_id',
+        'brand_character_id',
         'title',
         'objective',
         'format',
@@ -109,6 +110,11 @@ class ContentPiece extends Model
     public function winningIdea(): BelongsTo
     {
         return $this->belongsTo(WinningIdea::class);
+    }
+
+    public function brandCharacter(): BelongsTo
+    {
+        return $this->belongsTo(BrandCharacter::class);
     }
 
     public function idealFollower(): BelongsTo
