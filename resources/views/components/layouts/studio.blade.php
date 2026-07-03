@@ -56,24 +56,18 @@
                                 <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
                             </button>
                             <flux:menu>
+                                <flux:menu.heading>Configuración de marca</flux:menu.heading>
                                 <flux:menu.item href="{{ route('studio.brand-design', $currentAccount) }}" icon="swatch">Diseño de Marca</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.brand-characters', $currentAccount) }}" icon="user-circle">Personajes de marca</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.character-generator', $currentAccount) }}" icon="sparkles">Generador de personajes</flux:menu.item>
-                            </flux:menu>
-                        </flux:dropdown>
-
-                        {{-- Audiencia --}}
-                        <flux:dropdown position="bottom" align="start">
-                            <button type="button" class="{{ $navLink($audienceActive) }}">
-                                <flux:icon.users variant="micro" class="size-4 text-cyan-300" /> Audiencia
-                                <flux:icon.chevron-down variant="micro" class="size-3.5 opacity-60" />
-                            </button>
-                            <flux:menu>
+                                <flux:menu.separator></flux:menu.separator>
+                                <flux:menu.heading>Audiencia</flux:menu.heading>
                                 <flux:menu.item href="{{ route('studio.audience', $currentAccount) }}" icon="user-group">Seguidores ideales</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.ctas', $currentAccount) }}" icon="megaphone">CTAs</flux:menu.item>
                                 <flux:menu.item href="{{ route('studio.kickstart', $currentAccount) }}" icon="rocket-launch">Kickstart</flux:menu.item>
                             </flux:menu>
                         </flux:dropdown>
+
 
                         {{-- Contenido --}}
                         <flux:dropdown position="bottom" align="start">
