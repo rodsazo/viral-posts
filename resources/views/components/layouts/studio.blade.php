@@ -21,7 +21,7 @@
 </head>
 <body class="studio-shell min-h-full bg-zinc-50 text-zinc-900 antialiased dark:bg-zinc-950 dark:text-zinc-100">
     <header class="border-b border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900">
-        <div class="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
+        <div class="mx-auto flex h-14 max-w-[86rem] items-center justify-between px-6">
             <div class="flex items-center gap-3 text-sm">
                 @isset($currentAccount)
                     {{-- El rótulo "Estudio" es el enlace a la portada (ya no hay item "Inicio"). --}}
@@ -167,7 +167,7 @@
         </div>
     </header>
 
-    <main class="mx-auto max-w-7xl px-4 py-6">
+    <main class="mx-auto max-w-[86rem] px-6 py-8">
         @if (session('studio.flash'))
             <flux:callout variant="success" icon="check-circle" class="mb-4">{{ session('studio.flash') }}</flux:callout>
         @endif

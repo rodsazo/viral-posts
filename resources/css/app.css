@@ -14,13 +14,17 @@
 }
 
 /*
- * Tema del Estudio: superficies plomo-violáceas + acento violeta (inspirado en el
- * dashboard de referencia). Solo aplica al Estudio (la clase `studio-shell` va en su
- * <body>); el panel admin (Filament, CSS aparte) y la landing no se ven afectados.
+ * Tema del Estudio: superficies ciruela profundas + acento violeta→rosa. Solo aplica al
+ * Estudio (la clase `studio-shell` va en su <body>); el panel admin (Filament, CSS aparte)
+ * y la landing no se ven afectados.
  *
- * Truco clave: en Tailwind v4 las utilidades de color resuelven `var(--color-zinc-*)`,
- * así que reescalar aquí ese gris a un plomo violáceo retiñe TODAS las superficies del
- * Estudio (cards, header, bordes, texto) sin tocar el marcado de cada componente.
+ * Truco clave: en Tailwind v4 las utilidades resuelven variables de tema
+ * (`var(--color-zinc-*)`, `var(--radius-*)`, `var(--text-*)`, `--spacing`). Reescalarlas
+ * aquí retiñe/reforma TODAS las superficies del Estudio (color, radios, tipografía,
+ * espaciado) sin tocar el marcado de cada componente.
+ *
+ * Dirección (jul 2026): más contraste (3 escalones claros de superficie + textos más
+ * luminosos), radios y tipografía más generosos, y un pelín más de aire.
  */
 .studio-shell {
     color-scheme: dark;
@@ -30,16 +34,36 @@
     --color-accent-content: var(--color-violet-300);
     --color-accent-foreground: #ffffff;
 
-    /* Escala "tinta" plomo-violácea que sustituye a zinc dentro del Estudio. */
-    --color-zinc-50: #f6f4fb;
-    --color-zinc-100: #e9e6f2;
-    --color-zinc-200: #d0cbe0;
-    --color-zinc-300: #b0a9c8;
-    --color-zinc-400: #8a82a4;
-    --color-zinc-500: #6a6288;
-    --color-zinc-600: #4f4870;
-    --color-zinc-700: #3a3357;
-    --color-zinc-800: #2a2440;
-    --color-zinc-900: #181322;
-    --color-zinc-950: #100c19;
+    /* Escala "tinta" ciruela: fondo → tarjeta → superficie elevada bien separados,
+       y grises de texto más luminosos para legibilidad (sobre todo en cajas de texto). */
+    --color-zinc-50: #f7f5fc;
+    --color-zinc-100: #efeafa; /* texto principal (casi blanco) */
+    --color-zinc-200: #ddd6ee;
+    --color-zinc-300: #c6bcde; /* texto secundario */
+    --color-zinc-400: #9a90b8; /* terciario / placeholders */
+    --color-zinc-500: #79709a;
+    --color-zinc-600: #574e78;
+    --color-zinc-700: #362c4e; /* bordes fuertes / controles */
+    --color-zinc-800: #241b37; /* superficies elevadas / hover / bordes */
+    --color-zinc-900: #16101f; /* tarjetas, header */
+    --color-zinc-950: #0b0813; /* fondo de página */
+
+    /* Radios más generosos (las tarjetas usan sobre todo rounded-xl). */
+    --radius-md: 0.6rem;
+    --radius-lg: 0.85rem;
+    --radius-xl: 1.2rem;
+    --radius-2xl: 1.5rem;
+    --radius-3xl: 2rem;
+
+    /* Tipografía un punto más grande (+5% sobre la primera pasada). */
+    --text-xs: 0.84rem;
+    --text-sm: 0.98rem;
+    --text-base: 1.08rem;
+    --text-lg: 1.26rem;
+    --text-xl: 1.42rem;
+    --text-2xl: 1.68rem;
+    --text-3xl: 2.05rem;
+
+    /* Más aire en todo (escala base de padding/gap/tamaños). */
+    --spacing: 0.27rem;
 }
