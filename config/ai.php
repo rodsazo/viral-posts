@@ -76,7 +76,11 @@ return [
     'character' => [
 
         // Segundos para generar un personaje completo (razona 9 secciones; puede tardar).
-        'request_timeout' => 180,
+        'request_timeout' => 200,
+
+        // Tope de tokens de salida. El personaje (9 secciones + razonamiento) es grande;
+        // con 4096 la salida estructurada se trunca y el JSON no parsea. Damos margen amplio.
+        'max_tokens' => 16000,
 
         'system' => [
             'role' => 'Eres un estratega de marca personal para contenido viral, formado en la metodología de Víctor Heras. Construyes "personajes de marca": la identidad frente a cámara desde la que se produce todo el contenido.',

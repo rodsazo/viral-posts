@@ -152,7 +152,8 @@ class ContentAssistant
             system: $this->characterSystemPrompt(),
             messages: [['role' => 'user', 'content' => $context->toPrompt()]],
             format: BrandCharacterDraft::class,
-            timeout: (int) config('ai.character.request_timeout', 180),
+            timeout: (int) config('ai.character.request_timeout', 200),
+            maxTokens: (int) config('ai.character.max_tokens', 16000),
         );
 
         return $this->characterToArray($draft);
@@ -178,7 +179,8 @@ class ContentAssistant
             system: $system,
             messages: $context->toMessages(),
             format: CharacterRefinementDraft::class,
-            timeout: (int) config('ai.character.request_timeout', 180),
+            timeout: (int) config('ai.character.request_timeout', 200),
+            maxTokens: (int) config('ai.character.max_tokens', 16000),
         );
 
         return [
@@ -283,13 +285,14 @@ class ContentAssistant
      * @param  class-string<T>  $format
      * @return T
      */
-    private function generate(string|array $system, array $messages, string $format, ?int $timeout = null): object
+    private function generate(string|array $system, array $messages, string $format, ?int $timeout = null, ?int $maxTokens = null): object
     {
         if (! $this->isConfigured()) {
             throw new RuntimeException('Falta configurar ANTHROPIC_API_KEY para usar el asistente de IA.');
         }
 
         $timeout = $timeout ?? (int) config('ai.request_timeout', 120);
+        $maxTokens = $maxTokens ?? 4096;
 
         // Generar varios guiones con razonamiento puede superar el max_execution_time
         // por defecto de PHP (30 s). Ampliamos el límite solo para esta operación.
@@ -318,7 +321,7 @@ class ContentAssistant
 
         try {
             $message = $this->client()->messages->create(
-                maxTokens: 4096,
+                maxTokens: $maxTokens,
                 model: $model,
                 system: $system,
                 thinking: ThinkingConfigAdaptive::with(),
@@ -342,10 +345,19 @@ class ContentAssistant
         }
 
         if (! $parsed instanceof $format) {
+            // stop_reason = 'max_tokens' delata truncación (subir ai.*.max_tokens).
+            $rawText = collect($message->content ?? [])
+                ->map(fn ($block): string => (string) ($block->text ?? ''))
+                ->implode('');
+
             Log::channel('ai')->error('Respuesta IA inesperada', [
                 'workflow' => $workflow,
                 'model' => $model,
                 'duration_ms' => (int) round((microtime(true) - $startedAt) * 1000),
+                'stop_reason' => $message->stopReason,
+                'max_tokens' => $maxTokens,
+                'output_tokens' => $message->usage->outputTokens ?? null,
+                'raw_snippet' => mb_substr($rawText, 0, 500),
             ]);
 
             throw new RuntimeException('La IA devolvió una respuesta inesperada. Inténtalo de nuevo.');
