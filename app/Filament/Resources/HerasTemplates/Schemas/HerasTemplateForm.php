@@ -3,7 +3,7 @@
 namespace App\Filament\Resources\HerasTemplates\Schemas;
 
 use App\Models\ViralReferent;
-use App\Support\LinkPreview;
+use App\Support\ReferenceImageCapture;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -54,7 +54,7 @@ class HerasTemplateForm
                             ->label('Obtener vista previa')
                             ->icon('heroicon-m-photo')
                             ->action(function (Get $get, Set $set): void {
-                                $image = app(LinkPreview::class)->imageFor($get('reference_url'));
+                                $image = app(ReferenceImageCapture::class)->capture($get('reference_url'));
 
                                 if ($image !== null) {
                                     $set('preview_image_url', $image);

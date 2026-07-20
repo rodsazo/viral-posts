@@ -9,7 +9,7 @@ use App\Enums\ContentStatus;
 use App\Models\Belief;
 use App\Models\Question;
 use App\Models\WinningIdea;
-use App\Support\LinkPreview;
+use App\Support\ReferenceImageCapture;
 use App\Support\Rum;
 use Filament\Actions\Action;
 use Filament\Facades\Filament;
@@ -187,7 +187,7 @@ class ContentPieceForm
                                             ->label('Obtener vista previa')
                                             ->icon('heroicon-m-photo')
                                             ->action(function (Get $get, Set $set): void {
-                                                $image = app(LinkPreview::class)->imageFor($get('url'));
+                                                $image = app(ReferenceImageCapture::class)->capture($get('url'));
 
                                                 if ($image !== null) {
                                                     $set('preview_image_url', $image);

@@ -20,7 +20,7 @@ use App\Models\WinningIdea;
 use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\RefineContext;
 use App\Support\Ai\ScriptContext;
-use App\Support\LinkPreview;
+use App\Support\ReferenceImageCapture;
 use App\Support\Rum;
 use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
@@ -293,7 +293,8 @@ class PieceComposer extends Component
 
     public function fetchPreview(): void
     {
-        $image = app(LinkPreview::class)->imageFor($this->postUrl);
+        // Guardamos una copia PERSISTENTE (la URL remota de la red social caduca).
+        $image = app(ReferenceImageCapture::class)->capture($this->postUrl);
 
         if ($image !== null) {
             $this->previewImageUrl = $image;

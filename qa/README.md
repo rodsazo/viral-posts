@@ -50,4 +50,5 @@ los tests automáticos (`php artisan test`), no los sustituye: aquí se prueba l
 - Las invitaciones **caducan a los 7 días**.
 - El campo **Formato** y los enums (Estado, Objetivo, etc.) son listas fijas (no editables desde el panel).
 - La **vista previa de posts** de Instagram suele no obtenerse automáticamente (su API lo bloquea); se pega la URL de imagen a mano. TikTok y muchas webs sí funcionan.
+- Al obtener la vista previa **se guarda una copia propia** de la miniatura (reducida) en el disco de marca (`reference-images/`, S3 en producción), no la URL de la red social — esas caducan y dejaban la imagen rota. Para arreglar una imagen ya rota, vuelve a pulsar **"Vista previa"** (re-captura desde el enlace del post).
 - El **RUM** usa una escala fija por factor (**1 / 1.3 / 1.5848**); su rango va de 1.0 a ~10.0. Color: rojo ≤5, amarillo 5–7, verde >7.

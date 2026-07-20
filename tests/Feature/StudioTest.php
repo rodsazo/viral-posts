@@ -15,6 +15,7 @@ use App\Models\User;
 use App\Models\WinningIdea;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -275,10 +276,25 @@ class StudioTest extends TestCase
         $this->assertSame(10.0, $piece->refresh()->rum);
     }
 
-    public function test_fetch_preview_stores_the_image_url(): void
+    public function test_fetch_preview_stores_a_persistent_copy_of_the_image(): void
     {
+        // La URL remota (og:image) caduca; guardamos una copia propia (reference-images/).
+        Storage::fake('public');
+        config(['filesystems.brand_disk' => 'public']);
+
+        $jpeg = (function () {
+            $img = imagecreatetruecolor(800, 500);
+            ob_start();
+            imagejpeg($img);
+            $bytes = (string) ob_get_clean();
+            imagedestroy($img);
+
+            return $bytes;
+        })();
+
         Http::fake([
-            'example.com/*' => Http::response('<meta property="og:image" content="https://example.com/og.jpg">'),
+            'example.com/post/*' => Http::response('<meta property="og:image" content="https://cdn.example.com/og.jpg">'),
+            'cdn.example.com/*' => Http::response($jpeg, 200, ['Content-Type' => 'image/jpeg']),
         ]);
 
         $account = Account::factory()->create();
@@ -288,9 +304,11 @@ class StudioTest extends TestCase
         Livewire::test(PieceComposer::class, ['account' => $account])
             ->call('selectPiece', $piece->id)
             ->set('postUrl', 'https://example.com/post/1')
-            ->call('fetchPreview')
-            ->assertSet('previewImageUrl', 'https://example.com/og.jpg');
+            ->call('fetchPreview');
 
-        $this->assertSame('https://example.com/og.jpg', $piece->refresh()->preview_image_url);
+        $stored = $piece->refresh()->preview_image_url;
+        $this->assertNotNull($stored);
+        $this->assertStringContainsString('reference-images/', $stored);
+        $this->assertCount(1, Storage::disk('public')->files('reference-images'));
     }
 }
