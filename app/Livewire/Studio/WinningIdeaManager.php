@@ -7,10 +7,12 @@ use App\Enums\IdeaStatus;
 use App\Enums\ValidationStatus;
 use App\Enums\ViralMechanism;
 use App\Models\Account;
+use App\Models\ContentPiece;
 use App\Models\HerasTemplate;
 use App\Models\WinningIdea;
 use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
+use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
@@ -147,6 +149,42 @@ class WinningIdeaManager extends Component
         ]);
 
         $this->saved = true;
+    }
+
+    /** Guarda todo de una (los campos autoguardan al salir, pero el botón da confirmación clara). */
+    public function save(): void
+    {
+        if ($this->currentIdea() === null) {
+            return;
+        }
+
+        $this->saveIdea();
+        $this->persistExamples();
+    }
+
+    /**
+     * Piezas de la idea seleccionada en el periodo activo (para el listado de enlaces).
+     *
+     * @return Collection<int, ContentPiece>
+     */
+    #[Computed]
+    public function piecesForIdea(): Collection
+    {
+        if ($this->selectedId === null) {
+            return collect();
+        }
+
+        $activePeriodId = StudioPeriod::id($this->account);
+
+        return $this->account->contentPieces()
+            ->where('winning_idea_id', $this->selectedId)
+            ->when(
+                $activePeriodId !== null,
+                fn ($q) => $q->where('period_id', $activePeriodId),
+                fn ($q) => $q->whereNull('period_id'),
+            )
+            ->orderBy('title')
+            ->get();
     }
 
     public function addExampleUrl(): void

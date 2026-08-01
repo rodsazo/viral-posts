@@ -215,6 +215,43 @@ class WinningIdeaStudioTest extends TestCase
             ->assertDontSee('IDEA CON PIEZAS');
     }
 
+    public function test_editor_lists_pieces_of_the_idea_in_the_active_period(): void
+    {
+        $account = Account::factory()->create();
+        $period = Period::factory()->create(['account_id' => $account->id]);
+        $otherPeriod = Period::factory()->create(['account_id' => $account->id]);
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'MI IDEA']);
+
+        ContentPiece::factory()->create(['account_id' => $account->id, 'winning_idea_id' => $idea->id, 'period_id' => $period->id, 'title' => 'PIEZA DEL PERIODO']);
+        ContentPiece::factory()->create(['account_id' => $account->id, 'winning_idea_id' => $idea->id, 'period_id' => $otherPeriod->id, 'title' => 'PIEZA DE OTRO PERIODO']);
+
+        $this->actingAs($this->member($account));
+        StudioPeriod::set($account, $period->id);
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])
+            ->call('selectIdea', $idea->id)
+            ->assertSee('PIEZA DEL PERIODO')
+            ->assertDontSee('PIEZA DE OTRO PERIODO');
+    }
+
+    public function test_save_button_persists_the_idea(): void
+    {
+        $account = Account::factory()->create();
+        $idea = WinningIdea::factory()->create(['account_id' => $account->id]);
+        $this->actingAs($this->member($account));
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])
+            ->call('selectIdea', $idea->id)
+            ->set('title', 'Título guardado a mano')
+            ->set('concept', 'Estructura del formato')
+            ->call('save')
+            ->assertSet('saved', true);
+
+        $idea->refresh();
+        $this->assertSame('Título guardado a mano', $idea->title);
+        $this->assertSame('Estructura del formato', $idea->concept);
+    }
+
     public function test_manager_only_lists_ideas_from_the_active_brand(): void
     {
         $account = Account::factory()->create();

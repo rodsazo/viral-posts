@@ -72,10 +72,12 @@
                             @if ($saved)
                                 <flux:badge size="sm" color="green" icon="check">Guardado</flux:badge>
                             @endif
-                            <flux:button wire:click="createPieceFromIdea({{ $selectedId }})" variant="primary" size="sm" icon="film">Crear pieza</flux:button>
+                            <flux:button wire:click="createPieceFromIdea({{ $selectedId }})" size="sm" icon="film">Crear pieza</flux:button>
                             @if ($this->canDelete())
                                 <flux:button wire:click="deleteIdea({{ $selectedId }})" wire:confirm="¿Eliminar esta idea ganadora?" variant="subtle" size="sm" icon="trash" />
                             @endif
+                            {{-- Autoguarda al salir de cada campo; este botón guarda todo de una y da confirmación clara. --}}
+                            <flux:button wire:click="save" variant="primary" size="sm" icon="check">Guardar</flux:button>
                         </div>
                     </div>
 
@@ -135,6 +137,34 @@
                             <flux:button wire:click="addExampleUrl" variant="filled" size="sm" icon="plus">Añadir</flux:button>
                         </div>
                     </div>
+                </div>
+
+                {{-- Piezas de esta idea en el periodo activo (enlaces al Composer). --}}
+                <div class="mt-5 flex flex-col gap-3 rounded-xl border border-zinc-200 bg-white p-5 dark:border-zinc-800 dark:bg-zinc-900">
+                    <div class="flex items-center justify-between gap-2">
+                        <flux:heading size="sm" class="flex items-center gap-1.5">
+                            <flux:icon.film variant="micro" class="size-4 text-violet-400" />
+                            Piezas de esta idea · {{ $activePeriod?->name ?? 'Sin periodo' }}
+                        </flux:heading>
+                        <flux:badge size="sm" :color="count($this->piecesForIdea) ? 'violet' : 'zinc'">{{ count($this->piecesForIdea) }}</flux:badge>
+                    </div>
+
+                    @forelse ($this->piecesForIdea as $piece)
+                        <a
+                            href="{{ route('studio.pieces', ['account' => $account, 'piece' => $piece->id]) }}"
+                            wire:navigate
+                            wire:key="piece-{{ $piece->id }}"
+                            class="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 px-3 py-2 transition hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800"
+                        >
+                            <span class="truncate text-sm font-medium">{{ $piece->title }}</span>
+                            <flux:badge size="sm" :color="$piece->status->fluxColor()">{{ $piece->status->getLabel() }}</flux:badge>
+                        </a>
+                    @empty
+                        <flux:text class="text-sm text-zinc-500">
+                            No hay piezas de esta idea en este periodo.
+                            <button type="button" wire:click="createPieceFromIdea({{ $selectedId }})" class="font-medium text-violet-500 hover:underline">Crea una</button>.
+                        </flux:text>
+                    @endforelse
                 </div>
             @else
                 <div class="rounded-xl border border-dashed border-zinc-300 p-10 text-center dark:border-zinc-700">

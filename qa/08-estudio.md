@@ -67,6 +67,8 @@
 - [ ] **Concepto / estructura.** Campo de texto donde se describe el **formato** (estructura, condiciones,
       consideraciones para hacer el video). Autoguarda.
 - [ ] **Ejemplos reales.** Añadir/quitar URLs (Enter o botón **Añadir**). Con ≥1 ejemplo el badge de cabecera pasa a **Validada** (verde); sin ejemplos, **Pendiente de validación** (gris) — **en vivo**.
+- [ ] **Guardar (cabecera).** Los campos autoguardan al salir, pero un botón **Guardar** (arriba a la derecha, junto a *Crear pieza*) guarda todo de una y muestra el badge **Guardado**.
+- [ ] **Piezas de la idea (periodo activo).** Debajo del editor, un panel lista las **piezas de esa idea en el periodo activo** con su estado; cada una **enlaza al Composer** (abre esa pieza). Muestra el periodo y el conteo. Sin piezas: enlace **"Crea una"** (crea una pieza desde la idea y salta al Composer).
 - [ ] **Importadas.** Las ideas traídas desde *Ideas Referenciales* muestran una etiqueta **Importada** (violeta)
       con el referente de origen en el tooltip.
 - [ ] **Campos ocultos (por ahora).** En el editor **no** aparecen **Mecanismo de viralidad** ni **Plantilla Heras**
