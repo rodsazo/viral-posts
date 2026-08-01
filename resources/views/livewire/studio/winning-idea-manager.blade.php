@@ -8,13 +8,27 @@
             </div>
 
             {{-- Filtro por estado --}}
-            <flux:select wire:model.live="filterStatus" size="sm" class="mb-3">
+            <flux:select wire:model.live="filterStatus" size="sm" class="mb-2">
                 <flux:select.option value="">Activas (sin descartadas)</flux:select.option>
                 @foreach ($ideaStatuses as $st)
                     <flux:select.option value="{{ $st->value }}">{{ $st->getLabel() }}</flux:select.option>
                 @endforeach
                 <flux:select.option value="todas">Todas (incl. descartadas)</flux:select.option>
             </flux:select>
+
+            {{-- Filtro por piezas en el periodo activo --}}
+            <flux:select wire:model.live="filterPieces" size="sm" class="mb-2">
+                <flux:select.option value="todas">Con y sin piezas</flux:select.option>
+                <flux:select.option value="con">Con piezas este periodo</flux:select.option>
+                <flux:select.option value="sin">Sin piezas este periodo</flux:select.option>
+            </flux:select>
+
+            {{-- Periodo en el que se cuentan las piezas (el activo de la cabecera). --}}
+            <p class="mb-3 flex items-center gap-1.5 text-xs text-zinc-500">
+                <flux:icon.calendar-days variant="micro" class="size-3.5 text-amber-400" />
+                Piezas contadas en:
+                <span class="font-medium text-zinc-600 dark:text-zinc-300">{{ $activePeriod?->name ?? 'Sin periodo' }}</span>
+            </p>
 
             <div class="flex flex-col gap-1">
                 @forelse ($ideas as $idea)
@@ -31,6 +45,8 @@
                         <span class="truncate text-sm font-medium">{{ $idea->title }}</span>
                         <div class="flex flex-wrap items-center gap-1.5">
                             <flux:badge size="sm" :color="$idea->status->fluxColor()" :icon="$idea->status->icon()">{{ $idea->status->getLabel() }}</flux:badge>
+                            @php($pieceCount = (int) ($pieceCounts[$idea->id] ?? 0))
+                            <flux:badge size="sm" :color="$pieceCount > 0 ? 'violet' : 'zinc'" icon="film" :title="'Piezas en '.($activePeriod?->name ?? 'sin periodo')">{{ $pieceCount }}</flux:badge>
                             <flux:badge size="sm" :color="$idea->validationStatus()->fluxColor()" :icon="$idea->validationStatus()->icon()" :title="$idea->validationStatus()->getLabel()" />
                             @if ($idea->isImported())
                                 <flux:badge size="sm" color="violet" icon="arrow-down-tray" :title="$idea->viralReferent?->name ? 'Importada de '.$idea->viralReferent->name : 'Importada'">Importada</flux:badge>

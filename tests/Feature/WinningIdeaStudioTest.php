@@ -8,8 +8,11 @@ use App\Enums\TeamRole;
 use App\Enums\ValidationStatus;
 use App\Livewire\Studio\WinningIdeaManager;
 use App\Models\Account;
+use App\Models\ContentPiece;
+use App\Models\Period;
 use App\Models\User;
 use App\Models\WinningIdea;
+use App\Support\StudioPeriod;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -184,6 +187,32 @@ class WinningIdeaStudioTest extends TestCase
         Livewire::test(WinningIdeaManager::class, ['account' => $account])
             ->call('deleteIdea', $idea->id);
         $this->assertDatabaseMissing('winning_ideas', ['id' => $idea->id]);
+    }
+
+    public function test_counts_pieces_of_the_active_period_and_filters_by_them(): void
+    {
+        $account = Account::factory()->create();
+        $period = Period::factory()->create(['account_id' => $account->id]);
+        $otherPeriod = Period::factory()->create(['account_id' => $account->id]);
+
+        $withPieces = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA CON PIEZAS']);
+        $withoutPieces = WinningIdea::factory()->create(['account_id' => $account->id, 'title' => 'IDEA SIN PIEZAS']);
+
+        // 2 piezas de la idea en el periodo activo; 1 en otro periodo (no debe contar).
+        ContentPiece::factory()->count(2)->create(['account_id' => $account->id, 'winning_idea_id' => $withPieces->id, 'period_id' => $period->id]);
+        ContentPiece::factory()->create(['account_id' => $account->id, 'winning_idea_id' => $withPieces->id, 'period_id' => $otherPeriod->id]);
+
+        $this->actingAs($this->member($account));
+        StudioPeriod::set($account, $period->id);
+
+        Livewire::test(WinningIdeaManager::class, ['account' => $account])
+            ->assertViewHas('pieceCounts', fn ($counts) => (int) ($counts[$withPieces->id] ?? 0) === 2 && (int) ($counts[$withoutPieces->id] ?? 0) === 0)
+            ->set('filterPieces', 'con')
+            ->assertSee('IDEA CON PIEZAS')
+            ->assertDontSee('IDEA SIN PIEZAS')
+            ->set('filterPieces', 'sin')
+            ->assertSee('IDEA SIN PIEZAS')
+            ->assertDontSee('IDEA CON PIEZAS');
     }
 
     public function test_manager_only_lists_ideas_from_the_active_brand(): void

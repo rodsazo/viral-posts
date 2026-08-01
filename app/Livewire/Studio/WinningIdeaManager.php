@@ -49,6 +49,9 @@ class WinningIdeaManager extends Component
     // Filtro por estado: '' = Activas (oculta descartadas), 'todas' = todas, o un estado concreto.
     public string $filterStatus = '';
 
+    // Filtro por piezas del periodo activo: 'todas' | 'con' | 'sin'. Sin tipar por los selects de Flux.
+    public $filterPieces = 'todas';
+
     public bool $saved = false;
 
     public function mount(Account $account): void
@@ -218,16 +221,41 @@ class WinningIdeaManager extends Component
 
     public function render(): View
     {
+        $activePeriodId = StudioPeriod::id($this->account);
+
+        // Nº de piezas por idea en el periodo activo (para la píldora y el filtro con/sin piezas).
+        $pieceCounts = $this->account->contentPieces()
+            ->when(
+                $activePeriodId !== null,
+                fn ($q) => $q->where('period_id', $activePeriodId),
+                fn ($q) => $q->whereNull('period_id'),
+            )
+            ->whereNotNull('winning_idea_id')
+            ->selectRaw('winning_idea_id, count(*) as total')
+            ->groupBy('winning_idea_id')
+            ->pluck('total', 'winning_idea_id');
+
+        $ideas = $this->account->winningIdeas()
+            // Por defecto ('') ocultamos las descartadas; 'todas' muestra todo; o un estado concreto.
+            ->when($this->filterStatus === '', fn ($q) => $q->where('status', '!=', IdeaStatus::Descartada->value))
+            ->when(! in_array($this->filterStatus, ['', 'todas'], true), fn ($q) => $q->where('status', $this->filterStatus))
+            ->orderBy('title')
+            ->get()
+            // Orden por estado: Fija → Hipótesis → Borrador → Descartada (estable: respeta el título dentro de cada grupo).
+            ->sortBy(fn ($idea) => $idea->status->sortPriority())
+            ->values();
+
+        // Filtro por presencia de piezas en el periodo activo.
+        if ($this->filterPieces === 'con') {
+            $ideas = $ideas->filter(fn ($idea) => (int) ($pieceCounts[$idea->id] ?? 0) > 0)->values();
+        } elseif ($this->filterPieces === 'sin') {
+            $ideas = $ideas->filter(fn ($idea) => (int) ($pieceCounts[$idea->id] ?? 0) === 0)->values();
+        }
+
         return view('livewire.studio.winning-idea-manager', [
-            'ideas' => $this->account->winningIdeas()
-                // Por defecto ('') ocultamos las descartadas; 'todas' muestra todo; o un estado concreto.
-                ->when($this->filterStatus === '', fn ($q) => $q->where('status', '!=', IdeaStatus::Descartada->value))
-                ->when(! in_array($this->filterStatus, ['', 'todas'], true), fn ($q) => $q->where('status', $this->filterStatus))
-                ->orderBy('title')
-                ->get()
-                // Orden por estado: Fija → Hipótesis → Borrador → Descartada (estable: respeta el título dentro de cada grupo).
-                ->sortBy(fn ($idea) => $idea->status->sortPriority())
-                ->values(),
+            'ideas' => $ideas,
+            'pieceCounts' => $pieceCounts,
+            'activePeriod' => StudioPeriod::get($this->account),
             'ideaStatuses' => IdeaStatus::cases(),
             'mechanisms' => ViralMechanism::cases(),
             'herasTemplates' => HerasTemplate::query()->orderBy('name')->get(),

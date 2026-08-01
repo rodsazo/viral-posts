@@ -50,11 +50,16 @@
 > generar la pieza).
 
 - [ ] **Lista + nueva.** Columna izquierda con las ideas de la marca. Cada tarjeta muestra el **título** y, debajo,
-      un tag de **Estado** (Borrador/Hipótesis/Fija/Descartada, con color e icono) y el tag de **validación** (icono
-      verde validada / gris pendiente). **"Nueva idea"** crea y selecciona una (nace en **Borrador**). *(Sin tag ni
+      un tag de **Estado** (Borrador/Hipótesis/Fija/Descartada, con color e icono), una **píldora de piezas** (icono de
+      film + nº de piezas de esa idea **en el periodo activo**; violeta si hay, gris si 0) y el tag de **validación**
+      (icono verde validada / gris pendiente). **"Nueva idea"** crea y selecciona una (nace en **Borrador**). *(Sin tag ni
       filtro de seguidor.)*
+- [ ] **Contador de piezas por periodo.** La píldora de film cuenta las piezas de esa idea **en el periodo activo** de
+      la cabecera (cambiar de periodo recalcula). Un texto bajo los filtros indica en qué periodo se cuentan.
 - [ ] **Filtro por estado.** Un desplegable filtra por estado. Por defecto (**"Activas (sin descartadas)"**) **oculta
       las descartadas**; se puede elegir un estado concreto o **"Todas (incl. descartadas)"**.
+- [ ] **Filtro por piezas.** Un segundo desplegable filtra por presencia de piezas en el periodo activo:
+      **Con y sin piezas** (todas), **Con piezas este periodo**, **Sin piezas este periodo**. Se combina con el filtro de estado.
 - [ ] **Orden por estado.** La lista se ordena **Fija → Hipótesis → Borrador → Descartada** (y por título dentro de
       cada grupo): las probadas (Fijas) salen arriba.
 - [ ] **Estado (editor).** En el editor, un selector **Estado** (Borrador → Hipótesis → Fija/Descartada) **autoguarda**.
