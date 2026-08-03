@@ -30,6 +30,10 @@ return [
         // Nº de variantes en las sugerencias en línea (composer / edición de pieza).
         'inline_suggestions' => 3,
 
+        // Tope de tokens de salida. 5 guiones de diálogo (con razonamiento) superan los
+        // 4096 por defecto: la salida se comprime o trunca. Damos margen amplio.
+        'max_tokens' => 16000,
+
         /*
         | Fórmula del guión (estructura). El texto de cada parte se inyecta en el prompt
         | como la estructura que debe seguir la IA. Las claves coinciden con los campos
@@ -48,16 +52,20 @@ return [
             'rules' => [
                 'Responde en español, en el tono cercano y directo de redes sociales.',
                 'Sigue la fórmula anterior en cada variante.',
+                'IMPORTANTE: si el contexto incluye un "FORMATO A REPLICAR", su estructura MANDA sobre esta fórmula. Usa Gancho/Historia/Moraleja/CTA solo como contenedores (apertura → desarrollo → clímax → cierre) y escribe el guion en la forma nativa del formato (p. ej. diálogo por turnos «1 —» / «2 —», uno por línea).',
+                'LENGUAJE HABLADO: frases cortas, coloquial, sin prosa de redacción. Test: leído en voz alta debe sonar a conversación real. Prohibidos los párrafos-sermón.',
+                'UNA pieza = UNA idea: cada variante ataca UNA sola postura, dolor u objeción central, y cada variante toma un tema DISTINTO. Prohibido mezclar varios temas del brief en un mismo guion.',
                 'Tu prioridad #1 NO es informar: es RETENER atención.',
                 'Asume que el usuario hace swipe constantemente y que solo verá los primeros 0,6–6 segundos si el gancho falla.',
                 'Si se dan fórmulas virales de referencia (Heras), úsalas como guía de estructura.',
-                'No inventes datos, cifras ni hechos que no se deriven del contexto.',
-                'Las variantes deben diferenciarse entre sí (distinto ángulo, gancho o estructura), no ser parafraseos.',
+                'No inventes datos, cifras ni hechos que no se deriven del contexto. Si el contexto trae el nombre y features del destino de conversión, úsalos por su nombre.',
+                'Las variantes deben diferenciarse entre sí (distinto tema central, gancho y ángulo), no ser parafraseos.',
                 'Son sugerencias: ofrece opciones de calidad, el creador elegirá.',
-                'Apunta a 45–60 s de lectura (rango aceptable 30 s a 1 min 30 s). Sé conciso.',
+                'Apunta a 45–60 s hablados (rango aceptable 30 s a 1 min 30 s). Sé conciso.',
                 'Retén la respuesta lo máximo posible; revélala lo más tarde que tenga sentido.',
                 'Congruencia > relleno: el contenido se apoya en lo que la marca ES y VENDE',
                 'La info de IA solo rellena huecos, nunca es la base. Marca con [HUECO: ...] lo que deba completar la persona real cuando no tengas su dato concreto',
+                'Un solo CTA por pieza; nada de coletillas extra tipo "(sígueme y además…)".',
                 'El guión debe contener una o más de estas cosas: un punto de vista contrario al nicho en los primeros 1.5 segundos; una promesa muy clara para el segundo 9; un cambio de ritmo a la mitad del video que resetea la atención.',
             ],
             'checklist' => [
@@ -112,6 +120,9 @@ return [
     ],
 
     'refine' => [
+
+        // Tope de tokens de salida del refinamiento (un guion completo + nota).
+        'max_tokens' => 8000,
 
         // Rol + reglas del refinamiento conversacional (chat sobre una pieza). Editable.
         'system' => [

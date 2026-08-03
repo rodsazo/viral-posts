@@ -14,15 +14,15 @@ class ScriptVariant implements StructuredOutputModel
 {
     use StructuredOutputModelTrait;
 
-    #[Constrained(description: 'Gancho: 1-2 frases que detienen el scroll y abren un bucle de curiosidad.')]
+    #[Constrained(description: 'Gancho: la apertura que detiene el scroll en 0-3 s. En formatos de diálogo: el primer turno del escéptico + la primera respuesta firme (turnos «1 —» / «2 —», uno por línea).')]
     public string $hook;
 
-    #[Constrained(description: 'Historia: el desarrollo principal, concreto y en primera persona. 3-6 frases.')]
+    #[Constrained(description: 'Historia: el desarrollo del guion. En formatos de diálogo: los turnos intermedios (la escalera de objeciones), escritos como «1 —» / «2 —», uno por línea, turnos cortos.')]
     public string $story;
 
-    #[Constrained(description: 'Moraleja: la lección o reencuadre que refuerza las verdades y desmiente los mitos.')]
+    #[Constrained(description: 'Moraleja: el clímax que demuestra experticia. En formatos de diálogo: la analogía desbloqueadora y la resolución de la última barrera (turnos «1 —» / «2 —»).')]
     public string $moral;
 
-    #[Constrained(description: 'CTA: llamada a la acción clara y específica para el espectador.')]
+    #[Constrained(description: 'CTA: cierre con UNA sola llamada a la acción. En formatos de diálogo: los turnos finales (la conversión del escéptico) y, en línea aparte, «CTA en pantalla: …».')]
     public string $cta;
 }

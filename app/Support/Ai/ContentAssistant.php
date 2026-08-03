@@ -42,6 +42,7 @@ class ContentAssistant
             system: $this->scriptSystemPrompt($max),
             messages: [['role' => 'user', 'content' => $context->toPrompt()]],
             format: ScriptVariantSet::class,
+            maxTokens: (int) config('ai.script.max_tokens', 16000),
         );
 
         $variants = array_slice($set->variants ?? [], 0, $max);
@@ -261,6 +262,7 @@ class ContentAssistant
             system: $system,
             messages: $context->toMessages(),
             format: ScriptRefinement::class,
+            maxTokens: (int) config('ai.refine.max_tokens', 8000),
         );
 
         return [

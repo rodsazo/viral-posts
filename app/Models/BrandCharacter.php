@@ -205,7 +205,20 @@ class BrandCharacter extends Model
             $lines[] = "- Voz: {$voice}";
         }
         if (filled($this->verbal_signature)) {
-            $lines[] = "- Firma verbal de cierre: {$this->verbal_signature}";
+            $lines[] = "- Firma verbal de cierre: {$this->verbal_signature} (úsala solo si suena natural en la pieza; no la repitas mecánicamente)";
+        }
+
+        // Conversión: sin esto, la IA no sabe el nombre del destino ni sus features
+        // reales y termina escribiendo [HUECO: nombre de la plataforma].
+        if (filled($this->conversion_destination)) {
+            $lines[] = "- Destino de conversión (nómbralo por su nombre): {$this->conversion_destination}";
+        }
+
+        if (filled($this->valid_ctas)) {
+            $lines[] = '- Acciones/features REALES del destino (usa SOLO estas, no inventes otras):';
+            foreach ($this->valid_ctas as $cta) {
+                $lines[] = "  · {$cta}";
+            }
         }
 
         if (filled($this->coherence_rules)) {

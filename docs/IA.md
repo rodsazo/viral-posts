@@ -53,7 +53,8 @@ que los demás casos. `ContentAssistant::refineScript()` construye `RefineContex
 
 ### Conocimiento viral: principios rectores + formatos (en código)
 
-Dos catálogos **gestionados en código** en [`config/viral.php`](../config/viral.php), leídos por `App\Support\Ai\ViralCatalog`:
+Dos catálogos **gestionados en código** como clases independientes en [`app/Viral/`](../app/Viral) (una por archivo),
+registradas y leídas por `App\Support\Ai\ViralCatalog`. Añadir una guía o formato = crear la clase + registrarla en el catálogo:
 
 - **Principios rectores** (`principles.guides`): guías **versionables** (p. ej. `heras-2026` → "Víctor Heras 2026"; a futuro
   "Víctor Heras 2025", "Álvaro Guijón 2026"…). Se elige **una** al generar.

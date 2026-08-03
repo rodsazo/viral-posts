@@ -2,16 +2,40 @@
 
 namespace App\Support\Ai;
 
-use App\Enums\ContentFormat;
+use App\Viral\Format;
+use App\Viral\Formats;
+use App\Viral\Principles\VictorHeras2026;
+use App\Viral\PrinciplesGuide;
+use App\Viral\Subformat;
 
 /**
- * Lee el catálogo de conocimiento viral (config/viral.php): principios rectores
- * (versionables) y formatos/subformatos (indexados por el valor de ContentFormat).
- * Expone las opciones para los selects y los fragmentos de instrucciones que se
- * inyectan en el prompt de generación/refinamiento de guiones.
+ * Catálogo de conocimiento viral: principios rectores (guías versionables) y formatos/
+ * subformatos, definidos como CLASES independientes en app/Viral (una por archivo).
+ * Añadir una guía o formato = crear la clase + registrarla aquí. Expone las opciones
+ * para los selects y los fragmentos de instrucciones que se inyectan en el prompt.
  */
 class ViralCatalog
 {
+    /** @var array<int, class-string<PrinciplesGuide>> */
+    private const GUIDES = [
+        VictorHeras2026::class,
+    ];
+
+    /** @var array<int, class-string<Format>> */
+    private const FORMATS = [
+        Formats\Personajes::class,
+        Formats\Rankings::class,
+        Formats\Selfie::class,
+        Formats\HablandoACamara::class,
+        Formats\HablandoACamaraVisual::class,
+        Formats\Pov::class,
+        Formats\Podcast::class,
+        Formats\Puv::class,
+        Formats\Entrevista::class,
+        Formats\Vlog::class,
+        Formats\DocumentalReto::class,
+    ];
+
     // ── Principios rectores ─────────────────────────────────────────────────────
 
     /**
@@ -21,37 +45,29 @@ class ViralCatalog
      */
     public function principlesOptions(): array
     {
-        return collect((array) config('viral.principles.guides', []))
-            ->map(fn ($guide): string => (string) ($guide['label'] ?? ''))
-            ->filter()
-            ->all();
+        return collect($this->guides())->map(fn (PrinciplesGuide $g): string => $g->label())->all();
     }
 
     public function isValidPrinciples(?string $key): bool
     {
-        return $key !== null && array_key_exists($key, (array) config('viral.principles.guides', []));
+        return $key !== null && array_key_exists($key, $this->guides());
     }
 
     /** Instrucciones de la guía de principios elegida (null si no hay o no existe). */
     public function principlesInstructions(?string $key): ?string
     {
-        if (! $this->isValidPrinciples($key)) {
+        $guide = $this->guides()[$key] ?? null;
+
+        if ($guide === null) {
             return null;
         }
 
-        $text = trim((string) config("viral.principles.guides.{$key}.instructions", ''));
+        $text = trim($guide->instructions());
 
         return $text !== '' ? $text : null;
     }
 
     // ── Formatos y subformatos ──────────────────────────────────────────────────
-
-    private function formatExists(?string $formatValue): bool
-    {
-        return $formatValue !== null
-            && ContentFormat::tryFrom($formatValue) !== null
-            && is_array(config("viral.formats.{$formatValue}"));
-    }
 
     public function hasSubformats(?string $formatValue): bool
     {
@@ -65,45 +81,80 @@ class ViralCatalog
      */
     public function subformatOptions(?string $formatValue): array
     {
-        if (! $this->formatExists($formatValue)) {
-            return [];
-        }
-
-        return collect((array) config("viral.formats.{$formatValue}.subformats", []))
-            ->map(fn ($sub): string => (string) ($sub['label'] ?? ''))
-            ->filter()
+        return collect($this->subformatsOf($formatValue))
+            ->map(fn (Subformat $s): string => $s->label())
             ->all();
     }
 
     public function isValidSubformat(?string $formatValue, ?string $subformatKey): bool
     {
-        return $subformatKey !== null && array_key_exists($subformatKey, $this->subformatOptions($formatValue));
+        return $subformatKey !== null && array_key_exists($subformatKey, $this->subformatsOf($formatValue));
     }
 
     /**
      * Guía de formato para el prompt: instrucciones del formato principal + (si aplica)
-     * las del subformato elegido. Null si no hay formato con instrucciones.
+     * las del subformato elegido. Null si el formato no está en el catálogo.
      */
     public function formatGuide(?string $formatValue, ?string $subformatKey = null): ?string
     {
-        if (! $this->formatExists($formatValue)) {
+        $format = $formatValue !== null ? ($this->formats()[$formatValue] ?? null) : null;
+
+        if ($format === null) {
             return null;
         }
 
-        $parts = [];
+        $parts = [trim($format->instructions())];
 
-        $main = trim((string) config("viral.formats.{$formatValue}.instructions", ''));
-        if ($main !== '') {
-            $parts[] = $main;
+        $subformat = $this->subformatsOf($formatValue)[$subformatKey] ?? null;
+        if ($subformat !== null) {
+            $parts[] = trim($subformat->instructions());
         }
 
-        if ($this->isValidSubformat($formatValue, $subformatKey)) {
-            $sub = trim((string) config("viral.formats.{$formatValue}.subformats.{$subformatKey}.instructions", ''));
-            if ($sub !== '') {
-                $parts[] = $sub;
-            }
-        }
+        $parts = array_values(array_filter($parts, fn (string $p): bool => $p !== ''));
 
         return filled($parts) ? implode("\n\n", $parts) : null;
+    }
+
+    // ── Registro ────────────────────────────────────────────────────────────────
+
+    /** @return array<string, PrinciplesGuide> */
+    private function guides(): array
+    {
+        $out = [];
+        foreach (self::GUIDES as $class) {
+            $guide = new $class;
+            $out[$guide->key()] = $guide;
+        }
+
+        return $out;
+    }
+
+    /** @return array<string, Format> */
+    private function formats(): array
+    {
+        $out = [];
+        foreach (self::FORMATS as $class) {
+            $format = new $class;
+            $out[$format->key()] = $format;
+        }
+
+        return $out;
+    }
+
+    /** @return array<string, Subformat> */
+    private function subformatsOf(?string $formatValue): array
+    {
+        $format = $formatValue !== null ? ($this->formats()[$formatValue] ?? null) : null;
+
+        if ($format === null) {
+            return [];
+        }
+
+        $out = [];
+        foreach ($format->subformats() as $subformat) {
+            $out[$subformat->key()] = $subformat;
+        }
+
+        return $out;
     }
 }

@@ -56,7 +56,7 @@ class PieceComposer extends Component
 
     public ?string $format = null;
 
-    // Conocimiento viral opcional (claves del catálogo en código, config/viral.php).
+    // Conocimiento viral opcional (claves del catálogo en código, app/Viral).
     // Sin tipar por los selects de Flux. El "formato principal" es $format.
     public $viralPrinciplesKey = null;
 

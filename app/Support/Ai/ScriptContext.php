@@ -211,7 +211,7 @@ class ScriptContext
 
         if (filled($this->questions)) {
             $lines[] = '';
-            $lines[] = 'Preguntas de la audiencia que el guión debe responder. Para cada guión puedes elegir una o varias. Trata de repartirlas equitativamente:';
+            $lines[] = 'Preguntas de la audiencia (material disponible — elige UNA como eje por guion y profundiza; reparte las demás entre variantes DISTINTAS, nunca las metas todas en un mismo guion):';
             foreach ($this->questions as $q) {
                 $lines[] = "- {$q}";
             }
@@ -227,7 +227,7 @@ class ScriptContext
 
         if (filled($this->pains)) {
             $lines[] = '';
-            $lines[] = 'Dolores, problemas y deseos del seguidor que el guión debe tocar (conecta con ellos):';
+            $lines[] = 'Dolores, problemas y deseos del seguidor (diagnóstico, NO diálogo: elige UNO como eje emocional por guion y conviértelo en una situación concreta contada como habla la gente; nunca cites estas frases tal cual):';
             foreach ($this->pains as $p) {
                 $lines[] = "- {$p}";
             }
