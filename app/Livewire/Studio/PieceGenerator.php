@@ -18,6 +18,7 @@ use App\Models\ViralReferent;
 use App\Models\WinningIdea;
 use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\ScriptContext;
+use App\Support\Ai\ViralCatalog;
 use App\Support\StudioPeriod;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
@@ -45,6 +46,11 @@ class PieceGenerator extends Component
     public ?string $objective = null;
 
     public ?string $format = null;
+
+    // Conocimiento viral opcional (claves del catálogo en código). Sin tipar por Flux.
+    public $viralPrinciplesKey = null;
+
+    public $viralSubformatKey = null;
 
     public ?string $instructions = null;
 
@@ -96,6 +102,14 @@ class PieceGenerator extends Component
     public function aiEnabled(): bool
     {
         return app(ContentAssistant::class)->isConfigured();
+    }
+
+    /** Al cambiar el formato, descarta un subformato que ya no le pertenece. */
+    public function updatedFormat(): void
+    {
+        if (! app(ViralCatalog::class)->isValidSubformat($this->format, $this->viralSubformatKey)) {
+            $this->viralSubformatKey = null;
+        }
     }
 
     /** Al cambiar de seguidor, reinicia la idea (sus ideas se filtran) y el contexto manual. */
@@ -194,6 +208,9 @@ class PieceGenerator extends Component
         $context->hooks = $this->hookLines();
         $context->ctas = $this->ctaLines();
         $context->characterContext = $this->selectedCharacter()?->toPromptContext();
+        $catalog = app(ViralCatalog::class);
+        $context->principlesInstructions = $catalog->principlesInstructions($this->viralPrinciplesKey);
+        $context->formatGuide = $catalog->formatGuide($this->format, $this->viralSubformatKey);
 
         $generation = AiGeneration::create([
             'account_id' => $this->account->getKey(),
@@ -256,6 +273,8 @@ class PieceGenerator extends Component
                 'title' => count($indices) > 1 ? "{$base} — variante {$position}" : $base,
                 'objective' => $this->objective ?: null,
                 'format' => $this->format ?: null,
+                'viral_principles_key' => $this->viralPrinciplesKey ?: null,
+                'viral_subformat_key' => $this->viralSubformatKey ?: null,
                 'status' => ContentStatus::Borrador->value,
                 'hook' => $fields['hook'] ?? null,
                 'story' => $fields['story'] ?? null,
@@ -460,6 +479,8 @@ class PieceGenerator extends Component
                 ->get(),
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
             'characters' => $this->account->brandCharacters()->orderBy('name')->get(),
+            'principlesOptions' => app(ViralCatalog::class)->principlesOptions(),
+            'subformatOptions' => app(ViralCatalog::class)->subformatOptions($this->format),
             // Ganchos de la marca + los globales de referencia (account_id nulo).
             'hooks' => HookTemplate::query()
                 ->with('viralReferent')

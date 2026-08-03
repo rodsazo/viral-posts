@@ -51,6 +51,20 @@ idea + audiencia + borrador base) se marca con **prompt caching** (`CacheControl
 que los demás casos. `ContentAssistant::refineScript()` construye `RefineContext` → `toSystem()` (bloque cacheado)
 + `toMessages()` (user/assistant + instrucción).
 
+### Conocimiento viral: principios rectores + formatos (en código)
+
+Dos catálogos **gestionados en código** en [`config/viral.php`](../config/viral.php), leídos por `App\Support\Ai\ViralCatalog`:
+
+- **Principios rectores** (`principles.guides`): guías **versionables** (p. ej. `heras-2026` → "Víctor Heras 2026"; a futuro
+  "Víctor Heras 2025", "Álvaro Guijón 2026"…). Se elige **una** al generar.
+- **Formatos** (`formats`): fórmulas virales con estructura, **indexadas por el valor del enum `ContentFormat`** (el "Formato
+  principal" que ya elige la pieza — reutilizado, no duplicado). Cada uno puede tener **subformatos** (sin versiones), p. ej.
+  `personajes → esceptico-convencido`. La etiqueta del formato la da el enum; aquí solo van estructura y subformatos.
+
+Ambos son **opcionales** y se **inyectan en el prompt** de generación (Composer inline, generador de piezas) y de refinamiento
+(chat del guión): `ScriptContext`/`RefineContext` reciben `principlesInstructions` + `formatGuide`. Si no se eligen, no se añade
+nada. La pieza recuerda la elección en `viral_principles_key` + `viral_subformat_key` (el formato principal en `format`).
+
 ### Configuración editable
 
 Todo el prompt es afinable desde [`config/ai.php`](../config/ai.php) **sin tocar código**:

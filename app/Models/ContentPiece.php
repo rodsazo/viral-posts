@@ -30,6 +30,8 @@ class ContentPiece extends Model
         'title',
         'objective',
         'format',
+        'viral_principles_key',
+        'viral_subformat_key',
         'status',
         'hook',
         'story',

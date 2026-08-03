@@ -44,6 +44,9 @@ class ScriptContext
         public array $ctas = [],
         // Personaje de marca (ya renderizado con BrandCharacter::toPromptContext()).
         public ?string $characterContext = null,
+        // Principios rectores de viralidad (guía elegida) y guía del formato/subformato.
+        public ?string $principlesInstructions = null,
+        public ?string $formatGuide = null,
     ) {}
 
     public static function fromPiece(ContentPiece $piece): self
@@ -173,6 +176,11 @@ class ScriptContext
             $lines[] = '';
         }
 
+        if (filled($this->principlesInstructions)) {
+            $lines[] = $this->principlesInstructions;
+            $lines[] = '';
+        }
+
         if (filled($this->title)) {
             $lines[] = "Título de trabajo: {$this->title}";
         }
@@ -193,6 +201,12 @@ class ScriptContext
         }
         if (filled($this->format)) {
             $lines[] = "Formato: {$this->format}";
+        }
+
+        if (filled($this->formatGuide)) {
+            $lines[] = '';
+            $lines[] = 'FORMATO A REPLICAR (estructura y recomendaciones — síguelas):';
+            $lines[] = $this->formatGuide;
         }
 
         if (filled($this->questions)) {

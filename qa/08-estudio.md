@@ -173,7 +173,12 @@
 - [ ] **Filtro por estado.** Sobre la lista, un desplegable **"Todos los estados"** filtra las piezas por estado
       (Borrador, Planificación, …). Sin piezas en ese estado: "No hay piezas en este estado".
 - [ ] **Título y Estado siempre visibles.** El **Título de trabajo** y el **Estado** están arriba, fuera de las pestañas (visibles en todo momento).
-- [ ] **Pestañas.** El resto se agrupa en pestañas: **Datos básicos** (idea, seguidor, periodo, objetivo/formato/calificación), **Guión** (4 campos + botón IA), **Asistente** (chat de IA — solo si hay clave configurada), **RUM** (los 5 factores con sus textos guía + badge), **Producción**. La pestaña activa se resalta; cambiar de pestaña **no** pierde lo escrito.
+- [ ] **Pestañas.** El resto se agrupa en pestañas: **Datos básicos** (idea, seguidor, periodo, personaje, principios rectores, objetivo/formato/subformato/calificación), **Guión** (4 campos + botón IA), **Asistente** (chat de IA — solo si hay clave configurada), **RUM** (los 5 factores con sus textos guía + badge), **Producción**. La pestaña activa se resalta; cambiar de pestaña **no** pierde lo escrito.
+- [ ] **Guía de IA (principios + formato + subformato).** En **Datos básicos**, tres selectores **opcionales** afinan la
+      generación con IA: **Principios rectores** (guía versionable, p. ej. *Víctor Heras 2026*), **Formato** (fórmula viral) y
+      **Subformato** (solo aparece si el formato elegido tiene subformatos; p. ej. *Personajes → Diálogo escéptico ↔ convencido*).
+      Al cambiar de formato, un subformato incompatible se **descarta** solo. Se **recuerdan** en la pieza y se aplican tanto a
+      **Sugerir guión** como al **chat del Asistente**. Si no eliges nada, no se añade nada al prompt.
 - [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, **Notas para el cliente**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
 - [ ] **Enlace para el cliente.** En la pestaña **Producción**, un bloque violeta muestra la **URL pública** de la pieza con botones **Copiar** (cambia a "¡Copiado!") y **Abrir** (nueva pestaña). Solo aparece con una pieza seleccionada.
 - [ ] **Botón Compartir (cabecera).** En la cabecera del Composer, entre **Eliminar** y **Guardar**, un botón **Compartir** copia la URL pública al portapapeles (cambia a "¡Copiado!" ~1,5 s). Solo aparece con una pieza seleccionada.

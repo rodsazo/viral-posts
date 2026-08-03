@@ -12,6 +12,8 @@ enum ContentFormat: string implements HasLabel
     case Puv = 'puv';
     case Pov = 'pov';
     case Personajes = 'personajes';
+    case Rankings = 'rankings';
+    case Podcast = 'podcast';
     case Vlog = 'vlog';
     case DocumentalReto = 'documental_reto';
     case HablandoACamaraVisual = 'hablando_a_camara_visual';
@@ -25,6 +27,8 @@ enum ContentFormat: string implements HasLabel
             self::Puv => 'PUV',
             self::Pov => 'POV',
             self::Personajes => 'Personajes',
+            self::Rankings => 'Rankings',
+            self::Podcast => 'Podcast',
             self::Vlog => 'Vlog',
             self::DocumentalReto => 'Documental / Reto',
             self::HablandoACamaraVisual => 'Hablando a cámara (visual)',

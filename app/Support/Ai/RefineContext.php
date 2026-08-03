@@ -42,6 +42,9 @@ class RefineContext
         public array $history = [],
         // Personaje de marca (ya renderizado con BrandCharacter::toPromptContext()).
         public ?string $characterContext = null,
+        // Principios rectores (guía elegida) y guía del formato/subformato.
+        public ?string $principlesInstructions = null,
+        public ?string $formatGuide = null,
     ) {}
 
     /**
@@ -81,6 +84,17 @@ class RefineContext
         if (filled($this->characterContext)) {
             $lines[] = '';
             $lines[] = $this->characterContext;
+        }
+
+        if (filled($this->principlesInstructions)) {
+            $lines[] = '';
+            $lines[] = $this->principlesInstructions;
+        }
+
+        if (filled($this->formatGuide)) {
+            $lines[] = '';
+            $lines[] = 'FORMATO A REPLICAR (estructura y recomendaciones — síguelas):';
+            $lines[] = $this->formatGuide;
         }
 
         if (filled($this->ideaTitle) || filled($this->ideaConcept)) {

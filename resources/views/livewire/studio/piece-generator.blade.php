@@ -48,10 +48,26 @@
                             <flux:select.option value="{{ $case->value }}">{{ $case->getLabel() }}</flux:select.option>
                         @endforeach
                     </flux:select>
-                    <flux:select wire:model="format" label="Formato" placeholder="Sin formato">
+                    <flux:select wire:model.live="format" label="Formato" placeholder="Sin formato" description="Fórmula viral. Su estructura guía a la IA.">
                         <flux:select.option value="">Sin formato</flux:select.option>
                         @foreach (\App\Enums\ContentFormat::cases() as $case)
                             <flux:select.option value="{{ $case->value }}">{{ $case->getLabel() }}</flux:select.option>
+                        @endforeach
+                    </flux:select>
+                    {{-- Subformato: solo si el formato elegido tiene subformatos en el catálogo. --}}
+                    @if (count($subformatOptions))
+                        <flux:select wire:model.live="viralSubformatKey" label="Subformato" placeholder="Sin subformato">
+                            <flux:select.option value="">Sin subformato</flux:select.option>
+                            @foreach ($subformatOptions as $key => $label)
+                                <flux:select.option value="{{ $key }}">{{ $label }}</flux:select.option>
+                            @endforeach
+                        </flux:select>
+                    @endif
+                    {{-- Principios rectores de viralidad (guía opcional que se inyecta al prompt). --}}
+                    <flux:select wire:model.live="viralPrinciplesKey" label="Principios rectores" placeholder="Sin principios">
+                        <flux:select.option value="">Sin principios</flux:select.option>
+                        @foreach ($principlesOptions as $key => $label)
+                            <flux:select.option value="{{ $key }}">{{ $label }}</flux:select.option>
                         @endforeach
                     </flux:select>
                 </div>

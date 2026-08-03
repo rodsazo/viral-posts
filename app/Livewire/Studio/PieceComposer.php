@@ -20,6 +20,7 @@ use App\Models\WinningIdea;
 use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\RefineContext;
 use App\Support\Ai\ScriptContext;
+use App\Support\Ai\ViralCatalog;
 use App\Support\ReferenceImageCapture;
 use App\Support\Rum;
 use App\Support\StudioPeriod;
@@ -54,6 +55,12 @@ class PieceComposer extends Component
     public ?string $objective = null;
 
     public ?string $format = null;
+
+    // Conocimiento viral opcional (claves del catálogo en código, config/viral.php).
+    // Sin tipar por los selects de Flux. El "formato principal" es $format.
+    public $viralPrinciplesKey = null;
+
+    public $viralSubformatKey = null;
 
     public string $status = 'borrador';
 
@@ -165,7 +172,7 @@ class PieceComposer extends Component
 
         if ($this->pieceId === $id) {
             $this->reset([
-                'pieceId', 'winning_idea_id', 'idealFollowerId', 'periodId', 'brandCharacterId', 'title', 'objective', 'format', 'status', 'rating',
+                'pieceId', 'winning_idea_id', 'idealFollowerId', 'periodId', 'brandCharacterId', 'title', 'objective', 'format', 'viralPrinciplesKey', 'viralSubformatKey', 'status', 'rating',
                 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'publishedAt', 'rumFactors', 'saved',
                 'location', 'equipment', 'people', 'clientNotes',
             ]);
@@ -193,6 +200,8 @@ class PieceComposer extends Component
         $this->title = $piece->title;
         $this->objective = $piece->objective?->value;
         $this->format = $piece->format?->value;
+        $this->viralPrinciplesKey = $piece->viral_principles_key;
+        $this->viralSubformatKey = $piece->viral_subformat_key;
         $this->status = $piece->status->value;
         $this->rating = $piece->rating?->value;
         $this->hookText = $piece->hook;
@@ -219,7 +228,12 @@ class PieceComposer extends Component
     /** Autoguardado: cualquier campo enlazado dispara save(). */
     public function updated(string $name): void
     {
-        $fields = ['winning_idea_id', 'idealFollowerId', 'periodId', 'brandCharacterId', 'title', 'objective', 'format', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
+        // Al cambiar el formato, descarta un subformato que ya no le pertenece.
+        if ($name === 'format' && ! app(ViralCatalog::class)->isValidSubformat($this->format, $this->viralSubformatKey)) {
+            $this->viralSubformatKey = null;
+        }
+
+        $fields = ['winning_idea_id', 'idealFollowerId', 'periodId', 'brandCharacterId', 'title', 'objective', 'format', 'viralPrinciplesKey', 'viralSubformatKey', 'status', 'rating', 'hookText', 'story', 'moral', 'cta', 'postUrl', 'previewImageUrl', 'location', 'equipment', 'people', 'clientNotes'];
 
         if (in_array($name, $fields, true) || str_starts_with($name, 'rumFactors')) {
             $this->save();
@@ -246,6 +260,8 @@ class PieceComposer extends Component
             'title' => trim((string) $this->title) ?: 'Sin título',
             'objective' => $this->objective ?: null,
             'format' => $this->format ?: null,
+            'viral_principles_key' => $this->viralPrinciplesKey ?: null,
+            'viral_subformat_key' => $this->viralSubformatKey ?: null,
             'status' => $this->status ?: ContentStatus::Borrador->value,
             'rating' => $this->rating ?: null,
             'hook' => $this->hookText,
@@ -359,6 +375,10 @@ class PieceComposer extends Component
         $context->extra = $this->aiBrief;
         // Personaje de marca elegido (opcional): habla y piensa en personaje.
         $context->characterContext = $this->selectedCharacter()?->toPromptContext();
+        // Conocimiento viral opcional (principios rectores + formato/subformato).
+        $catalog = app(ViralCatalog::class);
+        $context->principlesInstructions = $catalog->principlesInstructions($this->viralPrinciplesKey);
+        $context->formatGuide = $catalog->formatGuide($this->format, $this->viralSubformatKey);
 
         $generation = AiGeneration::create([
             'account_id' => $this->account->getKey(),
@@ -489,6 +509,8 @@ class PieceComposer extends Component
             baseCta: $this->cta,
             history: $history,
             characterContext: $this->selectedCharacter()?->toPromptContext(),
+            principlesInstructions: app(ViralCatalog::class)->principlesInstructions($this->viralPrinciplesKey),
+            formatGuide: app(ViralCatalog::class)->formatGuide($this->format, $this->viralSubformatKey),
         );
 
         // Persiste el turno del usuario (se ve en el chat de inmediato).
@@ -711,6 +733,8 @@ class PieceComposer extends Component
             'followers' => $this->account->idealFollowers()->orderBy('name')->get(),
             'periods' => $this->account->periods()->latest('id')->get(),
             'characters' => $this->account->brandCharacters()->orderBy('name')->get(),
+            'principlesOptions' => app(ViralCatalog::class)->principlesOptions(),
+            'subformatOptions' => app(ViralCatalog::class)->subformatOptions($this->format),
         ]);
     }
 }
