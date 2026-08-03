@@ -2,6 +2,7 @@
 
 namespace App\Viral\Subformats;
 
+use App\Viral\Reference;
 use App\Viral\Subformat;
 
 /**
@@ -20,6 +21,13 @@ class EscepticoConvencido extends Subformat
     public function label(): string
     {
         return 'Diálogo escéptico ↔ convencido';
+    }
+
+    public function references (): array
+    {
+        return [
+            new Reference('MesasRoleras - Debate GM Pago por Notch', 'https://www.instagram.com/p/DansxJ5R9CS/'),
+        ];
     }
 
     public function instructions(): string
