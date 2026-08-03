@@ -25,4 +25,22 @@ abstract class Format
     {
         return [];
     }
+
+    /**
+     * Referencias virales del formato (posts reales de ejemplo). Se muestran en el
+     * Estudio con el botón "Ver ejemplo". Sobrescribir así:
+     *
+     *     public function references(): array
+     *     {
+     *         return [
+     *             new Reference('Debate GM pagado — El Rod', 'https://www.instagram.com/reel/…'),
+     *         ];
+     *     }
+     *
+     * @return array<int, Reference>
+     */
+    public function references(): array
+    {
+        return [];
+    }
 }

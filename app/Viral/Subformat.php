@@ -17,4 +17,15 @@ abstract class Subformat
 
     /** Instrucciones que se añaden al prompt. */
     abstract public function instructions(): string;
+
+    /**
+     * Referencias virales del subformato (posts reales de ejemplo). Se suman a las del
+     * formato principal en el botón "Ver ejemplo" del Estudio.
+     *
+     * @return array<int, Reference>
+     */
+    public function references(): array
+    {
+        return [];
+    }
 }

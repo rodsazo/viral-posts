@@ -24,6 +24,7 @@ use App\Support\Ai\ViralCatalog;
 use App\Support\ReferenceImageCapture;
 use App\Support\Rum;
 use App\Support\StudioPeriod;
+use App\Viral\Reference;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
@@ -686,6 +687,14 @@ class PieceComposer extends Component
         $piece = $this->account->contentPieces()->whereKey($this->pieceId)->first();
 
         return ($piece && $piece->client_review_status !== ClientReviewStatus::Pending) ? $piece : null;
+    }
+
+    /** Referencias virales (posts de ejemplo) del formato/subformato elegido. */
+    /** @return array<int, Reference> */
+    #[Computed]
+    public function viralReferences(): array
+    {
+        return app(ViralCatalog::class)->referencesFor($this->format, $this->viralSubformatKey);
     }
 
     /** Reels de referencia de la idea ganadora elegida (ejemplos reales, URLs). */

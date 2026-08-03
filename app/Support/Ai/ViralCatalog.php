@@ -6,6 +6,7 @@ use App\Viral\Format;
 use App\Viral\Formats;
 use App\Viral\Principles\VictorHeras2026;
 use App\Viral\PrinciplesGuide;
+use App\Viral\Reference;
 use App\Viral\Subformat;
 
 /**
@@ -35,6 +36,18 @@ class ViralCatalog
         Formats\Vlog::class,
         Formats\DocumentalReto::class,
     ];
+
+    /**
+     * Registros inyectables (para tests). Aceptan class-strings o instancias; por
+     * defecto usan los catálogos de arriba.
+     *
+     * @param  array<int, class-string<PrinciplesGuide>|PrinciplesGuide>|null  $guideRegistry
+     * @param  array<int, class-string<Format>|Format>|null  $formatRegistry
+     */
+    public function __construct(
+        private ?array $guideRegistry = null,
+        private ?array $formatRegistry = null,
+    ) {}
 
     // ── Principios rectores ─────────────────────────────────────────────────────
 
@@ -115,14 +128,38 @@ class ViralCatalog
         return filled($parts) ? implode("\n\n", $parts) : null;
     }
 
+    /**
+     * Referencias virales (posts reales de ejemplo) del formato elegido + las del
+     * subformato, combinadas. Vacío si el formato no está en el catálogo o no hay.
+     *
+     * @return array<int, Reference>
+     */
+    public function referencesFor(?string $formatValue, ?string $subformatKey = null): array
+    {
+        $format = $formatValue !== null ? ($this->formats()[$formatValue] ?? null) : null;
+
+        if ($format === null) {
+            return [];
+        }
+
+        $references = $format->references();
+
+        $subformat = $this->subformatsOf($formatValue)[$subformatKey] ?? null;
+        if ($subformat !== null) {
+            $references = array_merge($references, $subformat->references());
+        }
+
+        return array_values($references);
+    }
+
     // ── Registro ────────────────────────────────────────────────────────────────
 
     /** @return array<string, PrinciplesGuide> */
     private function guides(): array
     {
         $out = [];
-        foreach (self::GUIDES as $class) {
-            $guide = new $class;
+        foreach ($this->guideRegistry ?? self::GUIDES as $entry) {
+            $guide = is_string($entry) ? new $entry : $entry;
             $out[$guide->key()] = $guide;
         }
 
@@ -133,8 +170,8 @@ class ViralCatalog
     private function formats(): array
     {
         $out = [];
-        foreach (self::FORMATS as $class) {
-            $format = new $class;
+        foreach ($this->formatRegistry ?? self::FORMATS as $entry) {
+            $format = is_string($entry) ? new $entry : $entry;
             $out[$format->key()] = $format;
         }
 

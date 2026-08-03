@@ -179,6 +179,10 @@
       **Subformato** (solo aparece si el formato elegido tiene subformatos; p. ej. *Personajes → Diálogo escéptico ↔ convencido*).
       Al cambiar de formato, un subformato incompatible se **descarta** solo. Se **recuerdan** en la pieza y se aplican tanto a
       **Sugerir guión** como al **chat del Asistente**. Si no eliges nada, no se añade nada al prompt.
+- [ ] **Ver ejemplo (referencias del formato).** Si el formato/subformato elegido tiene **referencias virales registradas**
+      (posts reales, en las clases de `app/Viral`), bajo los selectores aparece el botón **"Ver ejemplo"** que abre un modal
+      con la lista (título + enlace, abre en **pestaña nueva**). Sin referencias registradas, el botón **no** aparece.
+      (También en el **generador de piezas**.)
 - [ ] **Producción.** Pestaña con un bloque **"Enlace para el cliente"** (vista pública), **Locación**, **Equipo necesario**, **Personas y personajes**, **Notas para el cliente**, más la **URL publicada** (con vista previa) y **Marcar publicada**.
 - [ ] **Enlace para el cliente.** En la pestaña **Producción**, un bloque violeta muestra la **URL pública** de la pieza con botones **Copiar** (cambia a "¡Copiado!") y **Abrir** (nueva pestaña). Solo aparece con una pieza seleccionada.
 - [ ] **Botón Compartir (cabecera).** En la cabecera del Composer, entre **Eliminar** y **Guardar**, un botón **Compartir** copia la URL pública al portapapeles (cambia a "¡Copiado!" ~1,5 s). Solo aparece con una pieza seleccionada.

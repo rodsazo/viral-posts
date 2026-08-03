@@ -9,6 +9,9 @@ use App\Models\ContentPiece;
 use App\Models\User;
 use App\Support\Ai\ScriptContext;
 use App\Support\Ai\ViralCatalog;
+use App\Viral\Format;
+use App\Viral\Reference;
+use App\Viral\Subformat;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Livewire\Livewire;
 use Tests\TestCase;
@@ -85,6 +88,49 @@ class ViralCatalogTest extends TestCase
         $this->assertSame('heras-2026', $piece->viral_principles_key);
     }
 
+    public function test_references_merge_format_and_subformat(): void
+    {
+        $catalog = new ViralCatalog(formatRegistry: [new FakeReferencedFormat]);
+
+        // Solo formato: sus referencias.
+        $refs = $catalog->referencesFor('selfie');
+        $this->assertCount(1, $refs);
+        $this->assertSame('Ejemplo del formato', $refs[0]->name);
+
+        // Formato + subformato: se combinan.
+        $refs = $catalog->referencesFor('selfie', 'fake-sub');
+        $this->assertCount(2, $refs);
+        $this->assertSame('Ejemplo del subformato', $refs[1]->name);
+        $this->assertSame('https://example.com/sub', $refs[1]->url);
+
+        // Formato sin referencias (catálogo real) o inexistente: vacío.
+        $this->assertSame([], app(ViralCatalog::class)->referencesFor('rankings'));
+        $this->assertSame([], app(ViralCatalog::class)->referencesFor(null));
+    }
+
+    public function test_composer_shows_the_example_button_only_when_references_exist(): void
+    {
+        $account = Account::factory()->create();
+        $piece = ContentPiece::factory()->create(['account_id' => $account->id]);
+        $this->actingAs($this->member($account));
+
+        // Catálogo real: 'rankings' no tiene referencias → sin botón.
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
+            ->set('format', 'rankings')
+            ->assertDontSee('Ver ejemplo');
+
+        // Catálogo con referencias para 'selfie' → botón + modal con el enlace.
+        $this->app->instance(ViralCatalog::class, new ViralCatalog(formatRegistry: [new FakeReferencedFormat]));
+
+        Livewire::test(PieceComposer::class, ['account' => $account])
+            ->call('selectPiece', $piece->id)
+            ->set('format', 'selfie')
+            ->assertSee('Ver ejemplo')
+            ->assertSee('Ejemplo del formato')
+            ->assertSee('https://example.com/formato');
+    }
+
     public function test_changing_format_drops_an_incompatible_subformat(): void
     {
         $account = Account::factory()->create();
@@ -99,5 +145,52 @@ class ViralCatalogTest extends TestCase
             ->assertSet('viralSubformatKey', null);
 
         $this->assertNull($piece->refresh()->viral_subformat_key);
+    }
+}
+
+/** Formato de prueba con referencias (clave real del enum para poder elegirlo en la UI). */
+class FakeReferencedFormat extends Format
+{
+    public function key(): string
+    {
+        return 'selfie';
+    }
+
+    public function instructions(): string
+    {
+        return 'Formato de prueba.';
+    }
+
+    public function subformats(): array
+    {
+        return [new FakeReferencedSubformat];
+    }
+
+    public function references(): array
+    {
+        return [new Reference('Ejemplo del formato', 'https://example.com/formato')];
+    }
+}
+
+class FakeReferencedSubformat extends Subformat
+{
+    public function key(): string
+    {
+        return 'fake-sub';
+    }
+
+    public function label(): string
+    {
+        return 'Subformato de prueba';
+    }
+
+    public function instructions(): string
+    {
+        return 'Subformato de prueba.';
+    }
+
+    public function references(): array
+    {
+        return [new Reference('Ejemplo del subformato', 'https://example.com/sub')];
     }
 }

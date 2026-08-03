@@ -20,6 +20,7 @@ use App\Support\Ai\ContentAssistant;
 use App\Support\Ai\ScriptContext;
 use App\Support\Ai\ViralCatalog;
 use App\Support\StudioPeriod;
+use App\Viral\Reference;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -110,6 +111,14 @@ class PieceGenerator extends Component
         if (! app(ViralCatalog::class)->isValidSubformat($this->format, $this->viralSubformatKey)) {
             $this->viralSubformatKey = null;
         }
+    }
+
+    /** Referencias virales (posts de ejemplo) del formato/subformato elegido. */
+    /** @return array<int, Reference> */
+    #[Computed]
+    public function viralReferences(): array
+    {
+        return app(ViralCatalog::class)->referencesFor($this->format, $this->viralSubformatKey);
     }
 
     /** Al cambiar de seguidor, reinicia la idea (sus ideas se filtran) y el contexto manual. */

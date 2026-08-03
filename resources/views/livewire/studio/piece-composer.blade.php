@@ -211,6 +211,15 @@
                                 @endforeach
                             </flux:select>
                         </div>
+
+                        {{-- Referencias virales del formato/subformato elegido (solo si hay registradas). --}}
+                        @if (count($this->viralReferences))
+                            <div>
+                                <flux:modal.trigger name="viral-references">
+                                    <flux:button size="sm" variant="subtle" icon="play-circle">Ver ejemplo</flux:button>
+                                </flux:modal.trigger>
+                            </div>
+                        @endif
                     </div>
 
                     {{-- Pestaña: Guión --}}
@@ -478,6 +487,29 @@
             </div>
         </section>
     @endif
+
+    {{-- Referencias virales del formato/subformato: posts reales de ejemplo. --}}
+    <flux:modal name="viral-references" class="md:w-96">
+        <div class="space-y-4">
+            <div>
+                <flux:heading size="lg">Ejemplos del formato</flux:heading>
+                <flux:subheading>Posts reales que ejemplifican el formato/subformato elegido.</flux:subheading>
+            </div>
+            <div class="flex flex-col gap-2">
+                @foreach ($this->viralReferences as $reference)
+                    <a
+                        href="{{ $reference->url }}"
+                        target="_blank"
+                        rel="noopener"
+                        class="flex items-center justify-between gap-2 rounded-lg border border-zinc-200 px-3 py-2 transition hover:bg-zinc-50 dark:border-zinc-700 dark:hover:bg-zinc-800"
+                    >
+                        <span class="truncate text-sm font-medium">{{ $reference->name }}</span>
+                        <flux:icon.arrow-top-right-on-square variant="micro" class="size-4 shrink-0 text-violet-400" />
+                    </a>
+                @endforeach
+            </div>
+        </div>
+    </flux:modal>
 
     {{-- Patrón de sugerencias IA: hasta 3 alternativas; aplicar solo al elegir. --}}
     <flux:modal name="script-suggestions" class="md:w-[42rem]">
